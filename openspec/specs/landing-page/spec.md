@@ -15,6 +15,8 @@ The landing page (route `#/`) SHALL display the title "How LLMs Actually Work", 
 ### Requirement: Interactive Network Map
 The landing page canvas SHALL display all 8 plateau nodes with labels and all edges, using the positions defined in graph-data. Visited nodes SHALL render with dark fill; unvisited nodes SHALL render as outlines. Nodes SHALL be clickable — clicking navigates to the corresponding plateau. Click detection SHALL use distance-to-node hit testing with a 22px radius. The cursor SHALL change to pointer on hover over a node.
 
+The canvas SHALL have a DOM accessibility layer: a set of anchor elements (one per node) positioned absolutely over their canvas locations. Each anchor SHALL have `aria-label` text including the plateau title and visited status (e.g., "The Next Word, visited"). These anchors provide keyboard tab-order and screen-reader access. The footer note SHALL read "Click or tab to any node to begin." The canvas itself SHALL have `role="img"` and an `aria-label` describing it as a navigation map.
+
 #### Scenario: Node click navigates to plateau
 - **WHEN** the user clicks the "Next Word" node on the landing map
 - **THEN** the application navigates to `#/next-word`
@@ -31,6 +33,10 @@ The landing page canvas SHALL display all 8 plateau nodes with labels and all ed
 - **WHEN** the viewport is narrower than 460px
 - **THEN** the canvas scales down proportionally to fit within the viewport
 
-#### Scenario: Map node is keyboard accessible
-- **WHEN** the user tabs to the map and uses arrow keys or tab to select a node, then presses Enter
+#### Scenario: Map node is keyboard accessible via DOM anchors
+- **WHEN** the user tabs through the landing page map
+- **THEN** focus moves sequentially through all 8 node anchors, each announcing the plateau title and visited status
+
+#### Scenario: Map node navigates via keyboard
+- **WHEN** the user focuses a node anchor and presses Enter
 - **THEN** the application navigates to the selected plateau

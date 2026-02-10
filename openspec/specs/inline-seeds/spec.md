@@ -6,7 +6,7 @@ Expandable inline content buttons within step text that reveal additional contex
 ## Requirements
 
 ### Requirement: Seed Toggle Behavior
-Inline seeds SHALL be small interactive elements within step text that toggle between collapsed and expanded states on click. When expanded, a growth zone SHALL animate open to reveal 1–3 sentences of additional context with a left border and indented content. When collapsed, the growth zone SHALL animate closed. Seeds SHALL have a distinct background color (per visual-design palette) to signal interactivity.
+Inline seeds SHALL be small interactive elements within step text that toggle between collapsed and expanded states on click. When expanded, a growth zone SHALL animate open to reveal 1–3 sentences of additional context with a left border and indented content. When collapsed, the growth zone SHALL animate closed. Seeds SHALL have a distinct background color (per visual-design palette) and a subtle dotted underline to signal interactivity — background color alone is insufficient as an affordance. Each seed button SHALL have `aria-expanded` set to `true` or `false` reflecting its current state, and the growth zone SHALL have `aria-hidden` toggled accordingly.
 
 #### Scenario: Seed expands on click
 - **WHEN** the user clicks an inline seed button
@@ -52,4 +52,8 @@ In "The Shaping":
 
 #### Scenario: Seed is discoverable in context
 - **WHEN** the user reads a step containing a seed
-- **THEN** the seed is visually distinguishable from surrounding text via background color
+- **THEN** the seed is visually distinguishable from surrounding text via background color and dotted underline
+
+#### Scenario: Screen reader announces seed state
+- **WHEN** a screen reader encounters a seed button
+- **THEN** it announces the seed label and whether it is expanded or collapsed

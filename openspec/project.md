@@ -49,10 +49,11 @@ Cross-cutting concerns are divided across specs with clear ownership:
 - Design reference: The Pudding's scrollytelling format
 
 ## Important Constraints
-- Must remain a single HTML file
+- Must remain a single HTML file (reconsider if file exceeds ~1500 lines or requires multiple contributors editing simultaneously — at that point, evaluate a lightweight build step that concatenates partials)
 - Zero external JS dependencies
-- Must work without JavaScript for basic content (progressive enhancement goal)
+- JavaScript is required — all DOM is built imperatively via JS. Progressive enhancement is a non-goal given the current architecture; if this changes, it requires a fundamentally different content strategy (static HTML enhanced by JS)
 - Respect `prefers-reduced-motion`
+- Accessibility is an architectural constraint, not a future add-on. Canvas-based elements (landing map, mini-map, overlay) SHALL have a parallel DOM layer for keyboard navigation and screen readers. See navigation spec for details.
 
 ## External Dependencies
 - Google Fonts: Lora (serif body text)

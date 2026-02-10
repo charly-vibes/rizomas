@@ -1,5 +1,9 @@
 # How LLMs Actually Work — Specification v3
 
+> **Snapshot**: Imported from original monolithic spec. The canonical source of truth
+> is now the decomposed OpenSpec specs in `openspec/specs/`. This file is retained
+> as a design artifact for historical context only — do not update it directly.
+
 *Updated to match current build. Replaces all prior specs.*
 
 ---

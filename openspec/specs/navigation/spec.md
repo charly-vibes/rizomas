@@ -66,7 +66,7 @@ The final step's scrolling text side SHALL contain clickable question cards. Eac
 - **THEN** the application navigates to the card's destination plateau
 
 ### Requirement: Rhizome Mini-Map
-A fixed-position canvas element (160x120px) SHALL appear at the bottom-right of the viewport. On the landing page, it SHALL show all 8 nodes and all edges, with visited nodes as dark fill and unvisited as outline. On a plateau, it SHALL show the current node (large, filled) and directly connected nodes only. Clicking the mini-map SHALL open the rhizome overlay. On mobile viewports (per visual-design breakpoints), the mini-map SHALL collapse to a small circle.
+A fixed-position canvas element (160x120px) SHALL appear at the bottom-right of the viewport. On the landing page, it SHALL show all 8 nodes and all edges, with visited nodes as dark fill and unvisited as outline. On a plateau, it SHALL show the current node (large, filled) and directly connected nodes only. Clicking the mini-map SHALL open the rhizome overlay. On mobile viewports (per visual-design breakpoints), the mini-map SHALL collapse to a small circle. The mini-map container SHALL include a focusable button element with `aria-label="Open navigation map"` so keyboard and screen-reader users can activate the overlay without relying on canvas hit-testing.
 
 #### Scenario: Mini-map shows full graph on landing
 - **WHEN** the user is on the landing page
@@ -81,19 +81,33 @@ A fixed-position canvas element (160x120px) SHALL appear at the bottom-right of 
 - **THEN** the rhizome overlay opens
 
 #### Scenario: Mini-map is keyboard accessible
-- **WHEN** the user tabs to the mini-map and presses Enter
+- **WHEN** the user tabs to the mini-map button and presses Enter
 - **THEN** the rhizome overlay opens
 
 ### Requirement: Rhizome Overlay
-A full-screen modal with frosted backdrop SHALL display a larger canvas (max 700x550px) showing all nodes and edges. The navigation trail SHALL be drawn as a faint path connecting visited nodes in chronological order (color defined in visual-design). All nodes SHALL be clickable for navigation. The overlay SHALL close via close button, backdrop click, or Escape key. On viewports smaller than the max canvas size, the canvas SHALL scale down proportionally.
+A full-screen modal with frosted backdrop SHALL display a larger canvas (max 700x550px) showing all nodes and edges. The navigation trail SHALL be drawn as a faint path connecting visited nodes in chronological order (color defined in visual-design). The overlay SHALL close via close button, backdrop click, or Escape key. On viewports smaller than the max canvas size, the canvas SHALL scale down proportionally. The overlay SHALL set `role="dialog"` and `aria-modal="true"`, trap focus within it while open, and return focus to the trigger element on close.
+
+The overlay SHALL include a DOM accessibility layer: a set of visually-hidden anchor elements (one per node, `role="link"`) positioned over their canvas locations. These anchors provide keyboard tab-order and screen-reader announcements (e.g., "Next Word, visited" or "Steering, not visited") without duplicating the visual rendering. All node navigation SHALL work through these anchors rather than canvas click detection alone.
 
 #### Scenario: Overlay shows full graph with trail
 - **WHEN** the user opens the rhizome overlay after visiting 3 plateaus
 - **THEN** all 8 nodes are shown with a trail path connecting the 3 visited nodes in order
 
+#### Scenario: Overlay node is keyboard navigable
+- **WHEN** the user tabs through the overlay
+- **THEN** focus moves sequentially through all 8 node anchors, each announcing the plateau name and visited status
+
+#### Scenario: Overlay node navigates via keyboard
+- **WHEN** the user focuses a node anchor and presses Enter
+- **THEN** the application navigates to that plateau and the overlay closes
+
 #### Scenario: Overlay closes on Escape
 - **WHEN** the user presses the Escape key while the overlay is open
-- **THEN** the overlay closes and returns to the current view
+- **THEN** the overlay closes and focus returns to the mini-map button
+
+#### Scenario: Overlay traps focus
+- **WHEN** the overlay is open and the user tabs past the last focusable element
+- **THEN** focus wraps to the first focusable element within the overlay
 
 #### Scenario: Overlay scales on small viewports
 - **WHEN** the overlay opens on a 500px-wide viewport
