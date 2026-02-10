@@ -1,0 +1,58 @@
+# Project Context
+
+## Purpose
+A collection of 8 interconnected visual essays ("plateaus") explaining how LLMs work, aimed at a general audience. Rhizomatic navigation — any essay can be an entry point, each connects laterally to others. Inspired by Deleuze/Guattari's rhizome structure and Simondon's crystallization metaphor.
+
+## Tech Stack
+- Single HTML file, zero dependencies (Google Fonts only)
+- Vanilla JS — no framework, no build step
+- CSS custom properties for theming
+- Canvas API for network maps
+- IntersectionObserver for scroll-driven interactions
+
+## Project Conventions
+
+### DOM Construction
+- All structural DOM elements built imperatively with `h(tag, attrs, ...children)` helper
+- innerHTML is only permitted for step text content, never for structural elements
+- This is a project-wide convention, not tied to any single capability
+
+### Code Style
+- CSS custom properties prefixed with `--` (e.g., `--paper`, `--ink`)
+- Abbreviated state keys for localStorage compactness (`v`, `tr`, `p`, `t`)
+
+### Architecture Patterns
+- Hash-based SPA routing via `hashchange` listener
+- Reusable `buildScrolly(spec, container)` engine for scrollytelling sections
+- Fixed graph data structure with normalized node positions (0-1)
+- `prefers-reduced-motion` respected on all transitions
+
+### Testing Strategy
+- Manual browser testing (no automated tests currently)
+
+### Git Workflow
+- Single `main` branch
+
+## Spec Ownership Guide
+Cross-cutting concerns are divided across specs with clear ownership:
+- **visual-design** — single source of truth for all colors, breakpoints, focus styles, and motion timings
+- **graph-data** — single source of truth for node IDs, edges, and positions
+- **plateaus** — authoritative for per-plateau content, whisper-step assignments, and question card destinations
+- **navigation** — owns visual behavior of whispers, constellations, pips, cards, mini-map, overlay
+- **scrolly-engine** — owns layout, step observation, and lifecycle hooks; delegates to navigation and plateaus
+
+## Domain Context
+- "Plateaus" = self-contained essay sections (from Deleuze/Guattari)
+- "Whispers" = contextual margin annotations linking to related plateaus
+- "Seeds" = inline expandable content (from Simondon's crystallization metaphor)
+- "Constellation" = radial node map shown at end of each scrolly plateau
+- Design reference: The Pudding's scrollytelling format
+
+## Important Constraints
+- Must remain a single HTML file
+- Zero external JS dependencies
+- Must work without JavaScript for basic content (progressive enhancement goal)
+- Respect `prefers-reduced-motion`
+
+## External Dependencies
+- Google Fonts: Lora (serif body text)

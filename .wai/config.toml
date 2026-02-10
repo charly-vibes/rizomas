@@ -1,0 +1,6 @@
+plugins = []
+
+[project]
+name = "rizomas"
+version = "0.1.0"
+description = ""
