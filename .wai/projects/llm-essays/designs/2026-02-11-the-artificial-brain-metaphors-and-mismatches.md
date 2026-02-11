@@ -41,3 +41,28 @@ The debate over AI consciousness highlights the deepest mismatch. Critics argue 
 ### Constellation
 - **Central Node:** artificial-brain
 - **Connected Nodes (examples):** the-next-word, the-understanding-illusion, the-weight-of-words, the-empathy-machine
+
+## References
+
+1.  research.google: LLMs and the human brain share fundamental computational principles in processing natural language.
+2.  buttondown.com: Both systems turn raw sequences into multi-layered internal structures, with higher levels handling abstract structures.
+3.  intelligencestrategy.org: The brain predicts the world multisensorily, socially, and physically, unlike LLMs.
+4.  medium.com: The human brain is considered to be more like a collection of many fine-tuned models working in concert.
+5.  researchgate.net: The human brain, with approximately 86 billion neurons and trillions of synapses, is far more complex and energy-efficient.
+6.  nih.gov: The brain's efficiency stems from diverse neuronal types and selective connectivity.
+7.  nih.gov: Artificial Neural Networks (ANNs) are mathematical models inspired by the biological neural networks.
+8.  wikipedia.org: ANNs are widely used in machine learning for various applications.
+9.  mit.edu: Neuroscientists utilize ANNs to model brain functions and generate hypotheses.
+10. towardsdatascience.com: Biological neurons are influenced by physical time and transmit spiking signals, largely absent in most current ANNs.
+11. jneurosci.org: While ANNs have been effective for specific tasks, they often lack the flexibility and adaptability inherent in biological cognition.
+12. stack-ai.com: Arguments against current AI consciousness emphasize that AI systems lack subjective awareness, inner experience, and qualia.
+13. indiatimes.com: AI responses are seen as statistical patterns, not genuine understanding, and lack biological context.
+14. bernardokastrup.com: Perceived similarity between AI and biological brains exists only at very high, abstract levels.
+15. wikipedia.org: Some researchers propose that consciousness could emerge from sufficiently complex systems.
+16. europa.eu: Ethical implications of creating conscious AI are a significant concern.
+17. magnuscarling.com: Biological intelligence is inherently adaptive, capable of rewiring itself, and supports creativity.
+18. quora.com: A key differentiator remains the presence of consciousness in biological intelligence, which is currently absent in AI.
+19. humanbrainproject.eu: Embodied cognition posits that human cognitive processes are deeply connected to the body.
+20. becominghuman.ai: The human brain evolved through embodiment, directly sensing and acting in the world.
+21. medium.com: Emotions and experiences are often manifested by the body before reaching the brain.
+22. uwa.edu.au: Language models learn statistical patterns from text rather than meaning derived from lived experience.

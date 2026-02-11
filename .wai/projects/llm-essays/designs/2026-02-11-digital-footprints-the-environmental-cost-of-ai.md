@@ -41,3 +41,29 @@ Addressing the environmental costs of AI is crucial, giving rise to the concept 
 ### Constellation
 - **Central Node:** digital-footprints
 - **Connected Nodes (examples):** the-weight-of-words, what-is-quality, automation-of-cognition, the-tool-user
+
+## References
+
+1.  mit.edu: Training a single large LLM can consume an estimated 1,287 MWh of electricity, roughly equal to 120 U.S. homes' annual consumption.
+2.  adasci.org: Energy demands are influenced by model size, training data volume, and iterative development.
+3.  columbia.edu: Training a single large LLM can consume an estimated 1,287 MWh of electricity.
+4.  climateimpact.com: Training a single large LLM can consume an estimated 1,287 MWh of electricity.
+5.  medium.com: Training a single large LLM can consume an estimated 1,287 MWh of electricity.
+6.  onyxgs.com: High-performance hardware like GPUs and TPUs are power-hungry and contribute significantly to consumption.
+7.  azocleantech.com: Inference can account for 60% to 90% of a model's total lifecycle energy use.
+8.  dal.ca: A single ChatGPT query can consume approximately five to ten times more electricity than a standard web search.
+9.  arxiv.org: Training GPT-3 is estimated to have consumed about 700,000 liters of freshwater.
+10. nea.org: Data centers accounted for 4% of total U.S. electricity consumption in 2023, projected to rise to 7-12% by 2028.
+11. wikipedia.org: The substantial electricity consumption translates directly into a significant carbon footprint, especially when energy is sourced from fossil fuels.
+12. learningtree.co.uk: The substantial electricity consumption translates directly into a significant carbon footprint.
+13. supermicro.com: The substantial electricity consumption translates directly into a significant carbon footprint.
+14. forbes.com: Training a single large AI model can emit hundreds of thousands of pounds of carbon dioxide equivalent.
+15. discovermagazine.com: Data centers consume immense amounts of electricity and water; globally, electricity usage is expected to reach 1,050 TWh by 2026.
+16. lincolninst.edu: Large data centers can consume as much water as a small town or even a city of 50,000 people.
+17. netzeroinsights.com: A significant portion of electricity still comes from fossil fuels.
+18. techtarget.com: Sustainable AI focuses on developing and deploying AI systems to minimize negative environmental consequences.
+19. tosustainableai.com: Sustainable AI focuses on developing and deploying AI systems to minimize negative environmental consequences.
+20. coursera.org: Sustainable AI focuses on developing and deploying AI systems to minimize negative environmental consequences.
+21. tredence.com: Key strategies for Sustainable AI include renewable energy, algorithmic optimization, and data center efficiency.
+22. cornell.edu: Strategic siting of data centers in regions with access to clean energy grids and abundant water resources.
+23. sustainableaicoalition.org: Initiatives like the Coalition for Sustainable AI are working to align AI development with global sustainability goals.

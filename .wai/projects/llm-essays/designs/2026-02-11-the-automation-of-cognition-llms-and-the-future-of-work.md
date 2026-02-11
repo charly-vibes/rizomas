@@ -43,3 +43,27 @@ AI is a general-purpose technology poised to fundamentally reshape the entire la
 ### Constellation
 - **Central Node:** automation-of-cognition
 - **Connected Nodes (examples):** the-shaping, the-black-box-oracle, algorithm-as-muse, digital-footprints
+
+## References
+
+1.  letsdatascience.com: LLMs are expected to have a substantial impact on white-collar occupations, with potential reduction in demand.
+2.  ibm.com: AI automates tasks but augments human capabilities, shifting focus towards critical evaluation.
+3.  arxiv.org: Higher-wage workers are particularly exposed to LLMs, leading to both positive and negative outcomes.
+4.  upenn.edu: Higher-wage workers are particularly exposed to LLMs.
+5.  rpatech.ai: Cognitive automation, driven by AI, machine learning, and natural language processing, is increasingly handling tasks.
+6.  maddevs.io: Cognitive automation increasingly handling tasks that previously required human cognitive abilities.
+7.  comidor.com: Cognitive automation increasingly handling tasks that previously required human cognitive abilities.
+8.  mdpi.com: By automating cognitive tasks, AI can reduce cognitive load on human workers, freeing them to focus on higher-order thinking.
+9.  medium.com: Over-reliance on AI for cognitive tasks could lead to cognitive dependence and a decline in human problem-solving skills.
+10. ai-bees.io: By automating cognitive tasks, AI can reduce cognitive load on human workers.
+11. northwestern.edu: AI is expected to fundamentally reshape the labor market, creating new efficiencies and potentially new job roles while displacing others.
+12. noemamag.com: The concentration of AI capabilities and wealth could marginalize underprivileged communities and widen socioeconomic disparities.
+13. medium.com: The concentration of AI capabilities and wealth could marginalize underprivileged communities.
+14. arxiv.org: Current LLMs tend to prioritize economic efficiency over distributive fairness.
+15. arxiv.org: Current LLMs tend to prioritize economic efficiency over distributive fairness.
+16. oecd.org: The future of work will likely involve increased human-AI collaboration.
+17. lse.ac.uk: UBI is frequently discussed as a potential policy response to challenges posed by AI and automation.
+18. wikipedia.org: UBI is frequently discussed as a potential policy response.
+19. taxproject.org: UBI is frequently discussed as a potential policy response.
+20. inomics.com: UBI could provide a financial safety net and allow adaptation to a changing economy.
+21. usaii.org: An "AI automation tax" on companies benefiting from AI-driven automation has been proposed.

@@ -41,3 +41,21 @@ The psychological effects of AI in education are profound for both students and 
 ### Constellation
 - **Central Node:** learning-machines-learning-humans
 - **Connected Nodes (examples):** the-next-word, the-black-box-oracle, the-artificial-brain, the-empathy-machine
+
+## References
+
+1.  cubig.ai: LLMs are essential tools, providing personalized learning and 24/7 support.
+2.  illinois.edu: LLMs can help teachers by automating tasks like creating quizzes, activities, rubrics, and lesson plans.
+3.  docebo.com: AI-powered personalized learning analyzes student data to deliver customized educational experiences at scale.
+4.  claned.com: AI can tailor educational content to a student's progress and personality in real-time.
+5.  mdpi.com: Personalized learning can lead to improved academic outcomes, enhanced student engagement, and a more positive attitude toward education.
+6.  medium.com: Personalized learning can lead to improved academic outcomes, enhanced student engagement, and a more positive attitude toward education.
+7.  illinois.edu: AI can make previously inaccessible material available to students with special needs and automate routine teaching tasks.
+8.  usc.edu: Most college students use AI tools for quick answers rather than to learn concepts, unless guided.
+9.  duke.edu: Overreliance on AI can erode critical thinking skills; LLMs reduce cognitive load but can lead to poorer reasoning.
+10. wmich.edu: AI can be used to foster critical thinking by generating thought-provoking questions, counterarguments, and debate prompts.
+11. nsta.org: Educators can promote critical thinking by encouraging students to use AI as a discussion partner or a resource for exploration.
+12. sandiego.edu: AI plays a significant role in teaching by automating routine tasks, freeing up teachers.
+13. smu.edu: AI-driven analytics provide insights into student performance, helping teachers tailor content.
+14. nih.gov: Psychological impacts of AI in education include reduced stress, improved self-efficacy, but also digital fatigue, loneliness, and technostress.
+15. nih.gov: For teachers, the rapid integration of AI can induce "educational anxiety."

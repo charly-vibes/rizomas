@@ -41,3 +41,25 @@ For effective and ethical co-creation, AI tools need to offer transparency and c
 ### Constellation
 - **Central Node:** algorithm-as-muse
 - **Connected Nodes (examples):** the-next-word, what-is-quality, the-shaping, the-understanding-illusion
+
+## References
+
+1.  mdpi.com: LLMs as consistent evaluators of creative texts.
+2.  oreateai.com: AI as a muse, augmenting and amplifying human creativity.
+3.  substack.com: AI-generated ideas could lead to a decrease in unique creative output.
+4.  medium.com: AI helps writers break through creative impasses.
+5.  reddit.com: AI tools help writers break through creative impasses.
+6.  harvard.edu: Advanced LLMs can rival human writers in various creative dimensions.
+7.  arxiv.org: AI's capacity to replicate aspects of human creativity.
+8.  siliconflow.com: Specialized LLMs for fiction writing and ideation.
+9.  framer.website: Specialized LLMs for fiction writing and ideation.
+10. janefriedman.com: Specialized LLMs for fiction writing and ideation.
+11. itsartlaw.org: Copyright requires human authorship and originality.
+12. houstonlawreview.org: Works created solely by AI may not be eligible for copyright; end user often considered author.
+13. nliu.ac.in: Traditional copyright frameworks require human authorship.
+14. artquest.org.uk: AI-generated works may not be eligible for copyright, but human modification can qualify.
+15. scienceopen.com: Authorship and ownership challenges in AI co-creation.
+16. ijrti.org: Ethical dilemmas, intellectual property, and maintaining human creative voice in AI co-creation.
+17. medium.com: Ethical dilemmas, intellectual property, and maintaining human creative voice in AI co-creation.
+18. medium.com: Originality questions when AI models are trained on existing copyrighted material.
+19. arxiv.org: Leveraging AI to enhance human creativity without undermining unique contributions.

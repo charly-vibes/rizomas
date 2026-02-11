@@ -41,3 +41,24 @@ The application of AI to history has the power to reshape historical narratives.
 ### Constellation
 - **Central Node:** echoes-of-the-past
 - **Connected Nodes (examples):** the-weight-of-words, what-is-quality, the-understanding-illusion, the-black-box-oracle
+
+## References
+
+1.  pnas.org: LLMs can analyze vast amounts of historical data, simulate responses of past societies, and infer psychological traits.
+2.  artsmediaarchaeology.blog: LLMs can digitize historical records, extract information, and uncover hidden connections.
+3.  philadelphiafed.org: LLMs can digitize historical records, extract information, and uncover hidden connections.
+4.  dissinet.cz: LLMs can digitize historical records, extract information, and uncover hidden connections.
+5.  oup.com: LLMs can assist in analyzing national narratives and streamlining research processes.
+6.  humanrights.gov.au: Historical bias stems from training data reflecting past societal norms, leading to skewed representations.
+7.  envisioning.com: Historical bias stems from training data reflecting past societal norms.
+8.  nih.gov: Historical bias stems from training data reflecting past societal norms.
+9.  chapman.edu: Historical bias stems from training data reflecting past societal norms.
+10. historica.org: AI could reinforce existing biases, leading to selective or Eurocentric historical narratives.
+11. openreview.net: The underrepresentation of certain regions and cultures in training datasets exacerbates biases.
+12. arxiv.org: LLMs interpret historical data by identifying patterns and relationships within training datasets.
+13. cambridge.org: LLMs interpret historical data by processing unstructured text, inferring meaning, and generating code.
+14. journalofdigitalhistory.org: LLMs' interpretation is heavily influenced by inherent biases, leading to "hallucinations."
+15. medium.com: AI has the potential to transform historical narratives, but human interpretation and critical thinking remain essential.
+16. historica.org: AI can facilitate "counter-storytelling" and amplify marginalized voices.
+17. medium.com: AI could reinforce existing biases, leading to selective or Eurocentric historical narratives.
+18. bioengineer.org: Lack of transparency in AI methodologies and the potential for those controlling algorithmic levers to "rewrite history."
