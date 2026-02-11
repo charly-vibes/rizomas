@@ -152,53 +152,68 @@
 
 ---
 
-## 4. Steering the Ship (`#/steering`) — Simple
+## 4. The Weight of Words (`#/weight-of-words`) — Simple
 
-### System Prompts
-- Persistent instructions at conversation start; narrow probability space
-- Can: set persona/tone, establish constraints, frame task domain, provide reference material
-- Cannot: guarantee compliance (soft constraints), add new knowledge, maintain perfect attention over long conversations
-- Ship metaphor: sets initial heading, but currents (conversation) continuously act on vessel
+### Gradient Descent / The Learning Loop
+- Training objective: predict the next token given all preceding tokens (same as inference, but now the errors matter)
+- **Forward pass**: input sequence → transformer layers → probability distribution over vocabulary → predicted next token
+- **Loss function**: cross-entropy between predicted distribution and actual next token; measures how surprised the model was
+- **Backpropagation**: chain rule propagates the error signal backward through every layer, computing how each of the model's parameters contributed to the mistake
+- **Parameter update**: gradient descent adjusts each parameter by a small step in the direction that would have reduced the error; learning rate controls step size (typically 1e-4 to 6e-4 with warmup and cosine decay)
+- GPT-3: 175 billion parameters, each adjusting itself millions of times across training — not programmed, but self-organized through iterative error correction
+- Key insight: no one specifies what each parameter should represent; the model discovers its own internal organization. Billions of numbers shifting by tiny increments, over and over, until the prediction improves
+- Analogy: not like writing a program; more like erosion carving a landscape — the process is simple (reduce error), the result is complex (internal representations of syntax, semantics, world knowledge)
 
-### Few-Shot Prompting
-- 1-3 examples of desired input-output pairs; coined in GPT-3 paper (Brown et al. 2020)
-- Works via in-context learning (ICL): activates relevant patterns, doesn't change weights
-- "Induction heads" (Olsson et al. 2022): specific attention circuits detect and continue patterns
-- Min et al. (2022): format matters more than label correctness — format communicates task structure
-- Diminishing returns: sharp improvement 0→3 examples, plateaus after 5
+### Training Data Scale
+- **GPT-3** (Brown et al. 2020): ~300B tokens from Common Crawl (filtered), WebText2, Books1, Books2, Wikipedia — 570GB of text after filtering
+- **LLaMA** (Touvron et al. 2023): 1.0-1.4T tokens; trained on publicly available data only — CommonCrawl (67%), C4 (15%), GitHub (4.5%), Wikipedia (4.5%), Books (4.5%), ArXiv (2.5%), StackExchange (2%)
+- **LLaMA 2** (Touvron et al. 2023): 2T tokens, 40% more data than LLaMA 1
+- **Modern frontier models** (2024-2025): estimated 10-15T+ tokens; exact figures proprietary
+- **Data quality vs quantity**: Falcon team showed that 1.5T tokens of heavily filtered web data outperformed 3T tokens of lightly filtered data; GPT-3 paper showed Common Crawl needed aggressive deduplication and quality filtering (only ~40% of raw crawl survived)
+- **Chinchilla scaling laws** (Hoffmann et al. 2022): for compute-optimal training, tokens should scale proportionally with parameters — a 70B model needs ~1.4T tokens. Most earlier models were undertrained relative to their size
+- **The "data wall" concern**: high-quality human text is finite; Common Crawl grows ~3-4B pages/month but marginal quality decreasing; synthetic data, multimodal data, and curriculum strategies emerging as responses
+- Scale reference: the entire English Wikipedia is ~4B tokens — a rounding error in modern training sets
 
-### Chain-of-Thought
-- Wei et al. (2022): "Let's think step by step" dramatically improves multi-step reasoning
-- Works because intermediate tokens become context for next tokens — external scratchpad
-- Reasoning tokens (2024-2025): o1/o3, Claude extended thinking, DeepSeek-R1 — built into inference pipeline
-- **Unfaithful CoT** (Turpin et al. 2024): stated reasoning doesn't always reflect actual computation
+### Scaling Laws
+- **Kaplan et al. (2020)**: discovered power-law relationships — test loss L decreases predictably as a function of compute C, dataset size D, and parameter count N: L(N) ∝ N^(-0.076), L(D) ∝ D^(-0.095), L(C) ∝ C^(-0.050)
+- Implication: performance improves smoothly and predictably with scale; no plateaus, no diminishing returns within observed range
+- **Chinchilla** (Hoffmann et al. 2022): revised optimal compute allocation — Kaplan overweighted parameters vs. data. Chinchilla (70B params, 1.4T tokens) matched Gopher (280B params, 300B tokens) at 4x fewer parameters. Changed the industry: subsequent models (LLaMA, Mistral) trained longer on more data at smaller sizes
+- **Emergent capabilities** (Wei et al. 2022): abilities appearing suddenly at scale — in-context learning absent in small models, appears reliably in 10B+ parameter models; chain-of-thought reasoning jumps from near-random to effective around 100B; few-shot arithmetic, multi-step reasoning, code generation all show phase transitions
+- **The Bitter Lesson** (Rich Sutton, 2019): "The biggest lesson that can be read from 70 years of AI research is that general methods that leverage computation are ultimately the most effective." Hand-engineered features, linguistic structure, expert knowledge — all eventually outperformed by scale + search + learning
+- The counterargument: Sutton's observation is empirical, not a guaranteed law; may hit physical limits (energy, data, chip supply); "bitter" because researchers' domain knowledge keeps being superseded
 
-### Prompt Engineering as Navigation
-- Not programming (deterministic) but steering (probabilistic influence)
-- Each prompt element narrows probability distribution over outputs
-- Small phrasing changes → outsized effects (activate different training data regions)
-- Order matters (recent messages stronger influence), negative instructions unreliable
-- Gap between steering and control: influence, never determination
+### Structure as Byproduct
+- The model is never explicitly taught grammar, facts, logic, or reasoning — no labeled syntax trees, no knowledge graphs, no rule databases
+- These emerge as **necessary internal representations** for achieving low prediction loss: to predict that "The capital of France is" continues with "Paris," the model must represent geographic facts; to predict code completions, it must represent programming semantics
+- **Othello-GPT** (Li et al. 2022): a small transformer trained only to predict legal Othello moves develops an internal representation of the board state — probing reveals a linear encoding of board positions, even though the model never sees the board, only move sequences. Interventions on the internal representation causally change the model's predictions, confirming these aren't mere correlations
+- **Compression argument** (Shannon, Deletang et al. 2024): prediction and compression are mathematically equivalent (Shannon's source coding theorem). To compress well, you must model the underlying structure. An LLM achieving low perplexity on diverse text has necessarily learned a compressed model of the processes generating that text
+- **Geographic/temporal representations** (Gurnee & Tegmark 2023): probing GPT-2 and LLaMA reveals linear representations of latitude, longitude, and time — the geometry of the real world preserved in parameter space
+- This is the deepest insight of pretraining: structure is not injected, it crystallizes. The model finds that representing syntax, semantics, world knowledge, and reasoning patterns is the most efficient strategy for reducing prediction error
 
-### Limits of Prompting
-- Knowledge gaps (not in training data = can't produce), hallucination, capability limits
-- Bias and distribution artifacts suppressed but not eliminated
-- Jailbreaking: system prompts are context, not inviolable rules
+### What Pretraining Does NOT Do
+- Does not teach the model to be helpful, harmless, or honest — the base model mirrors whatever mixture of qualities exists in training data
+- Does not teach turn-taking or conversation — a base model given "What is 2+2?" is as likely to generate another question as an answer, because its training data includes quizzes, FAQs, forum posts, and homework sheets
+- Produces a **completion engine**, not a chat agent — it continues text in the style and register of whatever the context implies
+- Does not teach instruction-following — that requires fine-tuning (sets up "The Shaping" plateau)
+- **LIMA hypothesis** (Zhou et al. 2023): "almost all knowledge in large language models is learned during pretraining, and only limited instruction tuning data is necessary to teach models to produce high quality output." 1,000 carefully curated examples competitive with extensive RLHF — evidence that pretraining does the heavy lifting and fine-tuning is a surface adjustment
+- The base model is extraordinarily capable but aimless — like a library with no librarian, or an engine with no steering wheel
 
-### Current Best Practices (2025)
-- Structured prompting > clever one-liners
-- XML/markdown structure for complex prompts
-- Prompt chaining and decomposition
-- Tool use and agentic patterns
-- "Context engineering" > "prompt engineering"
-- Less is more for capable models
+### Best Analogies
+- **Crystallization from supersaturated solution** (Simondon): training data = supersaturated solution of dissolved information; the learning process = slow cooling; internal representations = crystals that precipitate — their structure determined by the solution's composition and the thermodynamics, not by explicit design
+- **Child learning language by exposure, not instruction**: children acquire grammar, semantics, pragmatics through massive exposure to language, not through explicit rule-teaching. They develop internal representations of linguistic structure as a byproduct of the task (communication), not as a goal. The parallel is imperfect — children have embodiment, social feedback, innate priors — but the mechanism of structure-from-exposure resonates
+- **Geological formation** (pressure + time + material = structure): the Grand Canyon wasn't designed; water + time + rock = structure. Training data + compute + gradient descent = internal representations. The process is simple and uniform; the result is intricate and structured. No one decides where the canyon bends
 
 ### Key References
-- Brown et al. (2020) GPT-3 / few-shot
-- Wei et al. (2022) Chain-of-thought
-- Min et al. (2022) role of demonstrations
-- Olsson et al. (2022) induction heads
-- Turpin et al. (2024) unfaithful CoT
+- Kaplan et al. (2020) "Scaling Laws for Neural Language Models"
+- Hoffmann et al. (2022) "Training Compute-Optimal Large Language Models" (Chinchilla)
+- Brown et al. (2020) "Language Models are Few-Shot Learners" (GPT-3)
+- Touvron et al. (2023) "LLaMA: Open and Efficient Foundation Language Models"
+- Li et al. (2022) "Emergent World Representations: Exploring a Sequence Model Trained on a Synthetic Task" (Othello-GPT)
+- Wei et al. (2022) "Emergent Abilities of Large Language Models"
+- Zhou et al. (2023) "LIMA: Less Is More for Alignment"
+- Rich Sutton (2019) "The Bitter Lesson"
+- Gurnee & Tegmark (2023) "Language Models Represent Space and Time"
+- Deletang et al. (2024) "Language Modeling Is Compression"
 
 ---
 
@@ -373,11 +388,50 @@
 
 ## 8. The Field Guide (`#/practical-guide`) — Simple
 
+---
+
+### Part 1 — How Prompting Works
+
+### System Prompts
+- Persistent instructions at conversation start; narrow probability space
+- Can: set persona/tone, establish constraints, frame task domain, provide reference material
+- Cannot: guarantee compliance (soft constraints), add new knowledge, maintain perfect attention over long conversations
+- Ship metaphor: sets initial heading, but currents (conversation) continuously act on vessel
+
+### Few-Shot Prompting & In-Context Learning
+- 1-3 examples of desired input-output pairs; coined in GPT-3 paper (Brown et al. 2020)
+- Works via in-context learning (ICL): activates relevant patterns, doesn't change weights
+- "Induction heads" (Olsson et al. 2022): specific attention circuits detect and continue patterns
+- Min et al. (2022): format matters more than label correctness — format communicates task structure
+- Sharp improvement 0→3 examples, plateaus after 5; examples more reliable than description alone
+
+### Chain-of-Thought
+- Wei et al. (2022): "Let's think step by step" dramatically improves multi-step reasoning
+- Works because intermediate tokens become context for next tokens — external scratchpad
+- Reasoning tokens (2024-2025): o1/o3, Claude extended thinking, DeepSeek-R1 — built into inference pipeline
+- **Unfaithful CoT** (Turpin et al. 2024): stated reasoning doesn't always reflect actual computation
+
+### Prompt Engineering as Navigation
+- Not programming (deterministic) but steering (probabilistic influence)
+- Each prompt element narrows probability distribution over outputs
+- Small phrasing changes → outsized effects (activate different training data regions)
+- Order matters (recent messages stronger influence), negative instructions unreliable
+- Gap between steering and control: influence, never determination
+
+### Limits of Prompting
+- Knowledge gaps (not in training data = can't produce), hallucination, capability limits
+- Bias and distribution artifacts suppressed but not eliminated
+- Jailbreaking: system prompts are context, not inviolable rules
+
+---
+
+### Part 2 — Working With LLMs
+
 ### Prompt Structure
 - Specificity beats length; context-setting (role, audience, goal, constraints) dramatically changes quality
 - Format instructions highly effective (models responsive to structural patterns)
-- Few-shot: 1-3 examples more reliable than description; sharp improvement 0→3, plateaus after 5
-- Chain-of-thought: intermediate tokens become context → external scratchpad
+- XML/markdown structure for complex prompts
+- Prompt chaining and decomposition for multi-step tasks
 - Politeness, exact word choice in simple cases: don't matter much
 
 ### Temperature Rules of Thumb
@@ -416,18 +470,26 @@
 
 ### 2025-2026 Best Practices
 - "Context engineering" > "prompt engineering"
+- Structured prompting > clever one-liners
 - Tool use and agentic patterns fundamentally change trust calculus
 - Multi-turn > single-turn for complex tasks
 - Models better at following instructions → less need for elaborate tricks
 - **10 rules of thumb**: start with task, provide context not cleverness, iterate don't optimize, verify facts trust reasoning, use tools, match model to task, keep context focused, be explicit about format, treat output as draft, build in checkpoints
+
+### Key References
+- Brown et al. (2020) GPT-3 / few-shot
+- Min et al. (2022) Role of demonstrations
+- Olsson et al. (2022) Induction heads
+- Wei et al. (2022) Chain-of-thought
+- Turpin et al. (2024) Unfaithful CoT
 
 ---
 
 ## Cross-Cutting Themes
 
 ### Three Core Tensions
-1. **Mechanism vs. Emergence**: "just" next-token prediction → yet something more emerges at scale (Next Word, Library, Understanding Illusion)
-2. **Averaging vs. Specificity**: without constraints → regression to mean; all prompting/shaping/steering = narrowing (Averaging Problem, Steering, Shaping, Field Guide)
+1. **Mechanism vs. Emergence**: "just" next-token prediction → yet something more emerges at scale (Next Word, Weight of Words, Library, Understanding Illusion)
+2. **Averaging vs. Specificity**: without constraints → regression to mean; all prompting/shaping = narrowing (Averaging Problem, Shaping, Field Guide)
 3. **Whose Values?**: quality/alignment/understanding embed cultural and philosophical choices (Quality, Shaping, Understanding Illusion)
 
 ### Project Core Tension (from spec)
@@ -439,8 +501,8 @@
 | Next Word | Probability distribution landscape: 100K columns, shape changes with context |
 | Averaging Problem | Bell curve narrowing + "average face" sharpening with specificity |
 | The Shaping | Same prompt, radically different outputs: base model vs tuned |
-| Steering | Probability landscape navigation — heading + currents |
+| Weight of Words | Erosion/crystallization: simple process (reduce error) → complex structure emerges |
 | Library of Babel | The Library as uniform distribution; training as building the index |
 | Quality | RLHF raters as invisible arbiters; sycophancy as objective success |
 | Understanding Illusion | Othello-GPT: moves-only → internal board state emerges |
-| Field Guide | Trust spectrum: what's reliable vs. what's dangerous |
+| Field Guide | Trust spectrum + steering as navigation: what's reliable vs. what's dangerous |

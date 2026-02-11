@@ -30,12 +30,12 @@ Question cards (final step):
 The "Averaging Problem" plateau (`#/averaging-problem`) SHALL be a full scrolly plateau with 6 steps (5 content + 1 navigation). The visual SHALL be a canvas-drawn bell curve that shifts position and narrows across steps: (1) wide center ("million recipes"), (2) vague prompt, (3) specific prompt (narrower, shifted right), (4) very specific (narrow, far right), (5) "you are here." Curve parameters `{spread, center, label}` SHALL be redrawn on each step change.
 
 Whisper assignments:
-- Step 1: "steering" — *What if you could steer it?*
+- Step 1: "weight-of-words" — *How did it learn all this?*
 - Step 1: "the-shaping" — *How did it learn to narrow down?*
 - Step 3: "quality" — *Who decides what "good" means?*
 
 Question cards (final step):
-- → Steering the Ship
+- → The Weight of Words
 - → The Shaping
 - → What Is Quality?
 
@@ -51,14 +51,14 @@ Question cards (final step):
 The "Shaping" plateau (`#/the-shaping`) SHALL be a full scrolly plateau with 5 steps (4 content + 1 navigation). The visual SHALL show a base model vs tuned model toggle with example prompt/response pairs. Two example pairs (capital of France, photosynthesis) SHALL cycle across steps.
 
 Whisper assignments:
-- Step 0: "averaging-problem" — *What was the model before shaping?*
+- Step 0: "weight-of-words" — *What was the model before shaping?*
 - Step 2: "quality" — *Who decides what good tuning looks like?*
-- Step 3: "steering" — *Can you steer without retraining?*
+- Step 3: "practical-guide" — *Can you steer without retraining?*
 
 Question cards (final step):
-- → The Averaging Problem
+- → The Weight of Words
 - → What Is Quality?
-- → Steering the Ship
+- → The Field Guide
 
 #### Scenario: Base/Tuned toggle interaction
 - **WHEN** the user clicks the "Tuned" toggle button
@@ -68,15 +68,16 @@ Question cards (final step):
 - **WHEN** the user scrolls from step 1 to step 2
 - **THEN** the example prompt/response pair changes from capital of France to photosynthesis
 
-### Requirement: Simple Plateau — Steering the Ship
-The "Steering" plateau (`#/steering`) SHALL render as a centered prose essay (max-width 36em) exploring how users can guide LLM output through prompting techniques, system prompts, and few-shot examples without retraining the model.
+### Requirement: Simple Plateau — The Weight of Words
+The "Weight of Words" plateau (`#/weight-of-words`) SHALL render as a centered prose essay (max-width 36em) exploring how the base model acquires its capabilities through pretraining — gradient descent as iterative self-correction, the scale of training data (trillions of tokens), scaling laws (more data + more parameters = qualitatively different behavior), and the insight that the model discovers structure (syntax, facts, reasoning patterns) as a byproduct of getting better at next-token prediction.
 
 Question cards:
-- → What Is Quality?
-- → The Field Guide
+- → The Next Word
+- → The Shaping
+- → The Averaging Problem
 
 #### Scenario: Renders as prose with navigation
-- **WHEN** the user navigates to `#/steering`
+- **WHEN** the user navigates to `#/weight-of-words`
 - **THEN** a centered prose column is displayed with header, body paragraphs, and question cards at the bottom
 
 ### Requirement: Simple Plateau — The Library of Babel
@@ -95,7 +96,7 @@ The "Quality" plateau (`#/quality`) SHALL render as a centered prose essay exami
 
 Question cards:
 - → The Understanding Illusion
-- → Steering the Ship
+- → The Field Guide
 
 #### Scenario: Renders as prose with navigation
 - **WHEN** the user navigates to `#/quality`
@@ -113,11 +114,12 @@ Question cards:
 - **THEN** a centered prose column is displayed with header, body paragraphs, and question cards at the bottom
 
 ### Requirement: Simple Plateau — The Field Guide
-The "Field Guide" plateau (`#/practical-guide`) SHALL render as a centered prose essay providing practical guidance for working with LLMs effectively — prompt structure, temperature choice, when to trust output, and when to verify.
+The "Field Guide" plateau (`#/practical-guide`) SHALL render as a centered prose essay structured in two parts: (1) a conceptual section on how prompting works mechanically — system prompts as probability narrowing, few-shot as in-context learning via induction heads, chain-of-thought as external scratchpad, and the gap between steering and control; (2) a practical section providing guidance for working with LLMs effectively — prompt structure, temperature choice, trust calibration, verification strategies, common failure modes, and collaboration patterns.
 
 Question cards:
-- → Steering the Ship
+- → The Weight of Words
 - → The Understanding Illusion
+- → The Averaging Problem
 
 #### Scenario: Renders as prose with navigation
 - **WHEN** the user navigates to `#/practical-guide`
