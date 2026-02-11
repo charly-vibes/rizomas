@@ -1,128 +1,89 @@
 # Plateaus
 
 ## Purpose
-The 8 content sections (visual essays) of the application. Four are scrolly plateaus with interactive visuals; four are simple prose plateaus. This spec is the authoritative source for per-plateau content, visual states, whisper-step assignments, and question card destinations.
+The 8 content sections (visual essays) of the application. Each plateau is a self-contained, explorable space designed around a central question. The primary interaction model is not linear reading, but **crystallization**: engaging with "seed" concepts causes content to grow and unfold, revealing different "facets" of an idea on demand.
+
+This spec is the authoritative source for per-plateau content, visual states, and connections.
 
 ## Requirements
 
+### Interaction Model: Crystallization
+Each plateau SHALL follow the crystallization model:
+- **Seed-based Exploration**: Plateaus SHALL initially present a sparse field of "seed" concepts or questions.
+- **Outward Growth**: Engaging with a seed SHALL cause content (text or interactives) to expand outwards or in-place, not navigate away or simply un-hide a large block of text.
+- **Recursive Depth**: Expanded content ("facets") MAY contain further inline seeds that can be crystallized recursively.
+- **The goal**: To make the experience feel like a territory being revealed through exploration, rather than a document being read.
+
+---
+
 ### Requirement: Scrolly Plateau — The Next Word
-The "Next Word" plateau (`#/next-word`) SHALL be a full scrolly plateau with 7 steps (6 content + 1 navigation). The visual SHALL progress through the following states, one per step: (1) typing cursor, (2) probability bars animate in, (3) token selected, (4) temperature slider, (5) context-to-prediction diagram, (6) tension question. It SHALL include an interactive temperature slider with 3 stops (safe/balanced/creative) that swaps output text with a fade.
+The "Next Word" plateau (`#/next-word`) SHALL be a full scrolly plateau. Its central visual SHALL demonstrate the core mechanic of next-token prediction.
+- **Entry Question**: *What is an LLM actually doing when it "talks" to you?*
+- **Visual States**: The visual SHALL progress through the following states as the user scrolls:
+    1.  A sentence being completed word-by-word with a visible typing cursor.
+    2.  Probability distributions for the next word appear as visual weights.
+    3.  A temperature dial appears, allowing the user to influence the "creativity" of the word choice and see the text diverge.
+- **Rhizome Connections**: → The Averaging Problem, → The Understanding Illusion, → The Weight of Words
 
-Whisper assignments:
-- Step 3: "averaging-problem" — *What does average even mean here?*
-- Step 5: "understanding-illusion" — *But does it understand what it's saying?*
+---
 
-Question cards (final step):
-- → The Averaging Problem
-- → The Understanding Illusion
-- → The Weight of Words
+### Requirement: Scrolly Plateau — The Averaging Problem
+The "Averaging Problem" plateau (`#/averaging-problem`) SHALL be a full scrolly plateau that merges the concepts of the "Library of Babel" and the "Averaging Problem".
+- **Entry Question**: *If you learn from a million essays, do you write like the best one or the average one?*
+- **Visual States**: The visual SHALL progress through:
+    1.  A visualization of the training data as a vast, uneven library or landscape.
+    2.  An interactive element where the user can "sample" from different regions (e.g., abundant but low-quality vs. rare but high-quality) and see the resulting text style.
+    3.  A "prompt specificity" slider that visually narrows a distribution curve from a wide, mediocre average to a sharp, high-quality tail.
+- **Key Insight**: To make visceral the idea that prompting is *navigating a probability landscape*.
+- **Rhizome Connections**: → The Next Word, → The Shaping, → The Field Guide
 
-#### Scenario: Temperature slider interaction
-- **WHEN** the user moves the temperature slider to "creative"
-- **THEN** the output text swaps to the creative variant with a fade transition
-
-#### Scenario: Visual state advances per step
-- **WHEN** the user scrolls from step 1 to step 2
-- **THEN** the visual transitions from typing cursor to probability bars animating in
-
-### Requirement: Scrolly Plateau — The Averaging Problem (MERGED)
-The "Averaging Problem" plateau (`#/averaging-problem`) SHALL be a full scrolly plateau telling the story of navigating from chaos to specificity. It merges the "Library of Babel" concept with the "Averaging Problem". The visual SHALL progress through these states: (1) A chaotic sea of random characters (The Library), (2) The characters coalesce into a wide, blurry bell curve ("The Average"), (3) A vague prompt fails to narrow the curve, (4) A specific prompt sharpens the curve dramatically, (5) The curve becomes a specific, located point: "you are here."
-
-Whisper assignments:
-- Step 1: "next-word" — *How does it pick just one path from the chaos?*
-- Step 3: "the-shaping" — *Can we permanently change the average?*
-- Step 4: "practical-guide" — *How do I write prompts that do this?*
-
-Question cards (final step):
-- → The Next Word
-- → The Shaping
-- → The Field Guide
-
-#### Scenario: Bell curve sharpens on specific prompt
-- **WHEN** the user scrolls from the "vague prompt" step to the "specific prompt" step
-- **THEN** the bell curve visual narrows significantly and shifts its center.
-
-#### Scenario: Visual transitions from Library to Average
-- **WHEN** the user scrolls from step 1 to step 2
-- **THEN** the chaotic character visual fades and reorganizes into a wide bell curve.
+---
 
 ### Requirement: Scrolly Plateau — The Shaping
-The "Shaping" plateau (`#/the-shaping`) SHALL be a full scrolly plateau with 5 steps (4 content + 1 navigation). The visual SHALL show a base model vs tuned model toggle with example prompt/response pairs. Two example pairs (capital of France, photosynthesis) SHALL cycle across steps.
+The "Shaping" plateau (`#/the-shaping`) SHALL be a full scrolly plateau demonstrating the impact of fine-tuning and RLHF.
+- **Entry Question**: *What happened between "raw autocomplete" and "helpful assistant"?*
+- **Visual States**: The central visual SHALL be an interactive before/after toggle.
+    1.  The user sees a prompt answered by a raw base model (completion-oriented, not conversational).
+    2.  The user can toggle to see the same prompt answered by an instruction-tuned model, showing the stark difference.
+    3.  A simplified interactive where the user plays the role of an RLHF rater, picking between two responses, and seeing how their choices would theoretically "shape" the model's personality.
+- **Rhizome Connections**: → The Weight of Words, → What Is Quality?, → The Field Guide
 
-Whisper assignments:
-- Step 0: "weight-of-words" — *What was the model before shaping?*
-- Step 2: "quality" — *Who decides what good tuning looks like?*
-- Step 3: "practical-guide" — *Can you steer without retraining?*
-
-Question cards (final step):
-- → The Weight of Words
-- → What Is Quality?
-- → The Field Guide
-
-#### Scenario: Base/Tuned toggle interaction
-- **WHEN** the user clicks the "Tuned" toggle button
-- **THEN** the output text swaps to the tuned model response with an opacity fade
-
-#### Scenario: Example pairs cycle across steps
-- **WHEN** the user scrolls from step 1 to step 2
-- **THEN** the example prompt/response pair changes from capital of France to photosynthesis
+---
 
 ### Requirement: Simple Plateau — The Weight of Words
-The "Weight of Words" plateau (`#/weight-of-words`) SHALL render as a centered prose essay (max-width 36em) exploring how the base model acquires its capabilities through pretraining — gradient descent as iterative self-correction, the scale of training data (trillions of tokens), scaling laws (more data + more parameters = qualitatively different behavior), and the insight that the model discovers structure (syntax, facts, reasoning patterns) as a byproduct of getting better at next-token prediction.
+The "Weight of Words" plateau (`#/weight-of-words`) SHALL be a simple plateau focused on pretraining.
+- **Entry Question**: *How does a model learn from trillions of words?*
+- **Interaction**: This plateau presents a sparse field of seed concepts (e.g., "The Learning Loop," "Training Data Scale," "Scaling Laws," "Structure as Byproduct") that crystallize into short explanatory facets upon engagement.
+- **Rhizome Connections**: → The Next Word, → The Shaping, → The Averaging Problem
 
-Question cards:
-- → The Next Word
-- → The Shaping
-- → The Averaging Problem
-
-#### Scenario: Renders as prose with navigation
-- **WHEN** the user navigates to `#/weight-of-words`
-- **THEN** a centered prose column is displayed with header, body paragraphs, and question cards at the bottom
+---
 
 ### Requirement: Simple Plateau — What Is Quality?
-The "Quality" plateau (`#/quality`) SHALL render as a centered prose essay examining who defines quality in LLM outputs — RLHF raters, users, cultural norms — and the tension between helpfulness and truth.
+The "Quality" plateau (`#/quality`) SHALL be a simple plateau examining the human element in defining "good" AI output.
+- **Entry Question**: *When we say a model's output is "good," who decides?*
+- **Interaction**: This plateau uses a spatial layout of seed concepts (e.g., "The Raters," "Helpful vs. Harmless," "Sycophancy," "Cultural Bias") that unfold into facets exploring the trade-offs and complexities of alignment.
+- **Rhizome Connections**: → The Understanding Illusion, → The Field Guide, → The Shaping
 
-Question cards:
-- → The Understanding Illusion
-- → The Field Guide
-- → The Shaping
-
-#### Scenario: Renders as prose with navigation
-- **WHEN** the user navigates to `#/quality`
-- **THEN** a centered prose column is displayed with header, body paragraphs, and question cards at the bottom
+---
 
 ### Requirement: Simple Plateau — The Understanding Illusion
-The "Understanding Illusion" plateau (`#/understanding-illusion`) SHALL render as a centered prose essay exploring whether LLMs understand language or merely simulate understanding, and why the distinction matters, referencing internal representations and tool use as evidence.
+The "Understanding Illusion" plateau (`#/understanding-illusion`) SHALL be a simple plateau exploring the debate around AI comprehension.
+- **Entry Question**: *Does the model "understand" what it's saying?*
+- **Interaction**: The plateau presents two opposing seed clusters: "Stochastic Parrot" and "Emergent World Models." Engaging with seeds in each cluster reveals arguments and evidence for that viewpoint (e.g., Chinese Room argument vs. Othello-GPT findings), leaving the reader in a state of productive tension.
+- **Rhizome Connections**: → The Field Guide, → The Averaging Problem, → The Tool-User
 
-Question cards:
-- → The Field Guide
-- → The Averaging Problem
-- → The Tool-User
-
-#### Scenario: Renders as prose with navigation
-- **WHEN** the user navigates to `#/understanding-illusion`
-- **THEN** a centered prose column is displayed with header, body paragraphs, and question cards at the bottom
+---
 
 ### Requirement: Simple Plateau — The Field Guide
-The "Field Guide" plateau (`#/practical-guide`) SHALL render as a centered prose essay structured in two parts: (1) a conceptual section on how prompting works mechanically — system prompts as probability narrowing, few-shot as in-context learning via induction heads, chain-of-thought as external scratchpad; (2) a practical section providing guidance for working with LLMs effectively — prompt structure, temperature choice, trust calibration, verification strategies, and collaboration patterns.
+The "Field Guide" plateau (`#/practical-guide`) SHALL be a simple plateau structured as a pattern library.
+- **Entry Question**: *So what do I actually do with all this?*
+- **Interaction**: The plateau is organized into two main seed clusters: "How Prompting Works" and "Working With LLMs". Each seed crystallizes into a practical pattern (e.g., "Chain-of-Thought," "Trust Calibration") with a brief explanation grounded in the mechanical insights from other plateaus.
+- **Rhizome Connections**: → The Weight of Words, → The Understanding Illusion, → The Tool-User
 
-Question cards:
-- → The Weight of Words
-- → The Understanding Illusion
-- → The Tool-User
+---
 
-#### Scenario: Renders as prose with navigation
-- **WHEN** the user navigates to `#/practical-guide`
-- **THEN** a centered prose column is displayed with header, body paragraphs, and question cards at the bottom
-
-### Requirement: Simple Plateau — The Tool-User (NEW)
-The "Tool-User" plateau (`#/tool-user`) SHALL render as a centered prose essay that introduces the emerging paradigm of LLMs as reasoning engines that use tools. It SHALL cover tool use (e.g., calculators, web search), Mixture-of-Experts (MoE) architectures, and agentic patterns like ReAct (`Thought -> Action -> Observation`).
-
-Question cards:
-- → The Field Guide
-- → The Understanding Illusion
-- → The Shaping
-
-#### Scenario: Renders as prose with navigation
-- **WHEN** the user navigates to `#/tool-user`
-- **THEN** a centered prose column is displayed with header, body paragraphs, and question cards at the bottom
+### Requirement: Simple Plateau — The Tool-User
+The "Tool-User" plateau (`#/tool-user`) SHALL be a simple plateau introducing the emerging paradigm of agentic models.
+- **Entry Question**: *What happens when the model can use tools?*
+- **Interaction**: The plateau presents seeds like "Reasoning and Acting," "Mixture-of-Experts," and "The End of the Oracle," which unfold to explain how tool use and modular architectures are changing the capabilities of LLMs.
+- **Rhizome Connections**: → The Field Guide, → The Understanding Illusion, → The Shaping
