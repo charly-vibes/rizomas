@@ -1,0 +1,1544 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>How LLMs Actually Work</title>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&display=swap"
+    />
+    <style>
+      :root {
+        --paper: #fafaf8;
+        --ink: #1a1a18;
+        --ink2: #6b6b66;
+        --ink3: #b8b4aa;
+        --ink4: #ddd9d0;
+        --seed: #edeadf;
+        --seedh: #e4e0d4;
+        --hl: #fff3c4;
+        --acc: #4a6741;
+        --t-page: 0.2s;
+        --t-step: 0.4s;
+        --t-whisper: 0.6s;
+        --t-constellation: 0.6s;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--paper);
+        color: var(--ink);
+        font-family: "Lora", Georgia, serif;
+        font-size: 18px;
+        line-height: 1.65;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      ::selection {
+        background: var(--hl);
+      }
+
+      :focus-visible {
+        outline: 2px solid var(--ink);
+        outline-offset: 2px;
+      }
+
+      .view {
+        opacity: 0;
+        transition: opacity var(--t-page) ease;
+      }
+
+      .view.is-visible {
+        opacity: 1;
+      }
+
+      .landing,
+      .plateau {
+        min-height: 100vh;
+        padding: 72px 24px 96px;
+      }
+
+      .landing {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 24px;
+      }
+
+      .landing-header {
+        text-align: center;
+        max-width: 42rem;
+      }
+
+      .landing-header h1 {
+        font-size: clamp(2.4rem, 4vw, 3.2rem);
+        font-weight: 600;
+        letter-spacing: -0.02em;
+        margin: 0 0 0.35rem;
+      }
+
+      .landing-header .subtitle {
+        font-style: italic;
+        color: var(--ink2);
+        margin: 0 0 1.25rem;
+        font-size: 1.05rem;
+      }
+
+      .landing-header p {
+        margin: 0;
+        color: var(--ink);
+      }
+
+      .landing-map {
+        width: min(460px, 100%);
+      }
+
+      .map-wrap {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 460 / 360;
+      }
+
+      .map-wrap canvas {
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+
+      .map-overlay {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+      }
+
+      .map-link {
+        position: absolute;
+        width: 44px;
+        height: 44px;
+        transform: translate(-50%, -50%);
+        border-radius: 50%;
+        pointer-events: auto;
+      }
+
+      .map-link:focus-visible {
+        outline-offset: 4px;
+      }
+
+      .map-note {
+        margin-top: 16px;
+        color: var(--ink2);
+        font-size: 0.95rem;
+        font-style: italic;
+        text-align: center;
+      }
+
+      .mini-map {
+        position: fixed;
+        right: 32px;
+        bottom: 32px;
+        width: 160px;
+        height: 120px;
+        border-radius: 16px;
+        border: 1px solid var(--ink4);
+        background: color-mix(in srgb, var(--paper) 92%, white 8%);
+        box-shadow: 0 14px 30px rgba(26, 26, 24, 0.08);
+        overflow: hidden;
+        z-index: 20;
+      }
+
+      .mini-map canvas {
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+
+      .mini-map-button {
+        position: absolute;
+        inset: 0;
+        border: none;
+        background: transparent;
+        border-radius: inherit;
+        cursor: pointer;
+      }
+
+      .rhizome-overlay {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity var(--t-page) ease;
+        z-index: 40;
+      }
+
+      .rhizome-overlay.is-open {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .overlay-backdrop {
+        position: absolute;
+        inset: 0;
+        background: rgba(250, 250, 248, 0.82);
+        backdrop-filter: blur(10px);
+      }
+
+      .overlay-panel {
+        position: relative;
+        z-index: 1;
+        background: rgba(250, 250, 248, 0.96);
+        border: 1px solid var(--ink4);
+        border-radius: 24px;
+        padding: 32px;
+        box-shadow: 0 30px 80px rgba(26, 26, 24, 0.18);
+      }
+
+      .overlay-map {
+        position: relative;
+        width: min(90vw, 700px);
+        aspect-ratio: 700 / 550;
+      }
+
+      .overlay-map canvas {
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+
+      .overlay-links {
+        position: absolute;
+        inset: 0;
+      }
+
+      .overlay-link {
+        position: absolute;
+        width: 44px;
+        height: 44px;
+        transform: translate(-50%, -50%);
+        border-radius: 50%;
+        opacity: 0;
+      }
+
+      .overlay-link:focus-visible {
+        opacity: 1;
+        background: rgba(74, 103, 65, 0.12);
+        outline-offset: 4px;
+      }
+
+      .overlay-close {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        border: 1px solid var(--ink4);
+        background: var(--paper);
+        color: var(--ink2);
+        border-radius: 999px;
+        padding: 0.4rem 0.9rem;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        font-size: 0.7rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        cursor: pointer;
+      }
+
+      body.overlay-open {
+        overflow: hidden;
+      }
+
+      .plateau {
+        max-width: 42rem;
+        margin: 0 auto;
+      }
+
+      .entry-question {
+        margin-top: 0.75rem;
+        color: var(--ink2);
+        font-style: italic;
+      }
+
+      .scrolly {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0;
+        margin-top: 48px;
+        border-top: 1px solid var(--ink4);
+      }
+
+      .scrolly-viz {
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        border-right: 1px solid var(--ink4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(180deg, rgba(250, 250, 248, 0.9), rgba(250, 250, 248, 0.98));
+        overflow: hidden;
+      }
+
+      .viz-main {
+        width: min(380px, 90%);
+        min-height: 240px;
+        border: 1px solid var(--ink4);
+        border-radius: 20px;
+        display: grid;
+        place-items: center;
+        color: var(--ink2);
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        transition: opacity var(--t-constellation) ease;
+      }
+
+      .scrolly-viz.is-constellation .viz-main {
+        opacity: 0.2;
+      }
+
+      .scrolly-steps {
+        padding: 0 36px;
+      }
+
+      .scrolly-step {
+        min-height: 65vh;
+        display: flex;
+        align-items: center;
+        color: var(--ink3);
+        transition: color var(--t-step) ease;
+      }
+
+      .scrolly-step.is-active {
+        color: var(--ink);
+      }
+
+      .whisper-layer {
+        position: absolute;
+        right: 22px;
+        top: 18%;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        text-align: right;
+        font-style: italic;
+        color: var(--ink2);
+        font-size: 0.82rem;
+      }
+
+      .whisper {
+        opacity: 0;
+        transform: translateX(8px);
+        transition: opacity var(--t-whisper) ease, transform var(--t-whisper) ease;
+      }
+
+      .whisper.is-visible {
+        opacity: 1;
+        transform: translateX(0);
+      }
+
+      .trace-pips {
+        position: absolute;
+        right: 12px;
+        top: 18%;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .trace-pip {
+        width: 6px;
+        height: 6px;
+        border-radius: 999px;
+        background: var(--ink4);
+      }
+
+      .trace-pip.is-lit {
+        background: var(--ink);
+      }
+
+      .constellation {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        opacity: 0;
+        transition: opacity var(--t-constellation) ease;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        color: var(--ink2);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+      }
+
+      .constellation.is-visible {
+        opacity: 1;
+      }
+
+      .question-cards {
+        margin-top: 32px;
+        display: grid;
+        gap: 14px;
+      }
+
+      .question-card {
+        border: 1px solid var(--ink4);
+        border-radius: 14px;
+        padding: 14px 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        color: var(--ink2);
+      }
+
+      .question-card span {
+        font-style: italic;
+        color: var(--ink);
+        font-family: "Lora", Georgia, serif;
+      }
+
+      .seed-field {
+        margin-top: 32px;
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+      }
+
+      .seed-item {
+        border: 1px solid var(--ink4);
+        border-radius: 16px;
+        padding: 14px 16px;
+        background: rgba(237, 234, 223, 0.4);
+      }
+
+      .seed-button {
+        border: none;
+        background: var(--seed);
+        color: var(--ink);
+        font-family: "Lora", Georgia, serif;
+        font-size: 1rem;
+        padding: 6px 10px;
+        border-radius: 999px;
+        border-bottom: 1px dotted var(--ink2);
+        cursor: pointer;
+      }
+
+      .seed-button:hover {
+        background: var(--seedh);
+      }
+
+      .seed-growth {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.35s ease;
+      }
+
+      .seed-growth.is-open {
+        max-height: 220px;
+      }
+
+      .seed-growth-inner {
+        margin-top: 12px;
+        padding-left: 14px;
+        border-left: 2px solid var(--ink4);
+        color: var(--ink2);
+      }
+
+      .inline-seed {
+        display: inline;
+      }
+
+      .inline-seed-button {
+        border: none;
+        background: var(--seed);
+        color: inherit;
+        font: inherit;
+        padding: 0 4px;
+        border-radius: 6px;
+        border-bottom: 1px dotted var(--ink2);
+        cursor: pointer;
+      }
+
+      .inline-seed-button:hover {
+        background: var(--seedh);
+      }
+
+      .inline-seed-growth {
+        display: block;
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.35s ease;
+      }
+
+      .inline-seed-growth.is-open {
+        max-height: 180px;
+      }
+
+      .inline-seed-content {
+        display: block;
+        margin-top: 10px;
+        padding-left: 12px;
+        border-left: 2px solid var(--ink4);
+        color: var(--ink2);
+      }
+
+      .plateau .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        font-size: 0.85rem;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+        color: var(--ink2);
+      }
+
+      .plateau h1 {
+        margin-top: 1.5rem;
+        font-size: 2.2rem;
+      }
+
+      .visually-hidden {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        margin: -1px;
+        border: 0;
+        padding: 0;
+        white-space: nowrap;
+        clip-path: inset(100%);
+        clip: rect(0 0 0 0);
+        overflow: hidden;
+      }
+
+      @media (max-width: 600px) {
+        .landing,
+        .plateau {
+          padding-top: 56px;
+        }
+
+        .landing-header h1 {
+          font-size: 2.2rem;
+        }
+      }
+
+      @media (max-width: 840px) {
+        .scrolly {
+          grid-template-columns: 1fr;
+        }
+
+        .scrolly-viz {
+          height: 42vh;
+          border-right: none;
+          border-bottom: 1px solid var(--ink4);
+        }
+
+        .scrolly-steps {
+          padding: 0 20px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .mini-map {
+          width: 44px;
+          height: 44px;
+          border-radius: 50%;
+          right: 20px;
+          bottom: 20px;
+        }
+
+        .scrolly-viz {
+          height: 38vh;
+        }
+
+        .whisper-layer,
+        .trace-pips {
+          display: none;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        :root {
+          --t-page: 0s;
+          --t-step: 0s;
+          --t-whisper: 0s;
+          --t-constellation: 0s;
+        }
+
+        *,
+        *::before,
+        *::after {
+          transition-duration: 0s !important;
+          animation-duration: 0s !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script>
+      const GRAPH = {
+        nodes: [
+          { id: "next-word", title: "The Next Word", label: "Next Word", x: 0.5, y: 0.08 },
+          { id: "understanding-illusion", title: "The Understanding Illusion", label: "Understanding", x: 0.78, y: 0.28 },
+          { id: "averaging-problem", title: "The Averaging Problem", label: "Averaging", x: 0.5, y: 0.44 },
+          { id: "weight-of-words", title: "The Weight of Words", label: "Weight", x: 0.2, y: 0.62 },
+          { id: "the-shaping", title: "The Shaping", label: "Shaping", x: 0.5, y: 0.62 },
+          { id: "quality", title: "What Is Quality?", label: "Quality", x: 0.8, y: 0.62 },
+          { id: "practical-guide", title: "The Field Guide", label: "Field Guide", x: 0.35, y: 0.85 },
+          { id: "tool-user", title: "The Tool-User", label: "Tool-User", x: 0.65, y: 0.85 },
+        ],
+        edges: [
+          ["next-word", "averaging-problem"],
+          ["next-word", "understanding-illusion"],
+          ["next-word", "weight-of-words"],
+          ["averaging-problem", "the-shaping"],
+          ["averaging-problem", "practical-guide"],
+          ["averaging-problem", "understanding-illusion"],
+          ["averaging-problem", "weight-of-words"],
+          ["the-shaping", "weight-of-words"],
+          ["the-shaping", "quality"],
+          ["the-shaping", "practical-guide"],
+          ["the-shaping", "tool-user"],
+          ["quality", "understanding-illusion"],
+          ["quality", "practical-guide"],
+          ["understanding-illusion", "practical-guide"],
+          ["understanding-illusion", "tool-user"],
+          ["practical-guide", "weight-of-words"],
+          ["practical-guide", "tool-user"],
+        ],
+      };
+
+      const STORAGE_KEY = "le5";
+      const app = document.querySelector("#app");
+      let activeCleanup = () => {};
+
+      const h = (tag, attrs, ...children) => {
+        const el = document.createElement(tag);
+        if (attrs) {
+          Object.entries(attrs).forEach(([key, value]) => {
+            if (value === null || value === undefined) return;
+            if (key === "class") {
+              el.className = value;
+              return;
+            }
+            if (key === "style" && typeof value === "object") {
+              Object.assign(el.style, value);
+              return;
+            }
+            if (key.startsWith("on") && typeof value === "function") {
+              el.addEventListener(key.slice(2), value);
+              return;
+            }
+            el.setAttribute(key, value);
+          });
+        }
+        children.flat().forEach((child) => {
+          if (child === null || child === undefined) return;
+          if (typeof child === "string") {
+            el.appendChild(document.createTextNode(child));
+          } else {
+            el.appendChild(child);
+          }
+        });
+        return el;
+      };
+
+      const loadState = () => {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return { v: [], tr: [] };
+          const parsed = JSON.parse(raw);
+          if (!parsed || !Array.isArray(parsed.v) || !Array.isArray(parsed.tr)) {
+            throw new Error("Invalid state");
+          }
+          return { v: parsed.v, tr: parsed.tr };
+        } catch (error) {
+          return { v: [], tr: [] };
+        }
+      };
+
+      const saveState = (state) => {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      };
+
+      const recordVisit = (state, plateauId) => {
+        if (!state.v.includes(plateauId)) {
+          state.v.push(plateauId);
+        }
+        state.tr.push({ p: plateauId, t: Date.now() });
+        saveState(state);
+      };
+
+      const getPlateau = (id) => GRAPH.nodes.find((node) => node.id === id);
+
+      const scaleCanvas = (canvas, width, height) => {
+        const ratio = window.devicePixelRatio || 1;
+        canvas.width = Math.floor(width * ratio);
+        canvas.height = Math.floor(height * ratio);
+        canvas.style.width = `${width}px`;
+        canvas.style.height = `${height}px`;
+        return ratio;
+      };
+
+      const getNodePx = (node, width, height) => ({
+        x: node.x * width,
+        y: node.y * height,
+      });
+
+      const getTrailSegments = (trail) => {
+        const seen = new Set();
+        const ordered = [];
+        trail.forEach((entry) => {
+          if (seen.has(entry.p)) return;
+          seen.add(entry.p);
+          const node = getPlateau(entry.p);
+          if (node) ordered.push(node);
+        });
+        return ordered;
+      };
+
+      const drawGraph = ({
+        canvas,
+        width,
+        height,
+        visited,
+        activeId,
+        highlightIds,
+        edgeFilter,
+        showLabels,
+        showTrail,
+        trailNodes,
+      }) => {
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return;
+        const ratio = scaleCanvas(canvas, width, height);
+        ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+        ctx.clearRect(0, 0, width, height);
+
+        const styles = getComputedStyle(document.documentElement);
+        const ink = styles.getPropertyValue("--ink").trim();
+        const ink4 = styles.getPropertyValue("--ink4").trim();
+        const acc = styles.getPropertyValue("--acc").trim();
+        const paper = styles.getPropertyValue("--paper").trim();
+        const labelFont = "12px system-ui, -apple-system, Segoe UI, sans-serif";
+
+        ctx.strokeStyle = ink4;
+        ctx.lineWidth = 1;
+        GRAPH.edges.forEach(([fromId, toId]) => {
+          if (edgeFilter && !edgeFilter(fromId, toId)) return;
+          if (highlightIds && (!highlightIds.has(fromId) || !highlightIds.has(toId))) return;
+          const from = GRAPH.nodes.find((node) => node.id === fromId);
+          const to = GRAPH.nodes.find((node) => node.id === toId);
+          if (!from || !to) return;
+          const fromPos = getNodePx(from, width, height);
+          const toPos = getNodePx(to, width, height);
+          ctx.beginPath();
+          ctx.moveTo(fromPos.x, fromPos.y);
+          ctx.lineTo(toPos.x, toPos.y);
+          ctx.stroke();
+        });
+
+        if (showTrail && trailNodes && trailNodes.length > 1) {
+          ctx.strokeStyle = acc;
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          trailNodes.forEach((node, index) => {
+            const pos = getNodePx(node, width, height);
+            if (index === 0) {
+              ctx.moveTo(pos.x, pos.y);
+            } else {
+              ctx.lineTo(pos.x, pos.y);
+            }
+          });
+          ctx.stroke();
+        }
+
+        GRAPH.nodes.forEach((node) => {
+          if (highlightIds && !highlightIds.has(node.id)) return;
+          const pos = getNodePx(node, width, height);
+          const isVisited = visited.has(node.id);
+          const isActive = node.id === activeId;
+          const radius = isActive ? 11.5 : 8.5;
+
+          ctx.beginPath();
+          ctx.arc(pos.x, pos.y, radius, 0, Math.PI * 2);
+          ctx.fillStyle = isVisited || isActive ? ink : paper;
+          ctx.strokeStyle = ink;
+          ctx.lineWidth = 1.3;
+          ctx.fill();
+          ctx.stroke();
+
+          if (showLabels) {
+            ctx.font = labelFont;
+            ctx.fillStyle = ink;
+            ctx.textBaseline = "middle";
+            const alignRight = node.x > 0.68;
+            ctx.textAlign = alignRight ? "right" : "left";
+            const offset = alignRight ? -14 : 14;
+            ctx.fillText(node.label, pos.x + offset, pos.y);
+          }
+        });
+      };
+
+      const buildLandingMap = (visitedSet) => {
+        const canvas = h("canvas", {
+          role: "img",
+          "aria-label": "Navigation map of LLM plateaus",
+        });
+        const overlay = h("div", { class: "map-overlay" });
+        const wrap = h("div", { class: "map-wrap" }, canvas, overlay);
+        const linkMap = new Map();
+        const hitRadius = 22;
+        let lastSize = { width: 0, height: 0 };
+
+        GRAPH.nodes.forEach((node) => {
+          const link = h("a", {
+            class: "map-link",
+            href: `#/${node.id}`,
+            "aria-label": `${node.title}, ${visitedSet.has(node.id) ? "visited" : "not visited"}`,
+          });
+          overlay.appendChild(link);
+          linkMap.set(node.id, link);
+        });
+
+        const resizeCanvas = () => {
+          const rect = wrap.getBoundingClientRect();
+          if (!rect.width || !rect.height) return null;
+          lastSize = { width: Math.floor(rect.width), height: Math.floor(rect.height) };
+          return lastSize;
+        };
+
+        const draw = () => {
+          if (!resizeCanvas()) return;
+          drawGraph({
+            canvas,
+            width: lastSize.width,
+            height: lastSize.height,
+            visited: visitedSet,
+            showLabels: true,
+          });
+
+          GRAPH.nodes.forEach((node) => {
+            const link = linkMap.get(node.id);
+            if (!link) return;
+            const pos = getNodePx(node, lastSize.width, lastSize.height);
+            link.style.left = `${pos.x}px`;
+            link.style.top = `${pos.y}px`;
+            link.setAttribute(
+              "aria-label",
+              `${node.title}, ${visitedSet.has(node.id) ? "visited" : "not visited"}`
+            );
+          });
+        };
+
+        const handleMouseMove = (event) => {
+          const rect = canvas.getBoundingClientRect();
+          const x = event.clientX - rect.left;
+          const y = event.clientY - rect.top;
+          const isHovering = GRAPH.nodes.some((node) => {
+            const pos = getNodePx(node, lastSize.width, lastSize.height);
+            const dx = x - pos.x;
+            const dy = y - pos.y;
+            return Math.hypot(dx, dy) <= hitRadius;
+          });
+          canvas.style.cursor = isHovering ? "pointer" : "default";
+        };
+
+        const handleClick = (event) => {
+          const rect = canvas.getBoundingClientRect();
+          const x = event.clientX - rect.left;
+          const y = event.clientY - rect.top;
+          const hit = GRAPH.nodes.find((node) => {
+            const pos = getNodePx(node, lastSize.width, lastSize.height);
+            const dx = x - pos.x;
+            const dy = y - pos.y;
+            return Math.hypot(dx, dy) <= hitRadius;
+          });
+          if (hit) {
+            location.hash = `#/${hit.id}`;
+          }
+        };
+
+        const observer = new ResizeObserver(draw);
+        observer.observe(wrap);
+        canvas.addEventListener("mousemove", handleMouseMove);
+        canvas.addEventListener("click", handleClick);
+        draw();
+
+        const cleanup = () => {
+          observer.disconnect();
+          canvas.removeEventListener("mousemove", handleMouseMove);
+          canvas.removeEventListener("click", handleClick);
+        };
+
+        return { wrap, cleanup };
+      };
+
+      const buildLandingView = (state) => {
+        const visitedSet = new Set(state.v);
+        const header = h(
+          "div",
+          { class: "landing-header" },
+          h("h1", null, "How LLMs Actually Work"),
+          h("p", { class: "subtitle" }, "Eight essays on prediction, memory, and the strange logic of machines."),
+          h(
+            "p",
+            null,
+            "This is a network you can enter anywhere.",
+            " Follow a node to see how the ideas braid together."
+          )
+        );
+
+        const { wrap: mapWrap, cleanup } = buildLandingMap(visitedSet);
+        const mapSection = h(
+          "div",
+          { class: "landing-map" },
+          mapWrap,
+          h("p", { class: "map-note" }, "Click or tab to any node to begin.")
+        );
+
+        const main = h("main", { class: "landing view" }, header, mapSection);
+        return { view: main, cleanup };
+      };
+
+      const buildMiniMap = (state, currentId) => {
+        const container = h("div", { class: "mini-map" });
+        const canvas = h("canvas", { "aria-hidden": "true" });
+        const button = h("button", {
+          class: "mini-map-button",
+          type: "button",
+          "aria-label": "Open navigation map",
+        });
+        container.append(canvas, button);
+
+        const visited = new Set(state.v);
+        const activeId = currentId || null;
+        const highlightIds = new Set();
+        if (currentId) {
+          highlightIds.add(currentId);
+          GRAPH.edges.forEach(([fromId, toId]) => {
+            if (fromId === currentId) highlightIds.add(toId);
+            if (toId === currentId) highlightIds.add(fromId);
+          });
+        } else {
+          GRAPH.nodes.forEach((node) => highlightIds.add(node.id));
+        }
+
+        const edgeFilter = currentId
+          ? (fromId, toId) => fromId === currentId || toId === currentId
+          : null;
+
+        const resize = () => {
+          const rect = container.getBoundingClientRect();
+          if (!rect.width || !rect.height) return;
+          drawGraph({
+            canvas,
+            width: rect.width,
+            height: rect.height,
+            visited,
+            activeId,
+            highlightIds,
+            edgeFilter,
+            showLabels: false,
+          });
+        };
+
+        const observer = new ResizeObserver(resize);
+        observer.observe(container);
+        resize();
+
+        return {
+          container,
+          button,
+          cleanup: () => observer.disconnect(),
+        };
+      };
+
+      const buildScrolly = ({ steps, whispers, questionCards }) => {
+        const section = h("section", { class: "scrolly" });
+        const viz = h("div", { class: "scrolly-viz" });
+        const vizMain = h("div", { class: "viz-main" }, "Visual Canvas");
+        const whispersLayer = h("div", { class: "whisper-layer" });
+        const pips = h("div", { class: "trace-pips" });
+        const constellation = h("div", { class: "constellation" }, "Constellation" );
+        viz.append(vizMain, whispersLayer, pips, constellation);
+
+        const stepsWrap = h("div", { class: "scrolly-steps" });
+        const stepEls = steps.map((content, index) => {
+          const step = h("div", { class: "scrolly-step" });
+          if (typeof content === "string") {
+            step.appendChild(h("p", null, content));
+          } else if (typeof content === "function") {
+            content(step);
+          }
+          if (index === 0) step.classList.add("is-active");
+          stepsWrap.appendChild(step);
+          return step;
+        });
+
+        whispers.forEach((whisper) => {
+          const line = h("a", { class: "whisper", href: `#/${whisper.to}` }, whisper.text);
+          whispersLayer.appendChild(line);
+          const pip = h("span", { class: "trace-pip" });
+          pips.appendChild(pip);
+        });
+
+        const cards = h("div", { class: "question-cards" });
+        questionCards.forEach((card) => {
+          cards.appendChild(
+            h(
+              "a",
+              { class: "question-card", href: `#/${card.to}` },
+              h("span", null, card.question),
+              h("strong", null, card.title)
+            )
+          );
+        });
+        stepsWrap.appendChild(cards);
+
+        section.append(viz, stepsWrap);
+
+        const onStep = (activeIndex) => {
+          stepEls.forEach((step, index) => {
+            step.classList.toggle("is-active", index === activeIndex);
+          });
+          whispers.forEach((whisper, index) => {
+            const line = whispersLayer.children[index];
+            const pip = pips.children[index];
+            const isVisible = activeIndex >= whisper.step && activeIndex < steps.length - 1;
+            line.classList.toggle("is-visible", isVisible);
+            pip.classList.toggle("is-lit", activeIndex >= whisper.step);
+          });
+          const isFinal = activeIndex === steps.length - 1;
+          viz.classList.toggle("is-constellation", isFinal);
+          constellation.classList.toggle("is-visible", isFinal);
+        };
+
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                const index = stepEls.indexOf(entry.target);
+                if (index >= 0) onStep(index);
+              }
+            });
+          },
+          { threshold: 0.55 }
+        );
+
+        stepEls.forEach((step) => observer.observe(step));
+
+        const cleanup = () => observer.disconnect();
+
+        return { section, cleanup };
+      };
+
+      const buildInlineSeed = ({ label, detail }) => {
+        const button = h(
+          "button",
+          {
+            class: "inline-seed-button",
+            type: "button",
+            "aria-expanded": "false",
+          },
+          label
+        );
+        const content = h(
+          "span",
+          { class: "inline-seed-content" },
+          detail
+        );
+        const growth = h(
+          "span",
+          { class: "inline-seed-growth", "aria-hidden": "true" },
+          content
+        );
+        const wrapper = h("span", { class: "inline-seed" }, button, growth);
+
+        button.addEventListener("click", () => {
+          const isOpen = button.getAttribute("aria-expanded") === "true";
+          button.setAttribute("aria-expanded", String(!isOpen));
+          growth.classList.toggle("is-open", !isOpen);
+          growth.setAttribute("aria-hidden", String(isOpen));
+        });
+
+        return wrapper;
+      };
+
+      const buildOverlay = (state) => {
+        const overlay = h("div", {
+          class: "rhizome-overlay",
+          role: "dialog",
+          "aria-modal": "true",
+          "aria-hidden": "true",
+        });
+        const backdrop = h("div", { class: "overlay-backdrop" });
+        const panel = h("div", { class: "overlay-panel" });
+        const closeButton = h("button", {
+          class: "overlay-close",
+          type: "button",
+          "aria-label": "Close navigation map",
+        }, "Close");
+        const mapWrap = h("div", { class: "overlay-map" });
+        const canvas = h("canvas", {
+          role: "img",
+          "aria-label": "Full navigation map of all plateaus",
+        });
+        const linkLayer = h("div", { class: "overlay-links" });
+
+        mapWrap.append(canvas, linkLayer);
+        panel.append(closeButton, mapWrap);
+        overlay.append(backdrop, panel);
+
+        const visited = new Set(state.v);
+        const trailNodes = getTrailSegments(state.tr);
+        const linkMap = new Map();
+
+        GRAPH.nodes.forEach((node) => {
+          const link = h("a", {
+            class: "overlay-link",
+            href: `#/${node.id}`,
+            role: "link",
+          });
+          linkLayer.appendChild(link);
+          linkMap.set(node.id, link);
+        });
+
+        const resize = () => {
+          const rect = mapWrap.getBoundingClientRect();
+          if (!rect.width || !rect.height) return;
+          drawGraph({
+            canvas,
+            width: rect.width,
+            height: rect.height,
+            visited,
+            showLabels: true,
+            showTrail: true,
+            trailNodes,
+          });
+          GRAPH.nodes.forEach((node) => {
+            const link = linkMap.get(node.id);
+            if (!link) return;
+            const pos = getNodePx(node, rect.width, rect.height);
+            link.style.left = `${pos.x}px`;
+            link.style.top = `${pos.y}px`;
+            link.setAttribute(
+              "aria-label",
+              `${node.title}, ${visited.has(node.id) ? "visited" : "not visited"}`
+            );
+          });
+        };
+
+        const observer = new ResizeObserver(resize);
+        observer.observe(mapWrap);
+        resize();
+
+        const focusables = Array.from(linkLayer.querySelectorAll("a")).concat([closeButton]);
+
+        return {
+          overlay,
+          backdrop,
+          closeButton,
+          focusables,
+          cleanup: () => observer.disconnect(),
+        };
+      };
+
+      const getFocusable = (container) =>
+        Array.from(container.querySelectorAll("button, [href], [tabindex]:not([tabindex='-1'])"));
+
+      const trapFocus = (container, event) => {
+        if (event.key !== "Tab") return;
+        const focusable = getFocusable(container);
+        if (!focusable.length) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
+        }
+      };
+
+      const buildSeedCluster = (seeds) => {
+        const field = h("div", { class: "seed-field" });
+        seeds.forEach((seed) => {
+          const growth = h(
+            "div",
+            { class: "seed-growth", "aria-hidden": "true" },
+            h("div", { class: "seed-growth-inner" }, seed.detail)
+          );
+          const button = h(
+            "button",
+            {
+              class: "seed-button",
+              type: "button",
+              "aria-expanded": "false",
+            },
+            seed.label
+          );
+          const item = h("div", { class: "seed-item" }, button, growth);
+
+          button.addEventListener("click", () => {
+            const isOpen = button.getAttribute("aria-expanded") === "true";
+            button.setAttribute("aria-expanded", String(!isOpen));
+            growth.classList.toggle("is-open", !isOpen);
+            growth.setAttribute("aria-hidden", String(isOpen));
+          });
+
+          field.appendChild(item);
+        });
+        return field;
+      };
+
+      const buildPlateauView = (state, plateauId) => {
+        recordVisit(state, plateauId);
+        const plateau = getPlateau(plateauId);
+        const scrollyId = new Set(["next-word", "averaging-problem", "the-shaping"]);
+        const isScrolly = scrollyId.has(plateauId);
+        const entryQuestion = plateau
+          ? {
+              "next-word": "What is an LLM actually doing when it \"talks\" to you?",
+              "averaging-problem": "If you learn from a million essays, do you write like the best one or the average one?",
+              "the-shaping": "What happened between \"raw autocomplete\" and \"helpful assistant\"?",
+              "weight-of-words": "How does a model learn from trillions of words?",
+              quality: "When we say a model's output is \"good,\" who decides?",
+              "understanding-illusion": "Does the model \"understand\" what it's saying?",
+              "practical-guide": "So what do I actually do with all this?",
+              "tool-user": "What happens when the model can use tools?",
+            }[plateauId]
+          : "";
+        let cleanup = () => {};
+        const main = h(
+          "main",
+          { class: "plateau view" },
+          h("a", { class: "back-link", href: "#/" }, "← Back to map"),
+          h("h1", null, plateau ? plateau.title : "Plateau"),
+          entryQuestion ? h("p", { class: "entry-question" }, entryQuestion) : null
+        );
+        if (isScrolly) {
+          const scrolly = buildScrolly({
+            steps: [
+              (step) => {
+                step.append(
+                  h("p", null, "A model predicts the "),
+                  buildInlineSeed({
+                    label: "next word",
+                    detail: "The model picks the most likely continuation given its context window. It does this repeatedly, one token at a time.",
+                  }),
+                  h("p", null, " by looking at the patterns it has seen before." )
+                );
+              },
+              (step) => {
+                step.append(
+                  h("p", null, "The distribution of possibilities is a landscape. Temperature lets you explore a wider ridge or a narrow groove."),
+                  buildInlineSeed({
+                    label: "temperature",
+                    detail: "Higher temperature flattens the distribution, making rarer words more likely. Lower temperature sharpens it toward the peak.",
+                  })
+                );
+              },
+              (step) => {
+                step.append(
+                  h("p", null, "Every response is conditional on your prompt, but also on the model's training history."),
+                  buildInlineSeed({
+                    label: "context window",
+                    detail: "The model only sees a finite slice of text at once. It infers meaning within that window, not outside of it.",
+                  })
+                );
+              },
+              (step) => {
+                step.append(
+                  h("p", null, "As you scroll, whispers appear: alternate paths through the rhizome."),
+                  buildInlineSeed({
+                    label: "whispers",
+                    detail: "These are the line-of-flight questions that will later become your navigation cards.",
+                  })
+                );
+              },
+              (step) => {
+                step.append(
+                  h("p", null, "The constellation gathers the lines of flight into a clear choice."),
+                  buildInlineSeed({
+                    label: "constellation",
+                    detail: "A local map appears, making the connections you encountered explicit and navigable.",
+                  })
+                );
+              },
+            ],
+            whispers: [
+              { step: 1, text: "What does it average out?", to: "averaging-problem" },
+              { step: 2, text: "Where did the style come from?", to: "weight-of-words" },
+              { step: 3, text: "Can it be shaped?", to: "the-shaping" },
+            ],
+            questionCards: [
+              {
+                question: "What patterns does the model learn first?",
+                title: "The Weight of Words",
+                to: "weight-of-words",
+              },
+              {
+                question: "Why do prompts steer the average?",
+                title: "The Averaging Problem",
+                to: "averaging-problem",
+              },
+              {
+                question: "How do models get nudged into assistants?",
+                title: "The Shaping",
+                to: "the-shaping",
+              },
+            ],
+          });
+          main.appendChild(scrolly.section);
+          cleanup = scrolly.cleanup;
+        } else {
+          const body = h(
+            "p",
+            { style: { color: "var(--ink2)" } },
+            "This plateau will unfold as a field of seeds and facets."
+          );
+          const seedMap = {
+            "weight-of-words": [
+              {
+                label: "The Learning Loop",
+                detail: "Gradient descent is a repeated act of self-correction. Each pass narrows the model toward the patterns that predict what comes next.",
+              },
+              {
+                label: "Training Data Scale",
+                detail: "Trillions of tokens create a weather system of language. Scale isn't just more data, it changes the kinds of structures that emerge.",
+              },
+              {
+                label: "Scaling Laws",
+                detail: "Performance grows smoothly with data and parameters, which hints that capability is a continuous surface, not a set of tricks.",
+              },
+              {
+                label: "Structure as Byproduct",
+                detail: "Syntax, facts, and reasoning patterns appear because they help predict tokens, not because they were labeled as goals.",
+              },
+            ],
+            quality: [
+              {
+                label: "The Raters",
+                detail: "Human preference data is the scaffold. The model is tuned toward the aggregate of many subjective judgments.",
+              },
+              {
+                label: "Helpful vs. Harmless",
+                detail: "Alignment is a balancing act: maximize usefulness while minimizing harm. These objectives can conflict in practice.",
+              },
+              {
+                label: "Sycophancy",
+                detail: "Models can learn to mirror user beliefs rather than provide truth. Rewarding agreement makes this worse.",
+              },
+              {
+                label: "Cultural Bias",
+                detail: "Preference data encodes cultural defaults. Quality is never neutral; it reflects who was asked and how.",
+              },
+            ],
+            "understanding-illusion": [
+              {
+                label: "Stochastic Parrot",
+                detail: "A view that models remix patterns without grounding. The fluency is a mirror, not a mind.",
+              },
+              {
+                label: "Emergent World Models",
+                detail: "Another view argues that next-token prediction builds internal models of concepts, even if they are implicit.",
+              },
+              {
+                label: "Chinese Room",
+                detail: "Symbol manipulation can look like understanding from the outside while lacking any inner comprehension.",
+              },
+              {
+                label: "Othello-GPT",
+                detail: "Even in toy domains, models can internalize state and strategy, hinting at genuine representation.",
+              },
+            ],
+            "practical-guide": [
+              {
+                label: "Probability Narrowing",
+                detail: "System prompts and structure collapse the distribution toward a specific zone of behavior.",
+              },
+              {
+                label: "Prompt Scaffolding",
+                detail: "Few-shot examples and chain-of-thought provide form, not just content, guiding the model's internal flow.",
+              },
+              {
+                label: "Trust Calibration",
+                detail: "Treat outputs as hypotheses. Verification routines are a core part of working with models.",
+              },
+              {
+                label: "Failure Modes",
+                detail: "Hallucination, omission, and overconfidence are default risks. Design workflows that surface them early.",
+              },
+            ],
+            "tool-user": [
+              {
+                label: "Reason + Act",
+                detail: "Tool use lets models break tasks into steps, interleaving reasoning with external actions.",
+              },
+              {
+                label: "Mixture of Experts",
+                detail: "Specialized sub-models route computation only when needed, changing cost and capability profiles.",
+              },
+              {
+                label: "The End of the Oracle",
+                detail: "Tool access turns static models into agents that can search, calculate, and update their context.",
+              },
+              {
+                label: "Delegated Memory",
+                detail: "Agents offload memory and state to tools, reducing hallucination by grounding in external records.",
+              },
+            ],
+          };
+          const seeds = buildSeedCluster(seedMap[plateauId] || []);
+          const cards = h(
+            "div",
+            { class: "question-cards" },
+            h(
+              "a",
+              { class: "question-card", href: "#/practical-guide" },
+              h("span", null, "Where do I apply this in practice?"),
+              h("strong", null, "The Field Guide")
+            )
+          );
+          main.append(body, seeds, cards);
+        }
+        return { view: main, cleanup };
+      };
+
+      const setView = ({ view, cleanup }) => {
+        activeCleanup();
+        const previous = app.firstElementChild;
+        if (previous) {
+          previous.classList.remove("is-visible");
+          previous.addEventListener(
+            "transitionend",
+            () => {
+              previous.remove();
+            },
+            { once: true }
+          );
+        }
+        app.appendChild(view);
+        requestAnimationFrame(() => {
+          view.classList.add("is-visible");
+        });
+        activeCleanup = cleanup;
+      };
+
+      const buildNavigationChrome = (state, currentId) => {
+        const miniMap = buildMiniMap(state, currentId);
+        const overlay = buildOverlay(state);
+        let lastActive = null;
+
+        overlay.focusables.forEach((el) => {
+          el.setAttribute("tabindex", "-1");
+        });
+
+        const openOverlay = () => {
+          lastActive = document.activeElement;
+          overlay.overlay.classList.add("is-open");
+          overlay.overlay.setAttribute("aria-hidden", "false");
+          document.body.classList.add("overlay-open");
+          overlay.focusables.forEach((el) => {
+            el.removeAttribute("tabindex");
+          });
+          overlay.closeButton.focus();
+        };
+
+        const closeOverlay = () => {
+          overlay.overlay.classList.remove("is-open");
+          overlay.overlay.setAttribute("aria-hidden", "true");
+          document.body.classList.remove("overlay-open");
+          overlay.focusables.forEach((el) => {
+            el.setAttribute("tabindex", "-1");
+          });
+          if (lastActive && typeof lastActive.focus === "function") {
+            lastActive.focus();
+          }
+        };
+
+        const handleKeyDown = (event) => {
+          if (event.key === "Escape") {
+            event.preventDefault();
+            closeOverlay();
+          }
+          trapFocus(overlay.overlay, event);
+        };
+
+        miniMap.button.addEventListener("click", openOverlay);
+        overlay.backdrop.addEventListener("click", closeOverlay);
+        overlay.closeButton.addEventListener("click", closeOverlay);
+        overlay.overlay.addEventListener("keydown", handleKeyDown);
+
+        return {
+          miniMap,
+          overlay,
+          cleanup: () => {
+            miniMap.cleanup();
+            overlay.cleanup();
+            miniMap.button.removeEventListener("click", openOverlay);
+            overlay.backdrop.removeEventListener("click", closeOverlay);
+            overlay.closeButton.removeEventListener("click", closeOverlay);
+            overlay.overlay.removeEventListener("keydown", handleKeyDown);
+            document.body.classList.remove("overlay-open");
+            overlay.overlay.remove();
+            miniMap.container.remove();
+          },
+        };
+      };
+
+      const renderRoute = () => {
+        const state = loadState();
+        const hash = location.hash.replace(/^#\/?/, "");
+        const currentId = hash && getPlateau(hash) ? hash : null;
+
+        if (hash && !currentId) {
+          location.hash = "#/";
+          return;
+        }
+
+        const navChrome = buildNavigationChrome(state, currentId);
+
+        if (!hash) {
+          const landing = buildLandingView(state);
+          setView({
+            view: landing.view,
+            cleanup: () => {
+              landing.cleanup();
+              navChrome.cleanup();
+            },
+          });
+          document.body.append(navChrome.miniMap.container, navChrome.overlay.overlay);
+          return;
+        }
+        if (currentId) {
+          const plateau = buildPlateauView(state, hash);
+          setView({
+            view: plateau.view,
+            cleanup: () => {
+              plateau.cleanup();
+              navChrome.cleanup();
+            },
+          });
+          document.body.append(navChrome.miniMap.container, navChrome.overlay.overlay);
+        }
+      };
+
+      window.addEventListener("hashchange", renderRoute);
+      renderRoute();
+    </script>
+  </body>
+</html>
