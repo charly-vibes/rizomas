@@ -57,3 +57,6 @@ Cross-cutting concerns are divided across specs with clear ownership:
 
 ## External Dependencies
 - Google Fonts: Lora (serif body text)
+
+## Design Reviews
+- [2026-02-10 - Design and Optionality Review](./reviews/2026-02-10-design-review.md)
