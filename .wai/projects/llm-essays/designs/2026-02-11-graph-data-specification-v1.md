@@ -22,6 +22,7 @@ This document outlines the graph data (nodes, edges, and their positions) for th
 | `digital-footprints` | Digital Footprints: The Environmental Cost of AI | Digital Footprint |
 | `artificial-brain` | The Artificial Brain: Metaphors and Mismatches | Artificial Brain |
 | `empathy-machine` | The Empathy Machine? AI and Human Connection | Empathy AI |
+| `near-zero-cost-impact` | The Impact of Near-Zero Cost Production: Preparing for an Abundant Future | Near-Zero Cost |
 
 ### Edges (Based on conceptual links and whispers designed)
 
@@ -69,6 +70,13 @@ automation-of-cognition ↔ black-box-oracle
 black-box-oracle ↔ empathy-machine
 
 echoes-of-the-past ↔ digital-footprints
+near-zero-cost-impact ↔ averaging-problem
+near-zero-cost-impact ↔ what-is-quality
+near-zero-cost-impact ↔ understanding-illusion
+near-zero-cost-impact ↔ the-shaping
+near-zero-cost-impact ↔ digital-footprints
+near-zero-cost-impact ↔ automation-of-cognition
+near-zero-cost-impact ↔ black-box-oracle
 ```
 
 ### Node Positions (fixed, normalized 0–1, aiming for visual balance)
@@ -90,6 +98,7 @@ echoes-of-the-past ↔ digital-footprints
   'automation-of-cognition':{x:.25,  y:.75},
   'digital-footprints':    {x:.75,  y:.75},
   'artificial-brain':      {x:.4,   y:.88},
-  'empathy-machine':       {x:.6,   y:.88}
+  'empathy-machine':       {x:.6,   y:.88},
+  'near-zero-cost-impact': {x:.5,   y:.65}
 }
 ```

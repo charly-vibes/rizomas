@@ -4,7 +4,7 @@ This document consolidates and updates the project's development roadmap, reflec
 
 ## High Priority
 
-- [ ] **Implement Interactive Elements for 13 Plateaus:** Develop and integrate "inline seeds," "whispers," and "constellation" functionality based on the designs documented in each of the 13 non-scrolly plateau design files. This includes:
+- [ ] **Implement Interactive Elements for 14 Plateaus:** Develop and integrate "inline seeds," "whispers," and "constellation" functionality based on the designs documented in each of the 14 non-scrolly plateau design files. This includes:
     - `practical-guide`
     - `understanding-illusion`
     - `weight-of-words`
@@ -18,6 +18,7 @@ This document consolidates and updates the project's development roadmap, reflec
     - `digital-footprints`
     - `artificial-brain`
     - `empathy-machine`
+    - `near-zero-cost-impact`
 
 - [ ] **Update Navigation Graph Data Implementation:** Implement the new graph data (nodes, edges, positions) as defined in `2026-02-11-graph-data-specification-v1.md` into the Rhizome mini-map and Rhizome overlay. This is critical for accurate navigation across all 16 plateaus.
 
