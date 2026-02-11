@@ -236,6 +236,11 @@
         outline-offset: 4px;
       }
 
+      .overlay-link:hover {
+        opacity: 1;
+        background: rgba(74, 103, 65, 0.08);
+      }
+
       .overlay-close {
         position: absolute;
         top: 16px;
@@ -399,6 +404,12 @@
         gap: 6px;
         font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
         color: var(--ink2);
+        transition: border-color 0.2s ease, transform 0.2s ease;
+      }
+
+      .question-card:hover {
+        border-color: var(--ink2);
+        transform: translateY(-1px);
       }
 
       .question-card span {
@@ -1104,6 +1115,8 @@
         const visited = new Set(state.v);
         const trailNodes = getTrailSegments(state.tr);
         const linkMap = new Map();
+        const hitRadius = 22;
+        let lastSize = { width: 0, height: 0 };
 
         GRAPH.nodes.forEach((node) => {
           const link = h("a", {
@@ -1118,6 +1131,7 @@
         const resize = () => {
           const rect = mapWrap.getBoundingClientRect();
           if (!rect.width || !rect.height) return;
+          lastSize = { width: rect.width, height: rect.height };
           drawGraph({
             canvas,
             width: rect.width,
@@ -1140,8 +1154,38 @@
           });
         };
 
+        const handleMouseMove = (event) => {
+          const rect = canvas.getBoundingClientRect();
+          const x = event.clientX - rect.left;
+          const y = event.clientY - rect.top;
+          const isHovering = GRAPH.nodes.some((node) => {
+            const pos = getNodePx(node, lastSize.width, lastSize.height);
+            const dx = x - pos.x;
+            const dy = y - pos.y;
+            return Math.hypot(dx, dy) <= hitRadius;
+          });
+          canvas.style.cursor = isHovering ? "pointer" : "default";
+        };
+
+        const handleClick = (event) => {
+          const rect = canvas.getBoundingClientRect();
+          const x = event.clientX - rect.left;
+          const y = event.clientY - rect.top;
+          const hit = GRAPH.nodes.find((node) => {
+            const pos = getNodePx(node, lastSize.width, lastSize.height);
+            const dx = x - pos.x;
+            const dy = y - pos.y;
+            return Math.hypot(dx, dy) <= hitRadius;
+          });
+          if (hit) {
+            location.hash = `#/${hit.id}`;
+          }
+        };
+
         const observer = new ResizeObserver(resize);
         observer.observe(mapWrap);
+        canvas.addEventListener("mousemove", handleMouseMove);
+        canvas.addEventListener("click", handleClick);
         resize();
 
         const focusables = Array.from(linkLayer.querySelectorAll("a")).concat([closeButton]);
@@ -1151,7 +1195,11 @@
           backdrop,
           closeButton,
           focusables,
-          cleanup: () => observer.disconnect(),
+          cleanup: () => {
+            observer.disconnect();
+            canvas.removeEventListener("mousemove", handleMouseMove);
+            canvas.removeEventListener("click", handleClick);
+          },
         };
       };
 
@@ -1209,6 +1257,144 @@
         const plateau = getPlateau(plateauId);
         const scrollyId = new Set(["next-word", "averaging-problem", "the-shaping"]);
         const isScrolly = scrollyId.has(plateauId);
+        const questionCardMap = {
+          "next-word": [
+            {
+              question: "What patterns does the model learn first?",
+              title: "The Weight of Words",
+              to: "weight-of-words",
+            },
+            {
+              question: "Why do prompts steer the average?",
+              title: "The Averaging Problem",
+              to: "averaging-problem",
+            },
+            {
+              question: "How do models get nudged into assistants?",
+              title: "The Shaping",
+              to: "the-shaping",
+            },
+          ],
+          "averaging-problem": [
+            {
+              question: "How does next-token prediction feel from inside?",
+              title: "The Next Word",
+              to: "next-word",
+            },
+            {
+              question: "How do we steer a model's behavior?",
+              title: "The Shaping",
+              to: "the-shaping",
+            },
+            {
+              question: "What can you do with all this?",
+              title: "The Field Guide",
+              to: "practical-guide",
+            },
+          ],
+          "the-shaping": [
+            {
+              question: "How does pretraining plant the raw behavior?",
+              title: "The Weight of Words",
+              to: "weight-of-words",
+            },
+            {
+              question: "Who defines what good looks like?",
+              title: "What Is Quality?",
+              to: "quality",
+            },
+            {
+              question: "What happens when models become tool users?",
+              title: "The Tool-User",
+              to: "tool-user",
+            },
+          ],
+          "weight-of-words": [
+            {
+              question: "What does next-token prediction feel like?",
+              title: "The Next Word",
+              to: "next-word",
+            },
+            {
+              question: "How does alignment reshape the base model?",
+              title: "The Shaping",
+              to: "the-shaping",
+            },
+            {
+              question: "Where do we apply these mechanics?",
+              title: "The Field Guide",
+              to: "practical-guide",
+            },
+          ],
+          quality: [
+            {
+              question: "Does the model understand or just sound fluent?",
+              title: "The Understanding Illusion",
+              to: "understanding-illusion",
+            },
+            {
+              question: "How is the model shaped by human feedback?",
+              title: "The Shaping",
+              to: "the-shaping",
+            },
+            {
+              question: "What should we do with these tools?",
+              title: "The Field Guide",
+              to: "practical-guide",
+            },
+          ],
+          "understanding-illusion": [
+            {
+              question: "What kind of data forms the model?",
+              title: "The Averaging Problem",
+              to: "averaging-problem",
+            },
+            {
+              question: "Who decides what quality means?",
+              title: "What Is Quality?",
+              to: "quality",
+            },
+            {
+              question: "What do we do with the uncertainty?",
+              title: "The Field Guide",
+              to: "practical-guide",
+            },
+          ],
+          "practical-guide": [
+            {
+              question: "How does the base model learn its patterns?",
+              title: "The Weight of Words",
+              to: "weight-of-words",
+            },
+            {
+              question: "What does alignment optimize?",
+              title: "The Shaping",
+              to: "the-shaping",
+            },
+            {
+              question: "What happens when models act on tools?",
+              title: "The Tool-User",
+              to: "tool-user",
+            },
+          ],
+          "tool-user": [
+            {
+              question: "How do models pick their next action?",
+              title: "The Next Word",
+              to: "next-word",
+            },
+            {
+              question: "Can models really understand their tools?",
+              title: "The Understanding Illusion",
+              to: "understanding-illusion",
+            },
+            {
+              question: "How do we apply these behaviors?",
+              title: "The Field Guide",
+              to: "practical-guide",
+            },
+          ],
+        };
         const entryQuestion = plateau
           ? {
               "next-word": "What is an LLM actually doing when it \"talks\" to you?",
@@ -1284,23 +1470,7 @@
               { step: 2, text: "Where did the style come from?", to: "weight-of-words" },
               { step: 3, text: "Can it be shaped?", to: "the-shaping" },
             ],
-            questionCards: [
-              {
-                question: "What patterns does the model learn first?",
-                title: "The Weight of Words",
-                to: "weight-of-words",
-              },
-              {
-                question: "Why do prompts steer the average?",
-                title: "The Averaging Problem",
-                to: "averaging-problem",
-              },
-              {
-                question: "How do models get nudged into assistants?",
-                title: "The Shaping",
-                to: "the-shaping",
-              },
-            ],
+            questionCards: questionCardMap[plateauId] || [],
           });
           main.appendChild(scrolly.section);
           cleanup = scrolly.cleanup;
@@ -1403,16 +1573,17 @@
             ],
           };
           const seeds = buildSeedCluster(seedMap[plateauId] || []);
-          const cards = h(
-            "div",
-            { class: "question-cards" },
-            h(
-              "a",
-              { class: "question-card", href: "#/practical-guide" },
-              h("span", null, "Where do I apply this in practice?"),
-              h("strong", null, "The Field Guide")
-            )
-          );
+          const cards = h("div", { class: "question-cards" });
+          (questionCardMap[plateauId] || []).forEach((card) => {
+            cards.appendChild(
+              h(
+                "a",
+                { class: "question-card", href: `#/${card.to}` },
+                h("span", null, card.question),
+                h("strong", null, card.title)
+              )
+            );
+          });
           main.append(body, seeds, cards);
         }
         return { view: main, cleanup };
