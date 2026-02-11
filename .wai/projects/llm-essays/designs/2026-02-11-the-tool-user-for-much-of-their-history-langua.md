@@ -13,5 +13,25 @@ This loop, often called **ReAct (Reasoning and Acting)**, transforms the model f
 
 This modularity is also happening inside the model itself. Architectures like **Mixture-of-Experts (MoE)** are moving away from the idea that all 175 billion parameters need to be active for every single thought. In an MoE model, there are many smaller "expert" networks, each specialized in different types of problems or knowledge domains. For any given task, the model's internal router might select just two or three of the most relevant experts to handle it. This is more efficient and allows models to grow much larger in total parameter count without a proportional increase in computational cost.
 
-The shift to the Tool-User paradigm marks a crucial step in the evolution of AI. It is a move away from the "all-knowing oracle" and toward a more practical, reliable, and extensible reasoning engine—a system that knows what it doesn't know and has the tools to find out.
+The shift to the Tool-User paradigm marks a crucial step in the evolution of AI. It is a move away from the "all-knowing oracle" and toward a more practical, reliable, and extensible reasoning engine—a system that knows what it doesn't know and has the tools to find out. How does this architectural shift change your perception of AI's capabilities and its limitations in interacting with the real world?
+
+## Interactive Elements Design
+
+### Inline Seeds
+- **Label:** "ReAct"
+  - **HTML:** "A reasoning and acting framework where an LLM alternates between generating natural language thoughts and executing actions using external tools, then observing the results."
+- **Label:** "Mixture-of-Experts (MoE)"
+  - **HTML:** "A neural network architecture where different 'expert' subnetworks specialize in different types of problems, and a 'router' selects the most relevant experts for a given task, improving efficiency at scale."
+- **Label:** "static knowledge base"
+  - **HTML:** "Refers to older LLMs primarily confined to the information they were trained on, unable to access real-time data or external capabilities."
+
+### Whispers
+- **Step 1:** "How do LLMs learn to delegate tasks?" → `the-shaping`
+- **Step 2:** "How does AI interact with the real world?" → `the-empathy-machine`
+- **Step 3:** "What are the ethical implications of AI action?" → `the-black-box-oracle`
+- **Step 4:** "How does AI automate cognitive tasks?" → `automation-of-cognition`
+
+### Constellation
+- **Central Node:** tool-user
+- **Connected Nodes (examples):** the-shaping, the-empathy-machine, the-black-box-oracle, automation-of-cognition
 

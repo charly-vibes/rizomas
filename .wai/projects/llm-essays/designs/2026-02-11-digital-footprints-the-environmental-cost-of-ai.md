@@ -20,4 +20,24 @@ The environmental impact of AI extends beyond just energy and carbon. Data cente
 
 ### Step 4: Towards Sustainable AI: Greening the Algorithm
 
-Addressing the environmental costs of AI is crucial, giving rise to the concept of "Sustainable AI" or "Green AI." This approach focuses on developing and deploying AI systems with minimized negative environmental consequences. Key strategies include: powering data centers with renewable energy, optimizing AI algorithms for greater energy efficiency, developing and utilizing hardware with lower power consumption, and improving data center efficiency through advanced cooling and heat reuse. Beyond reducing its own footprint, AI can also be leveraged as a powerful tool to promote sustainability in other sectors, such as optimizing energy grids, monitoring environmental changes, and improving resource management. Ultimately, a conscious and integrated design approach, considering environmental impact at every stage, is essential for a responsible AI future.
+Addressing the environmental costs of AI is crucial, giving rise to the concept of "Sustainable AI" or "Green AI." This approach focuses on developing and deploying AI systems with minimized negative environmental consequences. Key strategies include: powering data centers with renewable energy, optimizing AI algorithms for greater energy efficiency, developing and utilizing hardware with lower power consumption, and improving data center efficiency through advanced cooling and heat reuse. Beyond reducing its own footprint, AI can also be leveraged as a powerful tool to promote sustainability in other sectors, such as optimizing energy grids, monitoring environmental changes, and improving resource management. Ultimately, a conscious and integrated design approach, considering environmental impact at every stage, is essential for a responsible AI future. How do the environmental costs of AI challenge us to question the sustainability of our technological progress and consumption?
+
+## Interactive Elements Design
+
+### Inline Seeds
+- **Label:** "inference phase"
+  - **HTML:** "The stage where a trained AI model is used to make predictions or generate outputs on new, unseen data, which can consume significant energy over its operational lifetime."
+- **Label:** "carbon footprint"
+  - **HTML:** "The total amount of greenhouse gases (including carbon dioxide and methane) emitted directly and indirectly by an activity, organization, or product, expressed as carbon dioxide equivalent."
+- **Label:** "Sustainable AI"
+  - **HTML:** "An approach to developing and deploying AI systems that minimizes negative environmental consequences while maximizing their societal benefits, focusing on efficiency and renewable energy."
+
+### Whispers
+- **Step 1:** "How do LLMs learn from vast datasets?" → `the-weight-of-words`
+- **Step 2:** "What are the ethical costs of unchecked AI growth?" → `what-is-quality`
+- **Step 3:** "How does AI automation impact resource use?" → `automation-of-cognition`
+- **Step 4:** "Can AI itself help address environmental challenges?" → `the-tool-user`
+
+### Constellation
+- **Central Node:** digital-footprints
+- **Connected Nodes (examples):** the-weight-of-words, what-is-quality, automation-of-cognition, the-tool-user

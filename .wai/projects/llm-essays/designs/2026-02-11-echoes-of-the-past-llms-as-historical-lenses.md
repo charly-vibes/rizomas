@@ -20,4 +20,24 @@ LLMs interpret historical data by identifying statistical patterns and relations
 
 ### Step 4: Shaping Historical Narratives and Accountability
 
-The application of AI to history has the power to reshape historical narratives. It can create immersive experiences, visualize complex historical trends, and potentially facilitate "counter-storytelling" by amplifying marginalized voices. Conversely, there is a significant risk that AI could reinforce existing biases, leading to selective, censored, or overly simplistic historical accounts. The opacity of many AI methodologies, coupled with the power to control algorithmic levers, raises ethical dilemmas about who or what is "rewriting history." Ensuring accuracy, reliability, and the integrity of AI-generated historical content requires robust collaboration between historians and technologists, along with transparent and accountable AI governance.
+The application of AI to history has the power to reshape historical narratives. It can create immersive experiences, visualize complex historical trends, and potentially facilitate "counter-storytelling" by amplifying marginalized voices. Conversely, there is a significant risk that AI could reinforce existing biases, leading to selective, censored, or overly simplistic historical accounts. The opacity of many AI methodologies, coupled with the power to control algorithmic levers, raises ethical dilemmas about who or what is "rewriting history." Ensuring accuracy, reliability, and the integrity of AI-generated historical content requires robust collaboration between historians and technologists, along with transparent and accountable AI governance. How does the prospect of AI shaping historical narratives compel us to question the sources and biases in our understanding of the past?
+
+## Interactive Elements Design
+
+### Inline Seeds
+- **Label:** "textual corpora"
+  - **HTML:** "Large, structured collections of digital texts used to train and analyze language models, often comprising books, articles, and historical documents."
+- **Label:** "Eurocentric narratives"
+  - **HTML:** "Historical accounts or perspectives that primarily focus on European cultures and histories, potentially marginalizing or overlooking the experiences of other regions and peoples."
+- **Label:** "counter-storytelling"
+  - **HTML:** "A narrative strategy that challenges dominant or established stories by presenting alternative perspectives, often from marginalized or underrepresented groups."
+
+### Whispers
+- **Step 1:** "How does AI analyze vast amounts of text?" → `the-weight-of-words`
+- **Step 2:** "How do human biases enter AI systems?" → `what-is-quality`
+- **Step 3:** "Can AI truly 'understand' historical context?" → `the-understanding-illusion`
+- **Step 4:** "How to ensure accountability in AI interpretations?" → `the-black-box-oracle`
+
+### Constellation
+- **Central Node:** echoes-of-the-past
+- **Connected Nodes (examples):** the-weight-of-words, what-is-quality, the-understanding-illusion, the-black-box-oracle

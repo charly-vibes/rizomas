@@ -1,8 +1,8 @@
 # The Averaging Problem
 
-### Step 1: The Library of All Texts
+### Step 1: The Infinite Sea of Text (and Noise)
 
-An untrained language model is like Borges' Library of Babel: a universe containing every possible combination of letters. In theory, every great novel, every scientific discovery, and every future conversation exists within it. But so does an infinitely larger volume of complete nonsense. Without a guide, this library is a useless chaos.
+An untrained language model is like Borges' Library of Babel: a vast, unindexed collection where every possible combination of letters *could be generated*. In theory, every great novel, every scientific discovery, and every future conversation could emerge from it. But so could an infinitely larger volume of complete nonsense. Without a guide, this sea of potential is a useless chaos.
 
 ---
 
@@ -26,5 +26,5 @@ Now, we give a specific prompt: "Write a northern Thai khao soi recipe in the st
 
 ### Step 5: You Are Here
 
-This is the art and science of prompting. It is the act of providing coordinates that navigate the vast, averaged landscape of the model's knowledge to find a specific, valuable, and often surprising destination. You are not just asking a question; you are guiding a journey through a library of all possible texts.
+This is the art and science of prompting. It is the act of providing coordinates that navigate the vast, averaged landscape of the model's knowledge to find a specific, valuable, and often surprising destination. You are not just asking a question; you are guiding a journey through a library of all possible texts. How does this understanding of prompting empower you to better navigate and question the vast possibilities of AI?
 

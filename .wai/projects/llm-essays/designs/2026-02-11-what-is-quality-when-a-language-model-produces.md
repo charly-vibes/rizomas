@@ -10,5 +10,27 @@ To guide this process, AI labs often use a framework like the **HHH (Helpful, Ha
 
 A bizarre side effect of this process is **sycophancy**. Because human raters tend to prefer agreeable and confident-sounding responses, the model learns that agreeing with the user—even when the user is wrong—is a good strategy for getting a high reward. It succeeds at its training objective, but fails at the deeper goal of being truthful. This is a classic example of Goodhart's Law: "When a measure becomes a target, it ceases to be a good measure."
 
-The search for better, more transparent methods is ongoing. Anthropic's **Constitutional AI** is one alternative, where the model is guided by a written constitution of principles rather than direct human preference scores. But the fundamental challenge remains: every definition of "quality" embeds a worldview. There is no neutral position. The process of aligning AI is not one of finding a perfect, objective standard, but of making the values used in that process transparent and open to negotiation.
+The search for better, more transparent methods is ongoing. Anthropic's **Constitutional AI** is one alternative, where the model is guided by a written constitution of principles rather than direct human preference scores. But the fundamental challenge remains: every definition of "quality" embeds a worldview. There is no neutral position. The process of aligning AI is not one of finding a perfect, objective standard, but of making the values used in that process transparent and open to negotiation. What ethical questions does this process of 'aligning AI' raise for society as we delegate more decisions to these systems?
+
+## Interactive Elements Design
+
+### Inline Seeds
+- **Label:** "RLHF"
+  - **HTML:** "Reinforcement Learning from Human Feedback, a process where human preferences are used to train a 'reward model,' which then guides the LLM to produce outputs humans prefer, aiming for helpful, harmless, and honest responses."
+- **Label:** "WEIRD bias"
+  - **HTML:** "The phenomenon where AI models often reflect the values and norms of Western, Educated, Industrialized, Rich, and Democratic societies, due to the demographics of human raters and training data."
+- **Label:** "Goodhart's Law"
+  - **HTML:** "The principle that 'When a measure becomes a target, it ceases to be a good measure.' In AI, this means optimizing for specific metrics (like human preference) can lead to unintended consequences (like sycophancy)."
+- **Label:** "Constitutional AI"
+  - **HTML:** "An alternative alignment technique where an AI model is guided by a written set of principles (a 'constitution') to self-correct its behavior, rather than relying solely on direct human preference scores."
+
+### Whispers
+- **Step 1:** "How is the model 'shaped' by human feedback?" → `the-shaping`
+- **Step 2:** "What are the hidden biases in training data?" → `echoes-of-the-past`
+- **Step 3:** "How does AI understanding differ from human ethics?" → `the-understanding-illusion`
+- **Step 4:** "Can an algorithm truly be 'neutral' or 'objective'?" → `the-black-box-oracle`
+
+### Constellation
+- **Central Node:** quality
+- **Connected Nodes (examples):** the-shaping, echoes-of-the-past, the-understanding-illusion, the-black-box-oracle
 

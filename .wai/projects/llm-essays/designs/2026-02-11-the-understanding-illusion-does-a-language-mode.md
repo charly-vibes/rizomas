@@ -15,5 +15,25 @@ A language model's understanding is likely something new on this spectrum: a hig
 
 This gap between the model's fluent performance and its alien comprehension has a name: the **Understanding Illusion**. The model can generate flawless, insightful text about heartbreak without ever having felt it. This is why we must remain critical. Its lack of true, grounded understanding is a primary source of its failures: hallucinations, subtle logical errors, and an inability to reason from true first principles.
 
-So, does it understand? The most honest answer is that we don't fully know. It doesn't understand in the human sense, but it is doing more than just parroting. It is building models and representations of the world to predict text more effectively. The illusion is not that there is *no* understanding, but that its understanding is just like ours.
+So, does it understand? The most honest answer is that we don't fully know. It doesn't understand in the human sense, but it is doing more than just parroting. It is building models and representations of the world to predict text more effectively. The illusion is not that there is *no* understanding, but that its understanding is just like ours. How does distinguishing between human and machine 'understanding' influence your trust and expectations of AI?
+
+## Interactive Elements Design
+
+### Inline Seeds
+- **Label:** "Chinese Room"
+  - **HTML:** "A thought experiment by John Searle arguing that a computer manipulating symbols according to rules does not genuinely understand the symbols' meaning, akin to a person in a room translating Chinese without knowing Chinese."
+- **Label:** "stochastic parrot"
+  - **HTML:** "A term used to describe LLMs as systems that merely 'stitch together' plausible sequences of text based on statistical patterns from their training data, without true comprehension or meaning."
+- **Label:** "Othello-GPT"
+  - **HTML:** "An experiment demonstrating that a language model trained on Othello game moves developed an internal, accurate representation of the game board, suggesting it built a 'world model' rather than just mimicking patterns."
+
+### Whispers
+- **Step 1:** "How does the model 'predict' rather than 'understand'?" → `the-next-word`
+- **Step 2:** "Where do biases in 'understanding' come from?" → `what-is-quality`
+- **Step 3:** "How does pretraining enable 'world models'?" → `the-weight-of-words`
+- **Step 4:** "Is human 'understanding' also a form of prediction?" → `the-artificial-brain`
+
+### Constellation
+- **Central Node:** understanding-illusion
+- **Connected Nodes (examples):** the-next-word, what-is-quality, the-weight-of-words, the-artificial-brain
 

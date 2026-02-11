@@ -38,5 +38,5 @@ So, is a large language model just a glorified autocomplete? Mechanically, yes. 
 
 ### Step 7: Navigation
 
-The simple act of predicting the next word, when scaled up, creates a universe of emergent behavior. But where does this behavior come from, and what does it mean to be the "average" of all text?
+The simple act of predicting the next word, when scaled up, creates a universe of emergent behavior. But where does this behavior come from, and what does it mean to be the "average" of all text? How does this fundamental task of prediction challenge or expand your understanding of machine intelligence?
 

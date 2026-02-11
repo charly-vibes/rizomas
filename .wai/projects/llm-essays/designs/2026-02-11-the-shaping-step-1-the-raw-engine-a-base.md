@@ -26,5 +26,5 @@ The difference is dramatic. The same base model can be shaped into a dozen diffe
 
 ### Step 5: An Ongoing Conversation
 
-This shaping process is not a one-time event. It is an ongoing conversation between developers, users, and the models themselves. As new techniques like Constitutional AI emerge and as we get better at defining what "quality" means, the models will continue to evolve. The shaping never truly stops.
+This shaping process is not a one-time event. It is an ongoing conversation between developers, users, and the models themselves. As new techniques like Constitutional AI emerge and as we get better at defining what "quality" means, the models will continue to evolve. The shaping never truly stops. Considering this continuous shaping, what questions do you have about the evolving nature of AI values and alignment?
 
