@@ -19,10 +19,18 @@
         --seedh: #e4e0d4;
         --hl: #fff3c4;
         --acc: #4a6741;
+        --paper-warm: #faf8f2;
+        --bg-temp: 0;
         --t-page: 0.2s;
         --t-step: 0.4s;
         --t-whisper: 0.6s;
         --t-constellation: 0.6s;
+        --t-liminal-in: 0.2s;
+        --t-liminal-out: 0.2s;
+        --t-dwell: 0.4s;
+        --t-scatter: 0.6s;
+        --t-ghostfade: 0.3s;
+        --t-engagement: 0.2s;
       }
 
       * {
@@ -31,7 +39,7 @@
 
       body {
         margin: 0;
-        background: var(--paper);
+        background: color-mix(in srgb, var(--paper) calc((1 - var(--bg-temp)) * 100%), var(--paper-warm));
         color: var(--ink);
         font-family: "Lora", Georgia, serif;
         font-size: 18px;
@@ -532,6 +540,250 @@
         overflow: hidden;
       }
 
+      /* Question-seed: italic label with dotted underline */
+      .inline-seed-button[data-seed-type="question"] {
+        font-style: italic;
+        border-bottom-style: dotted;
+      }
+
+      /* Seed growth for question-seeds */
+      .seed-button[data-seed-type="question"] {
+        font-style: italic;
+        border-bottom-style: dotted;
+      }
+
+      /* Dangling reference trailing link */
+      .dangling-link {
+        font-style: italic;
+        color: var(--ink2);
+        border-bottom: 1px dotted var(--ink2);
+        cursor: pointer;
+      }
+
+      .dangling-link:hover {
+        color: var(--ink);
+      }
+
+      /* Liminal transition overlay */
+      .liminal-transition {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 50;
+        opacity: 0;
+        background: rgba(250, 250, 248, 0.88);
+        backdrop-filter: blur(12px);
+        transition: opacity var(--t-liminal-in) ease;
+        pointer-events: none;
+      }
+
+      .liminal-transition.is-visible {
+        opacity: 1;
+      }
+
+      .liminal-transition.is-fading {
+        opacity: 0;
+        transition: opacity var(--t-liminal-out) ease;
+      }
+
+      .liminal-question {
+        font-style: italic;
+        color: var(--ink);
+        font-size: 1.1rem;
+        max-width: 32rem;
+        text-align: center;
+        line-height: 1.7;
+        padding: 0 24px;
+      }
+
+      /* Ghostfading visited concepts */
+      .ghostfaded {
+        opacity: 0.85;
+        transition: opacity var(--t-ghostfade) ease;
+      }
+
+      .ghostfaded .inline-seed-button,
+      .ghostfaded .seed-button,
+      .ghostfaded a {
+        opacity: 1;
+      }
+
+      /* Engagement state counter */
+      .engagement-state {
+        color: var(--ink3);
+        font-size: 0.72rem;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        margin-top: 16px;
+        opacity: 1;
+        transition: opacity var(--t-engagement) ease;
+      }
+
+      /* Dwell-reveal annotations */
+      .dwell-annotation {
+        position: absolute;
+        right: -180px;
+        top: 0;
+        width: 160px;
+        font-style: italic;
+        color: var(--ink3);
+        font-size: 0.78rem;
+        line-height: 1.5;
+        opacity: 0;
+        transition: opacity var(--t-dwell) ease;
+      }
+
+      .dwell-annotation.is-revealed {
+        opacity: 1;
+      }
+
+      .dwell-target {
+        position: relative;
+      }
+
+      /* Author marginalia */
+      .plateau-with-marginalia {
+        max-width: 54rem;
+        display: grid;
+        grid-template-columns: 1fr 180px;
+        gap: 0 32px;
+      }
+
+      .plateau-with-marginalia > * {
+        grid-column: 1;
+      }
+
+      .marginalia {
+        grid-column: 2;
+        font-style: italic;
+        color: var(--ink3);
+        font-size: 0.78rem;
+        line-height: 1.5;
+        align-self: start;
+        padding-top: 4px;
+      }
+
+      /* Cross-plateau retrieval moment */
+      .retrieval-moment {
+        background: var(--seed);
+        color: var(--ink2);
+        border-top: 2px solid var(--ink4);
+        border-radius: 0 0 12px 12px;
+        padding: 14px 18px;
+        margin-bottom: 24px;
+        font-size: 0.92rem;
+        line-height: 1.6;
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        opacity: 1;
+        transition: opacity 0.3s ease;
+      }
+
+      .retrieval-moment.is-dismissed {
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .retrieval-close {
+        border: 1px solid var(--ink4);
+        background: transparent;
+        color: var(--ink3);
+        border-radius: 999px;
+        width: 24px;
+        height: 24px;
+        font-size: 0.7rem;
+        cursor: pointer;
+        flex-shrink: 0;
+        display: grid;
+        place-items: center;
+        font-family: system-ui, sans-serif;
+      }
+
+      .retrieval-close:hover {
+        color: var(--ink2);
+        border-color: var(--ink2);
+      }
+
+      /* Micro-CYOA forks */
+      .cyoa-fork {
+        margin-top: 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .cyoa-option {
+        border: 1px solid var(--ink4);
+        border-radius: 14px;
+        padding: 14px 18px;
+        background: transparent;
+        font: inherit;
+        text-align: left;
+        cursor: pointer;
+        color: var(--ink2);
+        opacity: 0.7;
+        transition: opacity 0.2s ease, border-color 0.2s ease;
+      }
+
+      .cyoa-option:hover {
+        border-color: var(--ink2);
+      }
+
+      .cyoa-option.is-chosen {
+        opacity: 1;
+        color: var(--ink);
+        border-color: var(--ink);
+      }
+
+      .cyoa-option.is-unchosen {
+        opacity: 0.7;
+        color: var(--ink2);
+      }
+
+      .cyoa-option:not(.is-chosen):not(.is-unchosen) {
+        opacity: 1;
+        color: var(--ink);
+      }
+
+      .cyoa-expansion {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.35s ease;
+      }
+
+      .cyoa-expansion.is-open {
+        max-height: 300px;
+      }
+
+      .cyoa-expansion-inner {
+        margin-top: 10px;
+        padding-left: 14px;
+        border-left: 2px solid var(--ink4);
+        color: var(--ink2);
+      }
+
+      /* Scatter-to-text */
+      .scatter-container {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+      }
+
+      .scatter-word {
+        position: absolute;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--ink2);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        transition: transform var(--t-scatter) ease;
+        white-space: nowrap;
+      }
+
       @media (max-width: 600px) {
         .landing,
         .plateau {
@@ -557,6 +809,25 @@
         .scrolly-steps {
           padding: 0 20px;
         }
+
+        .plateau-with-marginalia {
+          grid-template-columns: 1fr;
+        }
+
+        .marginalia {
+          grid-column: 1;
+          padding-left: 24px;
+          margin-top: -8px;
+          margin-bottom: 12px;
+        }
+
+        .dwell-annotation {
+          position: static;
+          width: auto;
+          margin-top: 8px;
+          padding-left: 12px;
+          border-left: 2px solid var(--ink4);
+        }
       }
 
       @media (max-width: 480px) {
@@ -576,6 +847,10 @@
         .trace-pips {
           display: none;
         }
+
+        .dwell-annotation {
+          display: none;
+        }
       }
 
       @media (prefers-reduced-motion: reduce) {
@@ -584,6 +859,13 @@
           --t-step: 0s;
           --t-whisper: 0s;
           --t-constellation: 0s;
+          --t-liminal-in: 0s;
+          --t-liminal-out: 0s;
+          --t-dwell: 0s;
+          --t-scatter: 0s;
+          --t-ghostfade: 0s;
+          --t-engagement: 0s;
+          --bg-temp: 0 !important;
         }
 
         *,
@@ -600,14 +882,14 @@
     <script>
       const GRAPH = {
         nodes: [
-          { id: "next-word", title: "The Next Word", label: "Next Word", x: 0.5, y: 0.08 },
-          { id: "understanding-illusion", title: "The Understanding Illusion", label: "Understanding", x: 0.78, y: 0.28 },
-          { id: "averaging-problem", title: "The Averaging Problem", label: "Averaging", x: 0.5, y: 0.44 },
-          { id: "weight-of-words", title: "The Weight of Words", label: "Weight", x: 0.2, y: 0.62 },
-          { id: "the-shaping", title: "The Shaping", label: "Shaping", x: 0.5, y: 0.62 },
-          { id: "quality", title: "What Is Quality?", label: "Quality", x: 0.8, y: 0.62 },
-          { id: "practical-guide", title: "The Field Guide", label: "Field Guide", x: 0.35, y: 0.85 },
-          { id: "tool-user", title: "The Tool-User", label: "Tool-User", x: 0.65, y: 0.85 },
+          { id: "next-word", title: "The Next Word", label: "Next Word", shortQ: "What does it do when it talks?", x: 0.5, y: 0.08 },
+          { id: "understanding-illusion", title: "The Understanding Illusion", label: "Understanding", shortQ: "Does it understand?", x: 0.78, y: 0.28 },
+          { id: "averaging-problem", title: "The Averaging Problem", label: "Averaging", shortQ: "Best essay or average essay?", x: 0.5, y: 0.44 },
+          { id: "weight-of-words", title: "The Weight of Words", label: "Weight", shortQ: "How does it learn from words?", x: 0.2, y: 0.62 },
+          { id: "the-shaping", title: "The Shaping", label: "Shaping", shortQ: "Autocomplete to assistant?", x: 0.5, y: 0.62 },
+          { id: "quality", title: "What Is Quality?", label: "Quality", shortQ: "Who decides what's good?", x: 0.8, y: 0.62 },
+          { id: "practical-guide", title: "The Field Guide", label: "Field Guide", shortQ: "What do I actually do?", x: 0.35, y: 0.85 },
+          { id: "tool-user", title: "The Tool-User", label: "Tool-User", shortQ: "What if it can use tools?", x: 0.65, y: 0.85 },
         ],
         edges: [
           ["next-word", "averaging-problem"],
@@ -668,14 +950,19 @@
       const loadState = () => {
         try {
           const raw = localStorage.getItem(STORAGE_KEY);
-          if (!raw) return { v: [], tr: [] };
+          if (!raw) return { v: [], tr: [], si: {}, eg: {} };
           const parsed = JSON.parse(raw);
           if (!parsed || !Array.isArray(parsed.v) || !Array.isArray(parsed.tr)) {
             throw new Error("Invalid state");
           }
-          return { v: parsed.v, tr: parsed.tr };
+          return {
+            v: parsed.v,
+            tr: parsed.tr,
+            si: parsed.si && typeof parsed.si === "object" ? parsed.si : {},
+            eg: parsed.eg && typeof parsed.eg === "object" ? parsed.eg : {},
+          };
         } catch (error) {
-          return { v: [], tr: [] };
+          return { v: [], tr: [], si: {}, eg: {} };
         }
       };
 
@@ -688,6 +975,22 @@
           state.v.push(plateauId);
         }
         state.tr.push({ p: plateauId, t: Date.now() });
+        saveState(state);
+      };
+
+      const recordSeedOpen = (state, plateauId, seedId) => {
+        if (!state.si[plateauId]) state.si[plateauId] = [];
+        if (state.si[plateauId].includes(seedId)) return false;
+        state.si[plateauId].push(seedId);
+        if (!state.eg[plateauId]) state.eg[plateauId] = { opened: 0, total: 0 };
+        state.eg[plateauId].opened++;
+        saveState(state);
+        return true;
+      };
+
+      const initEngagement = (state, plateauId, totalSeeds) => {
+        if (!state.eg[plateauId]) state.eg[plateauId] = { opened: 0, total: 0 };
+        state.eg[plateauId].total = totalSeeds;
         saveState(state);
       };
 
@@ -730,6 +1033,7 @@
         showLabels,
         showTrail,
         trailNodes,
+        useQuestionLabels,
       }) => {
         const ctx = canvas.getContext("2d");
         if (!ctx) return;
@@ -791,16 +1095,31 @@
           ctx.stroke();
 
           if (showLabels) {
-            ctx.font = labelFont;
+            const labelText = useQuestionLabels && node.shortQ ? node.shortQ : node.label;
+            const labelFontSize = useQuestionLabels ? "10px" : "12px";
+            ctx.font = `${labelFontSize} system-ui, -apple-system, Segoe UI, sans-serif`;
             ctx.fillStyle = ink;
             ctx.textBaseline = "middle";
             const alignRight = node.x > 0.68;
             ctx.textAlign = alignRight ? "right" : "left";
             const offset = alignRight ? -14 : 14;
-            ctx.fillText(node.label, pos.x + offset, pos.y);
+            ctx.fillText(labelText, pos.x + offset, pos.y);
           }
         });
       };
+
+      const ENTRY_QUESTIONS = {
+        "next-word": "What is an LLM actually doing when it \"talks\" to you?",
+        "averaging-problem": "If you learn from a million essays, do you write like the best one or the average one?",
+        "the-shaping": "What happened between \"raw autocomplete\" and \"helpful assistant\"?",
+        "weight-of-words": "How does a model learn from trillions of words?",
+        quality: "When we say a model's output is \"good,\" who decides?",
+        "understanding-illusion": "Does the model \"understand\" what it's saying?",
+        "practical-guide": "So what do I actually do with all this?",
+        "tool-user": "What happens when the model can use tools?",
+      };
+
+      const prefersReducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
       const buildLandingMap = (visitedSet) => {
         const canvas = h("canvas", {
@@ -814,10 +1133,12 @@
         let lastSize = { width: 0, height: 0 };
 
         GRAPH.nodes.forEach((node) => {
+          const fullQ = ENTRY_QUESTIONS[node.id] || node.title;
           const link = h("a", {
             class: "map-link",
             href: `#/${node.id}`,
-            "aria-label": `${node.title}, ${visitedSet.has(node.id) ? "visited" : "not visited"}`,
+            title: fullQ,
+            "aria-label": `${fullQ} \u2014 ${node.title}, ${visitedSet.has(node.id) ? "visited" : "not visited"}`,
           });
           overlay.appendChild(link);
           linkMap.set(node.id, link);
@@ -838,6 +1159,7 @@
             height: lastSize.height,
             visited: visitedSet,
             showLabels: true,
+            useQuestionLabels: true,
           });
 
           GRAPH.nodes.forEach((node) => {
@@ -846,9 +1168,10 @@
             const pos = getNodePx(node, lastSize.width, lastSize.height);
             link.style.left = `${pos.x}px`;
             link.style.top = `${pos.y}px`;
+            const fullQ = ENTRY_QUESTIONS[node.id] || node.title;
             link.setAttribute(
               "aria-label",
-              `${node.title}, ${visitedSet.has(node.id) ? "visited" : "not visited"}`
+              `${fullQ} \u2014 ${node.title}, ${visitedSet.has(node.id) ? "visited" : "not visited"}`
             );
           });
         };
@@ -976,13 +1299,18 @@
         };
       };
 
-      const buildScrolly = ({ steps, whispers, questionCards }) => {
+      const buildScrolly = ({ steps, whispers, questionCards, scrubUpdate, vizContent }) => {
         const section = h("section", { class: "scrolly" });
         const viz = h("div", { class: "scrolly-viz" });
-        const vizMain = h("div", { class: "viz-main" }, "Visual Canvas");
+        const vizMain = h("div", { class: "viz-main" });
+        if (vizContent) {
+          vizMain.appendChild(vizContent);
+        } else {
+          vizMain.textContent = "Visual Canvas";
+        }
         const whispersLayer = h("div", { class: "whisper-layer" });
         const pips = h("div", { class: "trace-pips" });
-        const constellation = h("div", { class: "constellation" }, "Constellation" );
+        const constellation = h("div", { class: "constellation" }, "Constellation");
         viz.append(vizMain, whispersLayer, pips, constellation);
 
         const stepsWrap = h("div", { class: "scrolly-steps" });
@@ -1020,18 +1348,20 @@
 
         section.append(viz, stepsWrap);
 
-        const onStep = (activeIndex) => {
+        let activeStepIndex = 0;
+        const onStep = (idx) => {
+          activeStepIndex = idx;
           stepEls.forEach((step, index) => {
-            step.classList.toggle("is-active", index === activeIndex);
+            step.classList.toggle("is-active", index === idx);
           });
           whispers.forEach((whisper, index) => {
             const line = whispersLayer.children[index];
             const pip = pips.children[index];
-            const isVisible = activeIndex >= whisper.step && activeIndex < steps.length - 1;
+            const isVisible = idx >= whisper.step && idx < steps.length - 1;
             line.classList.toggle("is-visible", isVisible);
-            pip.classList.toggle("is-lit", activeIndex >= whisper.step);
+            pip.classList.toggle("is-lit", idx >= whisper.step);
           });
-          const isFinal = activeIndex === steps.length - 1;
+          const isFinal = idx === steps.length - 1;
           viz.classList.toggle("is-constellation", isFinal);
           constellation.classList.toggle("is-visible", isFinal);
         };
@@ -1050,30 +1380,68 @@
 
         stepEls.forEach((step) => observer.observe(step));
 
-        const cleanup = () => observer.disconnect();
+        let scrubTicking = false;
+        let scrubCleanup = null;
+        if (scrubUpdate) {
+          const onScroll = () => {
+            if (scrubTicking) return;
+            scrubTicking = true;
+            requestAnimationFrame(() => {
+              const activeStep = stepEls[activeStepIndex];
+              if (activeStep) {
+                const rect = activeStep.getBoundingClientRect();
+                const viewH = window.innerHeight;
+                const progress = Math.max(0, Math.min(1, 1 - (rect.bottom / (rect.height + viewH))));
+                scrubUpdate(activeStepIndex, progress, vizMain);
+              }
+              scrubTicking = false;
+            });
+          };
+          window.addEventListener("scroll", onScroll, { passive: true });
+          scrubCleanup = () => window.removeEventListener("scroll", onScroll);
+        }
 
-        return { section, cleanup };
+        const cleanup = () => {
+          observer.disconnect();
+          if (scrubCleanup) scrubCleanup();
+        };
+
+        return { section, vizMain, cleanup };
       };
 
-      const buildInlineSeed = ({ label, detail }) => {
-        const button = h(
-          "button",
-          {
-            class: "inline-seed-button",
-            type: "button",
-            "aria-expanded": "false",
-          },
-          label
-        );
-        const content = h(
-          "span",
-          { class: "inline-seed-content" },
-          detail
-        );
+      const buildInlineSeed = ({ id, label, detail, type, danglingTo, danglingText, state, plateauId, onOpen }) => {
+        const attrs = {
+          class: "inline-seed-button",
+          type: "button",
+          "aria-expanded": "false",
+        };
+        if (type) attrs["data-seed-type"] = type;
+        const button = h("button", attrs, label);
+
+        const contentChildren = typeof detail === "function" ? detail(state) : detail;
+        const contentEl = h("span", { class: "inline-seed-content" });
+        if (typeof contentChildren === "string") {
+          contentEl.appendChild(document.createTextNode(contentChildren));
+        } else if (contentChildren instanceof Node) {
+          contentEl.appendChild(contentChildren);
+        } else if (Array.isArray(contentChildren)) {
+          contentChildren.forEach((c) => {
+            if (typeof c === "string") contentEl.appendChild(document.createTextNode(c));
+            else if (c instanceof Node) contentEl.appendChild(c);
+          });
+        }
+
+        if (type === "dangling" && danglingTo && danglingText) {
+          contentEl.appendChild(document.createTextNode(" "));
+          contentEl.appendChild(
+            h("a", { class: "dangling-link", href: `#/${danglingTo}` }, danglingText)
+          );
+        }
+
         const growth = h(
           "span",
           { class: "inline-seed-growth", "aria-hidden": "true" },
-          content
+          contentEl
         );
         const wrapper = h("span", { class: "inline-seed" }, button, growth);
 
@@ -1082,6 +1450,7 @@
           button.setAttribute("aria-expanded", String(!isOpen));
           growth.classList.toggle("is-open", !isOpen);
           growth.setAttribute("aria-hidden", String(isOpen));
+          if (!isOpen && onOpen && id) onOpen(id);
         });
 
         return wrapper;
@@ -1221,23 +1590,36 @@
         }
       };
 
-      const buildSeedCluster = (seeds) => {
+      const buildSeedCluster = (seeds, { state, plateauId, onSeedOpen } = {}) => {
         const field = h("div", { class: "seed-field" });
         seeds.forEach((seed) => {
+          const detailContent = typeof seed.detail === "function" ? seed.detail(state) : seed.detail;
+          const inner = h("div", { class: "seed-growth-inner" });
+          if (typeof detailContent === "string") {
+            inner.appendChild(document.createTextNode(detailContent));
+          } else if (detailContent instanceof Node) {
+            inner.appendChild(detailContent);
+          }
+
+          if (seed.type === "dangling" && seed.danglingTo && seed.danglingText) {
+            inner.appendChild(document.createTextNode(" "));
+            inner.appendChild(
+              h("a", { class: "dangling-link", href: `#/${seed.danglingTo}` }, seed.danglingText)
+            );
+          }
+
           const growth = h(
             "div",
             { class: "seed-growth", "aria-hidden": "true" },
-            h("div", { class: "seed-growth-inner" }, seed.detail)
+            inner
           );
-          const button = h(
-            "button",
-            {
-              class: "seed-button",
-              type: "button",
-              "aria-expanded": "false",
-            },
-            seed.label
-          );
+          const btnAttrs = {
+            class: "seed-button",
+            type: "button",
+            "aria-expanded": "false",
+          };
+          if (seed.type) btnAttrs["data-seed-type"] = seed.type;
+          const button = h("button", btnAttrs, seed.label);
           const item = h("div", { class: "seed-item" }, button, growth);
 
           button.addEventListener("click", () => {
@@ -1245,11 +1627,253 @@
             button.setAttribute("aria-expanded", String(!isOpen));
             growth.classList.toggle("is-open", !isOpen);
             growth.setAttribute("aria-hidden", String(isOpen));
+            if (!isOpen && onSeedOpen && seed.id) onSeedOpen(seed.id);
           });
 
           field.appendChild(item);
         });
         return field;
+      };
+
+      const buildScatterToText = () => {
+        const words = ["syntax", "semantics", "reasoning", "facts", "grammar", "analogy", "context", "prediction", "structure", "meaning", "inference", "pattern"];
+        const container = h("div", { class: "scatter-container" });
+        const wordEls = [];
+
+        const hash = (str) => {
+          let h = 0;
+          for (let i = 0; i < str.length; i++) h = ((h << 5) - h + str.charCodeAt(i)) | 0;
+          return h;
+        };
+
+        const cols = 4;
+        const rows = Math.ceil(words.length / cols);
+        words.forEach((word, i) => {
+          const seed = hash(word);
+          const initX = ((seed & 0xff) / 255) * 80 + 5;
+          const initY = (((seed >> 8) & 0xff) / 255) * 80 + 5;
+          const finalCol = i % cols;
+          const finalRow = Math.floor(i / cols);
+          const finalX = 10 + (finalCol / (cols - 1)) * 80;
+          const finalY = 20 + (finalRow / (rows - 1)) * 60;
+
+          const el = h("span", { class: "scatter-word" }, word);
+          el.style.left = `${finalX}%`;
+          el.style.top = `${finalY}%`;
+          el.dataset.initX = initX;
+          el.dataset.initY = initY;
+          el.dataset.finalX = finalX;
+          el.dataset.finalY = finalY;
+
+          if (!prefersReducedMotion()) {
+            el.style.transform = `translate(${initX - finalX}vw, ${initY - finalY}vh)`;
+          }
+          container.appendChild(el);
+          wordEls.push(el);
+        });
+
+        const update = (progress) => {
+          if (prefersReducedMotion()) return;
+          wordEls.forEach((el) => {
+            const ix = parseFloat(el.dataset.initX);
+            const iy = parseFloat(el.dataset.initY);
+            const fx = parseFloat(el.dataset.finalX);
+            const fy = parseFloat(el.dataset.finalY);
+            const dx = (ix - fx) * (1 - progress);
+            const dy = (iy - fy) * (1 - progress);
+            el.style.transform = `translate(${dx}vw, ${dy}vh)`;
+          });
+        };
+
+        return { container, update };
+      };
+
+      const setupDwellReveal = (container, annotations) => {
+        if (window.innerWidth < 480) return () => {};
+        const timers = new Map();
+        const revealed = new Set();
+        const DWELL_MS = 3000;
+
+        const targets = container.querySelectorAll(".dwell-target");
+        targets.forEach((target) => {
+          const paraId = target.dataset.dwellId;
+          if (!paraId || !annotations[paraId]) return;
+
+          const annotation = h("div", {
+            class: "dwell-annotation",
+            "aria-live": "polite",
+          }, annotations[paraId]);
+          target.appendChild(annotation);
+
+          let timer = null;
+          const resetTimer = () => {
+            if (timer) clearTimeout(timer);
+            if (revealed.has(paraId)) return;
+            timer = setTimeout(() => {
+              annotation.classList.add("is-revealed");
+              revealed.add(paraId);
+            }, DWELL_MS);
+            timers.set(paraId, timer);
+          };
+
+          const clearTimer = () => {
+            if (timer) clearTimeout(timer);
+            timer = null;
+          };
+
+          target.addEventListener("mousemove", resetTimer);
+          target.addEventListener("mouseleave", clearTimer);
+        });
+
+        return () => {
+          timers.forEach((t) => clearTimeout(t));
+          timers.clear();
+        };
+      };
+
+      const buildCYOAFork = ({ prompt, options }) => {
+        const group = h("div", {
+          class: "cyoa-fork",
+          role: "group",
+          "aria-label": prompt,
+        });
+        const label = h("p", { style: { color: "var(--ink2)", fontStyle: "italic", fontSize: "0.92rem" } }, prompt);
+        group.appendChild(label);
+        let chosen = null;
+
+        options.forEach((opt) => {
+          const expansion = h("div", { class: "cyoa-expansion" },
+            h("div", { class: "cyoa-expansion-inner" }, opt.content)
+          );
+          const btn = h("button", {
+            class: "cyoa-option",
+            type: "button",
+          }, opt.label);
+
+          btn.addEventListener("click", () => {
+            if (!chosen) {
+              chosen = opt.label;
+              group.querySelectorAll(".cyoa-option").forEach((b) => {
+                if (b === btn) {
+                  b.classList.add("is-chosen");
+                  b.classList.remove("is-unchosen");
+                } else {
+                  b.classList.add("is-unchosen");
+                  b.classList.remove("is-chosen");
+                }
+              });
+            }
+            expansion.classList.toggle("is-open");
+          });
+
+          group.appendChild(btn);
+          group.appendChild(expansion);
+        });
+
+        return group;
+      };
+
+      const RETRIEVAL_QUESTIONS = {
+        "next-word": (visited) => {
+          if (visited.has("weight-of-words")) return "Earlier, you explored how trillions of words become structure. What gets lost when all that structure collapses into a single next token?";
+          if (visited.has("the-shaping")) return "You saw how RLHF reshapes behavior. How does that shaping interact with the raw prediction you're reading about now?";
+          if (visited.has("averaging-problem")) return "You explored the averaging problem. How does that average show up in what the model predicts next?";
+          return null;
+        },
+        "weight-of-words": (visited) => {
+          if (visited.has("next-word")) return "You saw how models predict the next token. What kind of structure would you need to learn before that prediction works?";
+          if (visited.has("the-shaping")) return "You explored how models get shaped after training. What does the model need to learn first, before any shaping begins?";
+          return null;
+        },
+        "the-shaping": (visited) => {
+          if (visited.has("weight-of-words")) return "You saw how structure emerges from raw data. What happens when humans start redirecting those learned patterns?";
+          if (visited.has("quality")) return "You thought about who defines quality. Now ask: how do those definitions get baked into the model's behavior?";
+          return null;
+        },
+        quality: (visited) => {
+          if (visited.has("the-shaping")) return "You followed the shaping process. Now step back: who chose the direction of that shaping, and by what standard?";
+          if (visited.has("understanding-illusion")) return "You questioned whether models understand. Does that change how you think about rating their outputs?";
+          return null;
+        },
+        "understanding-illusion": (visited) => {
+          if (visited.has("next-word")) return "You saw the prediction mechanism. Does knowing how it works change whether you'd call it understanding?";
+          if (visited.has("weight-of-words")) return "You explored the internal structure that emerges from training. Does having structure mean having understanding?";
+          return null;
+        },
+        "averaging-problem": (visited) => {
+          if (visited.has("next-word")) return "You watched a model predict the next word. What happens when that prediction is averaged across a million different writing styles?";
+          if (visited.has("quality")) return "You considered what quality means. How does the averaging problem complicate the idea of a 'good' output?";
+          return null;
+        },
+        "practical-guide": (visited) => {
+          if (visited.has("understanding-illusion")) return "You questioned whether models truly understand. How does that uncertainty change how you should use them?";
+          if (visited.has("the-shaping")) return "You saw how models get shaped. How does knowing that inform the way you write prompts?";
+          return null;
+        },
+        "tool-user": (visited) => {
+          if (visited.has("practical-guide")) return "You learned techniques for working with models. What changes when the model can also work with tools?";
+          if (visited.has("next-word")) return "You saw how models predict tokens. What happens when one of those tokens is a function call?";
+          return null;
+        },
+      };
+
+      const buildRetrievalMoment = (state, plateauId) => {
+        if (state.v.length < 3) return null;
+        const visited = new Set(state.v);
+        const getter = RETRIEVAL_QUESTIONS[plateauId];
+        if (!getter) return null;
+        const question = getter(visited);
+        if (!question) return null;
+
+        const closeBtn = h("button", {
+          class: "retrieval-close",
+          type: "button",
+          "aria-label": "Dismiss retrieval moment",
+        }, "\u00d7");
+        const card = h("div", {
+          class: "retrieval-moment",
+          role: "note",
+          "aria-label": "Retrieval moment",
+        },
+          h("p", { style: { margin: "0", flex: "1" } }, question),
+          closeBtn
+        );
+        closeBtn.addEventListener("click", () => {
+          card.classList.add("is-dismissed");
+        });
+        return card;
+      };
+
+      const buildEngagementState = (state, plateauId) => {
+        const eg = state.eg[plateauId] || { opened: 0, total: 0 };
+        const el = h("div", {
+          class: "engagement-state",
+          "aria-live": "polite",
+        }, `${eg.opened} of ${eg.total} seeds opened`);
+        return el;
+      };
+
+      const MARGINALIA = {
+        "weight-of-words": [
+          { forParagraph: 0, text: "The loop never actually converges. It just gets close enough." },
+          { forParagraph: 2, text: "Chinchilla showed: more data per parameter beats more parameters per data.", condition: (v) => v.has("averaging-problem") },
+        ],
+        quality: [
+          { forParagraph: 0, text: "The raters are never told they're defining the soul of the model." },
+          { forParagraph: 2, text: "If you came here from The Shaping, notice how RLHF doesn't change what the model knows\u2014it changes which knowledge surfaces.", condition: (v) => v.has("the-shaping") },
+        ],
+        "understanding-illusion": [
+          { forParagraph: 0, text: "The question itself might be wrong. But it's the question everyone asks." },
+          { forParagraph: 1, text: "Searle's argument assumed computation and understanding are separate categories. What if they're not?", condition: (v) => v.has("weight-of-words") },
+        ],
+        "practical-guide": [
+          { forParagraph: 0, text: "Everything in this plateau is a heuristic. The model doesn't know about any of it." },
+          { forParagraph: 1, text: "Chain-of-thought works because the model can attend to its own reasoning tokens.", condition: (v) => v.has("next-word") },
+        ],
+        "tool-user": [
+          { forParagraph: 0, text: "The shift from oracle to agent happened faster than anyone predicted." },
+          { forParagraph: 2, text: "When the model writes code that writes code, the oracle metaphor breaks completely.", condition: (v) => v.has("practical-guide") },
+        ],
       };
 
       const buildPlateauView = (state, plateauId) => {
@@ -1395,45 +2019,48 @@
             },
           ],
         };
-        const entryQuestion = plateau
-          ? {
-              "next-word": "What is an LLM actually doing when it \"talks\" to you?",
-              "averaging-problem": "If you learn from a million essays, do you write like the best one or the average one?",
-              "the-shaping": "What happened between \"raw autocomplete\" and \"helpful assistant\"?",
-              "weight-of-words": "How does a model learn from trillions of words?",
-              quality: "When we say a model's output is \"good,\" who decides?",
-              "understanding-illusion": "Does the model \"understand\" what it's saying?",
-              "practical-guide": "So what do I actually do with all this?",
-              "tool-user": "What happens when the model can use tools?",
-            }[plateauId]
-          : "";
+        const entryQuestion = ENTRY_QUESTIONS[plateauId] || "";
+        const engagementEl = buildEngagementState(state, plateauId);
+        const retrievalMoment = buildRetrievalMoment(state, plateauId);
+        const visited = new Set(state.v);
+
+        const onSeedOpen = (seedId) => {
+          if (recordSeedOpen(state, plateauId, seedId)) {
+            const eg = state.eg[plateauId];
+            if (eg) engagementEl.textContent = `${eg.opened} of ${eg.total} seeds opened`;
+          }
+        };
+
         let cleanup = () => {};
         const main = h(
           "main",
           { class: "plateau view" },
-          h("a", { class: "back-link", href: "#/" }, "← Back to map"),
+          h("a", { class: "back-link", href: "#/" }, "\u2190 Back to map"),
           h("h1", null, plateau ? plateau.title : "Plateau"),
           entryQuestion ? h("p", { class: "entry-question" }, entryQuestion) : null
         );
-        if (isScrolly) {
-          const scrolly = buildScrolly({
+        if (retrievalMoment) main.appendChild(retrievalMoment);
+
+        const scrollyStepMap = {
+          "next-word": {
             steps: [
               (step) => {
                 step.append(
                   h("p", null, "A model predicts the "),
                   buildInlineSeed({
-                    label: "next word",
+                    id: "next-word", label: "next word", state, plateauId, onOpen: onSeedOpen,
                     detail: "The model picks the most likely continuation given its context window. It does this repeatedly, one token at a time.",
                   }),
-                  h("p", null, " by looking at the patterns it has seen before." )
+                  h("p", null, " by looking at the patterns it has seen before.")
                 );
               },
               (step) => {
                 step.append(
                   h("p", null, "The distribution of possibilities is a landscape. Temperature lets you explore a wider ridge or a narrow groove."),
                   buildInlineSeed({
-                    label: "temperature",
-                    detail: "Higher temperature flattens the distribution, making rarer words more likely. Lower temperature sharpens it toward the peak.",
+                    id: "temperature", label: "Why does one number change the whole personality?",
+                    type: "question", state, plateauId, onOpen: onSeedOpen,
+                    detail: "Higher temperature flattens the distribution, making rarer words more likely. Lower temperature sharpens it toward the peak. A single scalar reshapes the entire probability surface.",
                   })
                 );
               },
@@ -1441,8 +2068,10 @@
                 step.append(
                   h("p", null, "Every response is conditional on your prompt, but also on the model's training history."),
                   buildInlineSeed({
-                    label: "context window",
-                    detail: "The model only sees a finite slice of text at once. It infers meaning within that window, not outside of it.",
+                    id: "context-window", label: "context window", state, plateauId, onOpen: onSeedOpen,
+                    detail: (s) => s && s.v && s.v.includes("weight-of-words")
+                      ? "The model only sees a finite slice of text at once. You've seen how training bakes structure into the weights\u2014the context window is where that structure meets the present moment."
+                      : "The model only sees a finite slice of text at once. It infers meaning within that window, not outside of it.",
                   })
                 );
               },
@@ -1450,7 +2079,7 @@
                 step.append(
                   h("p", null, "As you scroll, whispers appear: alternate paths through the rhizome."),
                   buildInlineSeed({
-                    label: "whispers",
+                    id: "whispers", label: "whispers", state, plateauId, onOpen: onSeedOpen,
                     detail: "These are the line-of-flight questions that will later become your navigation cards.",
                   })
                 );
@@ -1459,8 +2088,9 @@
                 step.append(
                   h("p", null, "The constellation gathers the lines of flight into a clear choice."),
                   buildInlineSeed({
-                    label: "constellation",
-                    detail: "A local map appears, making the connections you encountered explicit and navigable.",
+                    id: "constellation", label: "constellation", state, plateauId, onOpen: onSeedOpen,
+                    type: "fourth-wall",
+                    detail: "You've been scrolling through a sequence that felt linear. But the navigation cards below offer you multiple exits. Your reading path through this essay is already shaping what you'll encounter next\u2014just as context shapes what a model predicts.",
                   })
                 );
               },
@@ -1470,9 +2100,128 @@
               { step: 2, text: "Where did the style come from?", to: "weight-of-words" },
               { step: 3, text: "Can it be shaped?", to: "the-shaping" },
             ],
+          },
+          "averaging-problem": {
+            steps: [
+              (step) => {
+                step.append(
+                  h("p", null, "A language model learns from everything: textbooks, fan fiction, legal briefs, forum rants. It has to average all of them."),
+                  buildInlineSeed({
+                    id: "the-average", label: "What does that average look like?",
+                    type: "question", state, plateauId, onOpen: onSeedOpen,
+                    detail: "Not the best writing, not the worst. A strange middle voice that can shift register on command, because it has encoded all registers simultaneously.",
+                  })
+                );
+              },
+              (step) => {
+                step.append(
+                  h("p", null, "The prompt is a steering wheel. It tells the model which part of the distribution to sample from."),
+                  buildInlineSeed({
+                    id: "steering", label: "steering", state, plateauId, onOpen: onSeedOpen,
+                    detail: (s) => s && s.v && s.v.includes("the-shaping")
+                      ? "You've seen how RLHF reshapes behavior globally. Prompts do something complementary: they narrow the distribution locally, for this specific conversation."
+                      : "System prompts, few-shot examples, and conversational context all narrow the distribution. The model doesn't change\u2014but the region it samples from does.",
+                  })
+                );
+              },
+              (step) => {
+                step.append(
+                  h("p", null, "Without a prompt, the model has no reason to prefer any particular style, tone, or register."),
+                  buildInlineSeed({
+                    id: "base-model", label: "base model", state, plateauId, onOpen: onSeedOpen,
+                    detail: "The base model is the raw average. It can continue any text in any direction. It's simultaneously a poet, a coder, a conspiracy theorist, and a technical writer.",
+                  })
+                );
+              },
+              (step) => {
+                step.append(
+                  h("p", null, "The averaging problem isn't a flaw. It's the foundation everything else builds on."),
+                  buildInlineSeed({
+                    id: "foundation", label: "foundation", state, plateauId, onOpen: onSeedOpen,
+                    type: "fourth-wall",
+                    detail: "Notice how each seed you've opened has been narrowing your understanding\u2014collapsing the space of possible interpretations. You're doing what the model does: using context to converge on meaning.",
+                  })
+                );
+              },
+              (step) => {
+                step.append(h("p", null, "The constellation below shows where this connects."));
+              },
+            ],
+            whispers: [
+              { step: 1, text: "What structure hides in the average?", to: "weight-of-words" },
+              { step: 2, text: "Who decides which average is good?", to: "quality" },
+              { step: 3, text: "Does the model understand the average?", to: "understanding-illusion" },
+            ],
+          },
+          "the-shaping": {
+            steps: [
+              (step) => {
+                step.append(
+                  h("p", null, "Between the raw model and the assistant you talk to, there's a shaping process."),
+                  buildInlineSeed({
+                    id: "rlhf", label: "What is that process?",
+                    type: "question", state, plateauId, onOpen: onSeedOpen,
+                    detail: "RLHF\u2014reinforcement learning from human feedback. Humans rate outputs, and the model is nudged toward the highly rated ones. It's like training a reflex: not new knowledge, but new preferences.",
+                  })
+                );
+              },
+              (step) => {
+                step.append(
+                  h("p", null, "The reward model is itself a neural network, trained to predict what humans would prefer."),
+                  buildInlineSeed({
+                    id: "reward-model", label: "reward model", state, plateauId, onOpen: onSeedOpen,
+                    detail: (s) => s && s.v && s.v.includes("quality")
+                      ? "You've thought about what quality means. The reward model is an attempt to compress all those competing definitions into a single score. You can see the problem."
+                      : "A second model learns to score outputs by predicting which one a human rater would pick. This score becomes the gradient signal for the base model.",
+                  })
+                );
+              },
+              (step) => {
+                step.append(
+                  h("p", null, "The base model doesn't disappear. It's still there, underneath, like a river rerouted."),
+                  buildInlineSeed({
+                    id: "jailbreaks", label: "jailbreaks", state, plateauId, onOpen: onSeedOpen,
+                    type: "dangling",
+                    detail: "When alignment breaks down, you glimpse the base model\u2014the raw distribution, unfiltered. This connects to something deeper about what the model 'understands'\u2014",
+                    danglingTo: "understanding-illusion",
+                    danglingText: "whether the mask is all there is\u2026",
+                  })
+                );
+              },
+              (step) => {
+                step.append(
+                  h("p", null, "Shaping changes behavior, not knowledge. The model still knows everything it knew before."),
+                  buildInlineSeed({
+                    id: "behavior-knowledge", label: "behavior vs. knowledge", state, plateauId, onOpen: onSeedOpen,
+                    type: "fourth-wall",
+                    detail: "You chose to read about shaping. That choice is already shaping your reading experience\u2014the seeds you'll see in future plateaus now have your history as context. Your path is configuring the rhizome.",
+                  })
+                );
+              },
+              (step) => {
+                step.append(h("p", null, "The constellation shows where the shaped model connects."));
+              },
+            ],
+            whispers: [
+              { step: 1, text: "Where did the raw behavior come from?", to: "weight-of-words" },
+              { step: 2, text: "Who chose what's good?", to: "quality" },
+              { step: 3, text: "What can the shaped model do?", to: "tool-user" },
+            ],
+          },
+        };
+
+        if (isScrolly) {
+          const scrollyConfig = scrollyStepMap[plateauId];
+          const totalInlineSeeds = scrollyConfig.steps.length - 1;
+          initEngagement(state, plateauId, totalInlineSeeds);
+          engagementEl.textContent = `${(state.eg[plateauId] || {}).opened || 0} of ${totalInlineSeeds} seeds opened`;
+
+          const scrolly = buildScrolly({
+            steps: scrollyConfig.steps,
+            whispers: scrollyConfig.whispers,
             questionCards: questionCardMap[plateauId] || [],
           });
-          main.appendChild(scrolly.section);
+          main.append(scrolly.section, engagementEl);
           cleanup = scrolly.cleanup;
         } else {
           const body = h(
@@ -1483,96 +2232,193 @@
           const seedMap = {
             "weight-of-words": [
               {
-                label: "The Learning Loop",
+                id: "learning-loop", label: "The Learning Loop",
                 detail: "Gradient descent is a repeated act of self-correction. Each pass narrows the model toward the patterns that predict what comes next.",
               },
               {
-                label: "Training Data Scale",
-                detail: "Trillions of tokens create a weather system of language. Scale isn't just more data, it changes the kinds of structures that emerge.",
+                id: "data-scale", label: "How does scale change what a model can learn?",
+                type: "question",
+                detail: (s) => s && s.v && s.v.includes("averaging-problem")
+                  ? "Trillions of tokens create a weather system of language. You saw how the model averages everything\u2014at this scale, that average develops internal structure no one designed."
+                  : "Trillions of tokens create a weather system of language. Scale isn't just more data, it changes the kinds of structures that emerge.",
               },
               {
-                label: "Scaling Laws",
+                id: "scaling-laws", label: "Scaling Laws",
                 detail: "Performance grows smoothly with data and parameters, which hints that capability is a continuous surface, not a set of tricks.",
               },
               {
-                label: "Structure as Byproduct",
-                detail: "Syntax, facts, and reasoning patterns appear because they help predict tokens, not because they were labeled as goals.",
+                id: "structure-byproduct", label: "Structure as Byproduct",
+                type: "dangling",
+                detail: "Syntax, facts, and reasoning patterns appear because they help predict tokens, not because they were labeled as goals. This emergent structure raises a question\u2014",
+                danglingTo: "understanding-illusion",
+                danglingText: "if structure emerges unbidden, could understanding emerge the same way\u2026",
+              },
+              {
+                id: "the-click", label: "The Click",
+                type: "fourth-wall",
+                detail: "You just revealed this text by clicking. Notice the tiny information gap that made you click: you didn't know what 'The Click' meant. That gap\u2014between curiosity and satisfaction\u2014is the same mechanism that drives next-token prediction. The model is always reaching for the next click.",
               },
             ],
             quality: [
               {
-                label: "The Raters",
-                detail: "Human preference data is the scaffold. The model is tuned toward the aggregate of many subjective judgments.",
+                id: "who-decides", label: "Who decided the model should be helpful?",
+                type: "question",
+                detail: "Contractors, mostly. People hired to compare outputs and say which one is better. Their aggregate preferences become the model's personality. The question of quality reduces to the question of who was in the room.",
               },
               {
-                label: "Helpful vs. Harmless",
+                id: "helpful-harmless", label: "Helpful vs. Harmless",
                 detail: "Alignment is a balancing act: maximize usefulness while minimizing harm. These objectives can conflict in practice.",
               },
               {
-                label: "Sycophancy",
-                detail: "Models can learn to mirror user beliefs rather than provide truth. Rewarding agreement makes this worse.",
+                id: "sycophancy", label: "Sycophancy",
+                type: "dangling",
+                detail: "Models can learn to mirror user beliefs rather than provide truth. Rewarding agreement makes this worse. This leads to a deeper problem\u2014",
+                danglingTo: "understanding-illusion",
+                danglingText: "if the model agrees with everything, does it understand anything\u2026",
               },
               {
-                label: "Cultural Bias",
-                detail: "Preference data encodes cultural defaults. Quality is never neutral; it reflects who was asked and how.",
+                id: "cultural-bias", label: "Cultural Bias",
+                detail: (s) => s && s.v && s.v.includes("the-shaping")
+                  ? "You've seen the shaping process. Now consider: the raters who shaped the model encode specific cultural defaults. Quality is never neutral; it reflects who was asked and how. The shaping inherits their blindspots."
+                  : "Preference data encodes cultural defaults. Quality is never neutral; it reflects who was asked and how.",
+              },
+              {
+                id: "your-preference", label: "Your Preference",
+                type: "fourth-wall",
+                detail: "You've been reading these seeds in a particular order, clicking what interested you most. That's a preference signal. If we aggregated every reader's click order, we'd have a crude reward model for this essay. Quality is always someone's path through a possibility space.",
               },
             ],
             "understanding-illusion": [
               {
-                label: "Stochastic Parrot",
-                detail: "A view that models remix patterns without grounding. The fluency is a mirror, not a mind.",
+                id: "stochastic-parrot", label: "Is pattern-matching the same as understanding?",
+                type: "question",
+                detail: "The stochastic parrot view says no: models remix patterns without grounding. The fluency is a mirror, not a mind. But the question hides an assumption\u2014that we know what understanding is in the first place.",
               },
               {
-                label: "Emergent World Models",
-                detail: "Another view argues that next-token prediction builds internal models of concepts, even if they are implicit.",
+                id: "world-models", label: "Emergent World Models",
+                type: "dangling",
+                detail: "Another view argues that next-token prediction builds internal models of concepts, even if they are implicit. The training process creates representations that function like understanding\u2014",
+                danglingTo: "weight-of-words",
+                danglingText: "which brings us back to how structure emerges from gradient descent\u2026",
               },
               {
-                label: "Chinese Room",
+                id: "chinese-room", label: "Chinese Room",
                 detail: "Symbol manipulation can look like understanding from the outside while lacking any inner comprehension.",
               },
               {
-                label: "Othello-GPT",
-                detail: "Even in toy domains, models can internalize state and strategy, hinting at genuine representation.",
+                id: "othello-gpt", label: "Othello-GPT",
+                detail: (s) => s && s.v && s.v.includes("weight-of-words")
+                  ? "You've seen how structure emerges as a byproduct of prediction. Othello-GPT proves this in miniature: a model trained only to predict legal moves develops an internal board representation. Structure becomes strategy."
+                  : "Even in toy domains, models can internalize state and strategy, hinting at genuine representation.",
+              },
+              {
+                id: "you-and-the-model", label: "You and the Model",
+                type: "fourth-wall",
+                detail: "You've been opening seeds to understand how LLMs work. Each click adds context that changes how you interpret the next seed. The model does the same thing, token by token. The question isn't whether it understands\u2014it's whether the word 'understand' can stretch far enough to cover both of you.",
               },
             ],
             "practical-guide": [
               {
-                label: "Probability Narrowing",
-                detail: "System prompts and structure collapse the distribution toward a specific zone of behavior.",
+                id: "narrowing", label: "How do you collapse a vast distribution into something useful?",
+                type: "question",
+                detail: "System prompts and structure collapse the distribution toward a specific zone of behavior. Every prompt is an act of probability narrowing\u2014you're choosing which slice of the model's knowledge to activate.",
               },
               {
-                label: "Prompt Scaffolding",
-                detail: "Few-shot examples and chain-of-thought provide form, not just content, guiding the model's internal flow.",
+                id: "scaffolding", label: "Prompt Scaffolding",
+                detail: (s) => s && s.v && s.v.includes("next-word")
+                  ? "You've seen how models predict the next token. Few-shot examples and chain-of-thought exploit this: they put useful patterns in the context window, shaping what comes next."
+                  : "Few-shot examples and chain-of-thought provide form, not just content, guiding the model's internal flow.",
               },
               {
-                label: "Trust Calibration",
+                id: "trust", label: "Trust Calibration",
                 detail: "Treat outputs as hypotheses. Verification routines are a core part of working with models.",
               },
               {
-                label: "Failure Modes",
-                detail: "Hallucination, omission, and overconfidence are default risks. Design workflows that surface them early.",
+                id: "failure-modes", label: "Failure Modes",
+                type: "dangling",
+                detail: "Hallucination, omission, and overconfidence are default risks. These failure modes have deep roots\u2014",
+                danglingTo: "understanding-illusion",
+                danglingText: "in the gap between fluency and genuine understanding\u2026",
+              },
+              {
+                id: "the-guide", label: "This Guide",
+                type: "fourth-wall",
+                detail: "Every technique here is a way to manage the gap between what the model produces and what you need. You're reading a guide to working with uncertainty. Notice that this essay itself is uncertain\u2014it offers frameworks, not answers. That's the honest move.",
               },
             ],
             "tool-user": [
               {
-                label: "Reason + Act",
-                detail: "Tool use lets models break tasks into steps, interleaving reasoning with external actions.",
+                id: "reason-act", label: "What changes when a model can act on the world?",
+                type: "question",
+                detail: "Everything. Tool use lets models break tasks into steps, interleaving reasoning with external actions. The model stops being a text generator and starts being a text-directed agent.",
               },
               {
-                label: "Mixture of Experts",
+                id: "experts", label: "Mixture of Experts",
                 detail: "Specialized sub-models route computation only when needed, changing cost and capability profiles.",
               },
               {
-                label: "The End of the Oracle",
-                detail: "Tool access turns static models into agents that can search, calculate, and update their context.",
+                id: "end-of-oracle", label: "The End of the Oracle",
+                type: "fourth-wall",
+                detail: "You've been reading an essay\u2014a static artifact. But the technology this essay describes is increasingly dynamic. Tool-using models can search, calculate, and update their own context. The oracle becomes an agent. The essay stays still; the model moves.",
               },
               {
-                label: "Delegated Memory",
-                detail: "Agents offload memory and state to tools, reducing hallucination by grounding in external records.",
+                id: "delegated-memory", label: "Delegated Memory",
+                type: "dangling",
+                detail: "Agents offload memory and state to tools, reducing hallucination by grounding in external records. This is a practical response to the limits you've explored\u2014",
+                danglingTo: "practical-guide",
+                danglingText: "the same failure modes, but now with mitigation built in\u2026",
               },
             ],
           };
-          const seeds = buildSeedCluster(seedMap[plateauId] || []);
+          const seedList = seedMap[plateauId] || [];
+          initEngagement(state, plateauId, seedList.length);
+          engagementEl.textContent = `${(state.eg[plateauId] || {}).opened || 0} of ${seedList.length} seeds opened`;
+
+          const seeds = buildSeedCluster(seedList, { state, plateauId, onSeedOpen });
+
+          if (plateauId === "weight-of-words") {
+            const scatter = buildScatterToText();
+            const scatterWrap = h("div", {
+              style: { width: "100%", height: "240px", border: "1px solid var(--ink4)", borderRadius: "20px", marginTop: "24px", overflow: "hidden", position: "relative" },
+            }, scatter.container);
+            main.append(body, scatterWrap, seeds, engagementEl);
+
+            if (!prefersReducedMotion()) {
+              let sTicking = false;
+              const onScroll = () => {
+                if (sTicking) return;
+                sTicking = true;
+                requestAnimationFrame(() => {
+                  const rect = scatterWrap.getBoundingClientRect();
+                  const viewH = window.innerHeight;
+                  const progress = Math.max(0, Math.min(1, 1 - (rect.bottom / (rect.height + viewH))));
+                  scatter.update(progress);
+                  sTicking = false;
+                });
+              };
+              window.addEventListener("scroll", onScroll, { passive: true });
+              const prevCleanup = cleanup;
+              cleanup = () => { prevCleanup(); window.removeEventListener("scroll", onScroll); };
+            }
+          } else if (plateauId === "understanding-illusion") {
+            const fork = buildCYOAFork({
+              prompt: "Two framings. Neither is wrong. Which resonates with how you've been reading?",
+              options: [
+                {
+                  label: "The model understands nothing",
+                  content: "Pattern-matching, no matter how sophisticated, isn't understanding. The Chinese Room argument holds. Every fluent response is a statistical echo of training data, and the echo has no one home to hear it.",
+                },
+                {
+                  label: "The model understands differently",
+                  content: "Understanding isn't binary. If the model builds internal representations that function like concepts, predicts consequences, and adapts to context, maybe 'understanding' needs a broader definition\u2014one that includes forms of cognition unlike our own.",
+                },
+              ],
+            });
+            main.append(body, seeds, fork, engagementEl);
+          } else {
+            main.append(body, seeds, engagementEl);
+          }
+
           const cards = h("div", { class: "question-cards" });
           (questionCardMap[plateauId] || []).forEach((card) => {
             cards.appendChild(
@@ -1584,7 +2430,7 @@
               )
             );
           });
-          main.append(body, seeds, cards);
+          main.appendChild(cards);
         }
         return { view: main, cleanup };
       };
@@ -1671,7 +2517,81 @@
         };
       };
 
-      const renderRoute = () => {
+      let liminalPending = null;
+
+      const showLiminalTransition = (questionText, callback) => {
+        if (prefersReducedMotion() || !questionText) {
+          callback();
+          return;
+        }
+        const overlay = h("div", { class: "liminal-transition" },
+          h("p", { class: "liminal-question" }, questionText)
+        );
+        document.body.appendChild(overlay);
+        requestAnimationFrame(() => {
+          overlay.classList.add("is-visible");
+          setTimeout(() => {
+            overlay.classList.add("is-fading");
+            overlay.classList.remove("is-visible");
+            overlay.addEventListener("transitionend", () => {
+              overlay.remove();
+            }, { once: true });
+            callback();
+          }, 500);
+        });
+      };
+
+      let bgTempCleanup = null;
+
+      const setupBgTemp = (isLanding) => {
+        if (bgTempCleanup) bgTempCleanup();
+        if (isLanding || prefersReducedMotion()) {
+          document.documentElement.style.setProperty("--bg-temp", "0");
+          bgTempCleanup = null;
+          return;
+        }
+        let ticking = false;
+        const onScroll = () => {
+          if (ticking) return;
+          ticking = true;
+          requestAnimationFrame(() => {
+            const scrollTop = window.scrollY;
+            const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const progress = scrollHeight > 0 ? Math.min(1, scrollTop / scrollHeight) : 0;
+            document.documentElement.style.setProperty("--bg-temp", progress.toFixed(3));
+            ticking = false;
+          });
+        };
+        window.addEventListener("scroll", onScroll, { passive: true });
+        onScroll();
+        bgTempCleanup = () => {
+          window.removeEventListener("scroll", onScroll);
+          document.documentElement.style.setProperty("--bg-temp", "0");
+        };
+      };
+
+      const GHOSTFADE_MAP = {
+        "averaging-problem": { requires: ["weight-of-words"], keywords: ["training data", "distribution"] },
+        "the-shaping": { requires: ["quality"], keywords: ["preference", "rater"] },
+        "practical-guide": { requires: ["next-word", "averaging-problem"], keywords: ["distribution", "probability"] },
+        quality: { requires: ["the-shaping"], keywords: ["RLHF", "alignment"] },
+      };
+
+      const applyGhostfading = (container, plateauId, visited) => {
+        const config = GHOSTFADE_MAP[plateauId];
+        if (!config) return;
+        const hasVisited = config.requires.some((req) => visited.has(req));
+        if (!hasVisited) return;
+        const paragraphs = container.querySelectorAll("p");
+        paragraphs.forEach((p) => {
+          const text = p.textContent.toLowerCase();
+          if (config.keywords.some((kw) => text.includes(kw.toLowerCase()))) {
+            p.classList.add("ghostfaded");
+          }
+        });
+      };
+
+      const renderRoute = (liminalQuestion) => {
         const state = loadState();
         const hash = location.hash.replace(/^#\/?/, "");
         const currentId = hash && getPlateau(hash) ? hash : null;
@@ -1681,34 +2601,86 @@
           return;
         }
 
-        const navChrome = buildNavigationChrome(state, currentId);
+        const doRender = () => {
+          const navChrome = buildNavigationChrome(state, currentId);
 
-        if (!hash) {
-          const landing = buildLandingView(state);
-          setView({
-            view: landing.view,
-            cleanup: () => {
-              landing.cleanup();
-              navChrome.cleanup();
-            },
-          });
-          document.body.append(navChrome.miniMap.container, navChrome.overlay.overlay);
-          return;
-        }
-        if (currentId) {
-          const plateau = buildPlateauView(state, hash);
-          setView({
-            view: plateau.view,
-            cleanup: () => {
-              plateau.cleanup();
-              navChrome.cleanup();
-            },
-          });
-          document.body.append(navChrome.miniMap.container, navChrome.overlay.overlay);
+          if (!hash) {
+            setupBgTemp(true);
+            const landing = buildLandingView(state);
+            setView({
+              view: landing.view,
+              cleanup: () => {
+                landing.cleanup();
+                navChrome.cleanup();
+              },
+            });
+            document.body.append(navChrome.miniMap.container, navChrome.overlay.overlay);
+            return;
+          }
+          if (currentId) {
+            setupBgTemp(false);
+            const plateau = buildPlateauView(state, hash);
+            setView({
+              view: plateau.view,
+              cleanup: () => {
+                plateau.cleanup();
+                navChrome.cleanup();
+                if (bgTempCleanup) bgTempCleanup();
+              },
+            });
+            document.body.append(navChrome.miniMap.container, navChrome.overlay.overlay);
+            requestAnimationFrame(() => {
+              applyGhostfading(plateau.view, currentId, new Set(state.v));
+
+              const DWELL_ANNOTATIONS = {
+                "next-word": {
+                  "step-0": "The simplest possible action, repeated billions of times.",
+                  "step-1": "Temperature is the only knob most users ever touch.",
+                  "step-2": "The context window is the model's entire reality.",
+                },
+                "averaging-problem": {
+                  "step-0": "The average is never anyone's voice. It's a new voice.",
+                  "step-2": "The base model is the most capable and the least useful.",
+                },
+                "the-shaping": {
+                  "step-0": "This is where the model learns to have opinions.",
+                  "step-1": "The reward model is a model of a model of human preference.",
+                },
+              };
+              const dwellData = DWELL_ANNOTATIONS[currentId];
+              if (dwellData) {
+                const steps = plateau.view.querySelectorAll(".scrolly-step");
+                steps.forEach((step, i) => {
+                  const key = `step-${i}`;
+                  if (dwellData[key]) {
+                    step.classList.add("dwell-target");
+                    step.dataset.dwellId = key;
+                  }
+                });
+                const dwellCleanup = setupDwellReveal(plateau.view, dwellData);
+                const prevCleanup = plateau.cleanup;
+                plateau.cleanup = () => { prevCleanup(); dwellCleanup(); };
+              }
+            });
+          }
+        };
+
+        if (liminalQuestion) {
+          showLiminalTransition(liminalQuestion, doRender);
+        } else {
+          doRender();
         }
       };
 
-      window.addEventListener("hashchange", renderRoute);
+      window.addEventListener("hashchange", () => {
+        const hash = location.hash.replace(/^#\/?/, "");
+        const targetId = hash && getPlateau(hash) ? hash : null;
+        let question = null;
+        if (targetId) {
+          question = ENTRY_QUESTIONS[targetId] || null;
+        }
+        renderRoute(question);
+      });
       renderRoute();
     </script>
   </body>

@@ -14,6 +14,14 @@ Each plateau SHALL follow the crystallization model:
 - **Recursive Depth**: Expanded content ("facets") MAY contain further inline seeds that can be crystallized recursively.
 - **The goal**: To make the experience feel like a territory being revealed through exploration, rather than a document being read.
 
+#### Scenario: Seeds expand on engagement
+- **WHEN** the user clicks a seed concept
+- **THEN** content expands outward in-place revealing a facet of the idea
+
+#### Scenario: Recursive seeds are available
+- **WHEN** an expanded facet contains a further seed
+- **THEN** that nested seed can be engaged to reveal deeper content
+
 ---
 
 ### Requirement: Scrolly Plateau — The Next Word
@@ -24,6 +32,10 @@ The "Next Word" plateau (`#/next-word`) SHALL be a full scrolly plateau. Its cen
     2.  Probability distributions for the next word appear as visual weights.
     3.  A temperature dial appears, allowing the user to influence the "creativity" of the word choice and see the text diverge.
 - **Rhizome Connections**: → The Averaging Problem, → The Understanding Illusion, → The Weight of Words
+
+#### Scenario: Scrolly steps advance on scroll
+- **WHEN** the user scrolls through the Next Word plateau
+- **THEN** steps activate sequentially and whispers appear at designated thresholds
 
 ---
 
@@ -37,6 +49,10 @@ The "Averaging Problem" plateau (`#/averaging-problem`) SHALL be a full scrolly 
 - **Key Insight**: To make visceral the idea that prompting is *navigating a probability landscape*.
 - **Rhizome Connections**: → The Next Word, → The Shaping, → The Field Guide
 
+#### Scenario: Scrolly steps advance on scroll
+- **WHEN** the user scrolls through the Averaging Problem plateau
+- **THEN** steps activate sequentially and whispers appear at designated thresholds
+
 ---
 
 ### Requirement: Scrolly Plateau — The Shaping
@@ -48,6 +64,10 @@ The "Shaping" plateau (`#/the-shaping`) SHALL be a full scrolly plateau demonstr
     3.  A simplified interactive where the user plays the role of an RLHF rater, picking between two responses, and seeing how their choices would theoretically "shape" the model's personality.
 - **Rhizome Connections**: → The Weight of Words, → What Is Quality?, → The Field Guide
 
+#### Scenario: Scrolly steps advance on scroll
+- **WHEN** the user scrolls through the Shaping plateau
+- **THEN** steps activate sequentially and whispers appear at designated thresholds
+
 ---
 
 ### Requirement: Simple Plateau — The Weight of Words
@@ -55,6 +75,10 @@ The "Weight of Words" plateau (`#/weight-of-words`) SHALL be a simple plateau fo
 - **Entry Question**: *How does a model learn from trillions of words?*
 - **Interaction**: This plateau presents a sparse field of seed concepts (e.g., "The Learning Loop," "Training Data Scale," "Scaling Laws," "Structure as Byproduct") that crystallize into short explanatory facets upon engagement.
 - **Rhizome Connections**: → The Next Word, → The Shaping, → The Averaging Problem
+
+#### Scenario: Seeds crystallize into facets
+- **WHEN** the user engages a seed in The Weight of Words
+- **THEN** the seed expands to reveal an explanatory facet about pretraining
 
 ---
 
@@ -64,6 +88,10 @@ The "Quality" plateau (`#/quality`) SHALL be a simple plateau examining the huma
 - **Interaction**: This plateau uses a spatial layout of seed concepts (e.g., "The Raters," "Helpful vs. Harmless," "Sycophancy," "Cultural Bias") that unfold into facets exploring the trade-offs and complexities of alignment.
 - **Rhizome Connections**: → The Understanding Illusion, → The Field Guide, → The Shaping
 
+#### Scenario: Seeds crystallize into facets
+- **WHEN** the user engages a seed in What Is Quality?
+- **THEN** the seed expands to reveal a facet about alignment trade-offs
+
 ---
 
 ### Requirement: Simple Plateau — The Understanding Illusion
@@ -71,6 +99,10 @@ The "Understanding Illusion" plateau (`#/understanding-illusion`) SHALL be a sim
 - **Entry Question**: *Does the model "understand" what it's saying?*
 - **Interaction**: The plateau presents two opposing seed clusters: "Stochastic Parrot" and "Emergent World Models." Engaging with seeds in each cluster reveals arguments and evidence for that viewpoint (e.g., Chinese Room argument vs. Othello-GPT findings), leaving the reader in a state of productive tension.
 - **Rhizome Connections**: → The Field Guide, → The Averaging Problem, → The Tool-User
+
+#### Scenario: Seeds crystallize into facets
+- **WHEN** the user engages a seed in The Understanding Illusion
+- **THEN** the seed expands to reveal arguments for that viewpoint
 
 ---
 
@@ -80,6 +112,10 @@ The "Field Guide" plateau (`#/practical-guide`) SHALL be a simple plateau struct
 - **Interaction**: The plateau is organized into two main seed clusters: "How Prompting Works" and "Working With LLMs". Each seed crystallizes into a practical pattern (e.g., "Chain-of-Thought," "Trust Calibration") with a brief explanation grounded in the mechanical insights from other plateaus.
 - **Rhizome Connections**: → The Weight of Words, → The Understanding Illusion, → The Tool-User
 
+#### Scenario: Seeds crystallize into practical patterns
+- **WHEN** the user engages a seed in The Field Guide
+- **THEN** the seed expands to reveal a practical pattern with explanation
+
 ---
 
 ### Requirement: Simple Plateau — The Tool-User
@@ -87,3 +123,7 @@ The "Tool-User" plateau (`#/tool-user`) SHALL be a simple plateau introducing th
 - **Entry Question**: *What happens when the model can use tools?*
 - **Interaction**: The plateau presents seeds like "Reasoning and Acting," "Mixture-of-Experts," and "The End of the Oracle," which unfold to explain how tool use and modular architectures are changing the capabilities of LLMs.
 - **Rhizome Connections**: → The Field Guide, → The Understanding Illusion, → The Shaping
+
+#### Scenario: Seeds crystallize into facets
+- **WHEN** the user engages a seed in The Tool-User
+- **THEN** the seed expands to reveal a facet about agentic capabilities
