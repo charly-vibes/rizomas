@@ -25,7 +25,7 @@ The network map node labels SHALL display each plateau's **entry question** (abb
 - **THEN** it announces the full entry question, plateau title, and visited status
 
 ### Requirement: Interactive Network Map
-The landing page canvas SHALL display all 8 plateau nodes with labels and all edges, using the positions defined in graph-data. Visited nodes SHALL render with dark fill; unvisited nodes SHALL render as outlines. Nodes SHALL be clickable — clicking navigates to the corresponding plateau. Click detection SHALL use distance-to-node hit testing with a 22px radius. The cursor SHALL change to pointer on hover over a node.
+The landing page canvas SHALL display all 17 plateau nodes with labels and all edges, using the positions defined in graph-data. Visited nodes SHALL render with dark fill; unvisited nodes SHALL render as outlines. Nodes SHALL be clickable — clicking navigates to the corresponding plateau. Click detection SHALL use distance-to-node hit testing with a 22px radius. The cursor SHALL change to pointer on hover over a node.
 
 The canvas SHALL have a DOM accessibility layer: a set of anchor elements (one per node) positioned absolutely over their canvas locations. Each anchor SHALL have `aria-label` text including the plateau title and visited status (e.g., "The Next Word, visited"). These anchors provide keyboard tab-order and screen-reader access. The footer note SHALL read "Click or tab to any node to begin." The canvas itself SHALL have `role="img"` and an `aria-label` describing it as a navigation map.
 
@@ -39,7 +39,7 @@ The canvas SHALL have a DOM accessibility layer: a set of anchor elements (one p
 
 #### Scenario: Visited nodes are visually distinct
 - **WHEN** the user has previously visited 3 plateaus and returns to the landing page
-- **THEN** those 3 nodes render with dark fill while the remaining 5 render as outlines
+- **THEN** those 3 nodes render with dark fill while the remaining 14 render as outlines
 
 #### Scenario: Map scales on small viewports
 - **WHEN** the viewport is narrower than 460px
@@ -47,7 +47,7 @@ The canvas SHALL have a DOM accessibility layer: a set of anchor elements (one p
 
 #### Scenario: Map node is keyboard accessible via DOM anchors
 - **WHEN** the user tabs through the landing page map
-- **THEN** focus moves sequentially through all 8 node anchors, each announcing the plateau title and visited status
+- **THEN** focus moves sequentially through all 17 node anchors, each announcing the plateau title and visited status
 
 #### Scenario: Map node navigates via keyboard
 - **WHEN** the user focuses a node anchor and presses Enter

@@ -37,7 +37,7 @@ Each card SHALL contain an italic question and the destination plateau's name. T
 ---
 
 ### Requirement: Rhizome Mini-Map
-A fixed-position canvas element (160x120px) SHALL appear at the bottom-right of the viewport. On the landing page, it SHALL show all 8 nodes and all edges, with visited nodes as dark fill and unvisited as outline. On a plateau, it SHALL show the current node (large, filled) and directly connected nodes only. Clicking the mini-map SHALL open the rhizome overlay. On mobile viewports (per visual-design breakpoints), the mini-map SHALL collapse to a small circle. The mini-map container SHALL include a focusable button element with `aria-label="Open navigation map"` so keyboard and screen-reader users can activate the overlay without relying on canvas hit-testing.
+A fixed-position canvas element (160x120px) SHALL appear at the bottom-right of the viewport. On the landing page, it SHALL show all 17 nodes and all edges, with visited nodes as dark fill and unvisited as outline. On a plateau, it SHALL show the current node (large, filled) and directly connected nodes only. Clicking the mini-map SHALL open the rhizome overlay. On mobile viewports (per visual-design breakpoints), the mini-map SHALL collapse to a small circle. The mini-map container SHALL include a focusable button element with `aria-label="Open navigation map"` so keyboard and screen-reader users can activate the overlay without relying on canvas hit-testing.
 
 #### Scenario: Mini-map shows local context on plateau
 - **WHEN** the user is on a plateau
@@ -56,7 +56,7 @@ The overlay SHALL include a DOM accessibility layer: a set of visually-hidden an
 
 #### Scenario: Overlay shows full graph with trail
 - **WHEN** the user opens the rhizome overlay after visiting 3 plateaus
-- **THEN** all 8 nodes are shown with a trail path connecting the 3 visited nodes in order.
+- **THEN** all 17 nodes are shown with a trail path connecting the 3 visited nodes in order.
 
 #### Scenario: Overlay closes on Escape
 - **WHEN** the user presses the Escape key while the overlay is open

@@ -1,7 +1,7 @@
 # Project: Explorable Essays on LLM Mechanics
 
 ## Purpose
-This project is a collection of 8 interconnected visual essays ("plateaus") about how LLMs work, aimed at a general audience. The goal is to create a non-linear, explorable experience that helps non-technical people understand the core mechanics and best practices of using language models.
+This project is a collection of 17 interconnected visual essays ("plateaus") about how LLMs work, aimed at a general audience. The goal is to create a non-linear, explorable experience that helps non-technical people understand the core mechanics and best practices of using language models.
 
 ## Core Philosophy
 
