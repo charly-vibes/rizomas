@@ -1879,6 +1879,12 @@
           if (visited.has("next-word")) return "You saw how models predict tokens. What happens when one of those tokens is a function call?";
           return null;
         },
+        "near-zero-cost-impact": (visited) => {
+          if (visited.has("averaging-problem")) return "You explored what happens when a model averages everything. What happens when that average is reproduced at near-zero cost, billions of times over?";
+          if (visited.has("quality")) return "You asked who defines quality. When production cost is zero and volume is infinite, does quality still matter\u2014or does it drown?";
+          if (visited.has("digital-footprints")) return "You considered the environmental cost of AI. What's the full ledger when production itself is nearly free but the infrastructure isn't?";
+          return null;
+        },
       };
 
       const buildRetrievalMoment = (state, plateauId) => {
@@ -1937,6 +1943,10 @@
         "tool-user": [
           { forParagraph: 0, text: "The shift from oracle to agent happened faster than anyone predicted." },
           { forParagraph: 2, text: "When the model writes code that writes code, the oracle metaphor breaks completely.", condition: (v) => v.has("practical-guide") },
+        ],
+        "near-zero-cost-impact": [
+          { forParagraph: 0, text: "The marginal cost of the next copy is zero. The marginal cost of trust is not." },
+          { forParagraph: 2, text: "Every previous revolution had friction that slowed adoption. AI's friction is approaching zero too.", condition: (v) => v.has("the-shaping") },
         ],
       };
 
@@ -2080,6 +2090,23 @@
               question: "How do we apply these behaviors?",
               title: "The Field Guide",
               to: "practical-guide",
+            },
+          ],
+          "near-zero-cost-impact": [
+            {
+              question: "What happens when the average floods the market?",
+              title: "The Averaging Problem",
+              to: "averaging-problem",
+            },
+            {
+              question: "Who decides what's worth producing at zero cost?",
+              title: "What Is Quality?",
+              to: "quality",
+            },
+            {
+              question: "What does AI cost the planet when production is free?",
+              title: "Digital Footprints",
+              to: "digital-footprints",
             },
           ],
         };
@@ -2270,6 +2297,72 @@
               { step: 1, text: "Where did the raw behavior come from?", to: "weight-of-words" },
               { step: 2, text: "Who chose what's good?", to: "quality" },
               { step: 3, text: "What can the shaped model do?", to: "tool-user" },
+            ],
+          },
+          "near-zero-cost-impact": {
+            steps: [
+              (step) => {
+                step.append(
+                  h("p", null, "Once an AI model exists, the cost of producing one more essay, one more image, one more program approaches "),
+                  buildInlineSeed({
+                    id: "zero-marginal-cost", label: "zero marginal cost", state, plateauId, onOpen: onSeedOpen,
+                    detail: "The situation where the cost of producing an additional unit of a good or service is effectively zero, often seen with digital products once initial development costs are covered.",
+                  }),
+                  h("p", null, ". Traditional pricing collapses. Business models scramble to adapt\u2014subscriptions, bundling, freemium\u2014anything to capture value when the product itself trends toward free.")
+                );
+              },
+              (step) => {
+                step.append(
+                  h("p", null, "The flood arrives. AI-generated text, code, and images proliferate across every domain. The volume overwhelms human capacity to process, filter, or verify."),
+                  buildInlineSeed({
+                    id: "infobesity", label: "infobesity", state, plateauId, onOpen: onSeedOpen,
+                    detail: (s) => s && s.v && s.v.includes("averaging-problem")
+                      ? "You've seen how the model averages all of its training data. Now that average is being reproduced at scale\u2014billions of outputs per day, each one a sample from that averaged distribution. The flood is the average, mass-produced."
+                      : "A state of being overwhelmed by the excessive amount of information available, leading to difficulty in processing and making decisions.",
+                  })
+                );
+              },
+              (step) => {
+                step.append(
+                  h("p", null, "Abundance brings risk. "),
+                  buildInlineSeed({
+                    id: "deepfakes", label: "Deepfakes", state, plateauId, onOpen: onSeedOpen,
+                    type: "dangling",
+                    detail: "Synthetic media\u2014videos, audio, images\u2014manipulated using AI to replace or generate content, often with malicious intent. When production cost is zero, the cost of disinformation is zero too. This connects to a deeper problem\u2014",
+                    danglingTo: "understanding-illusion",
+                    danglingText: "if the model doesn't understand truth, how could its outputs be trusted\u2026",
+                  }),
+                  h("p", null, " erode trust. De-skilling hollows out expertise. Security vulnerabilities multiply in mass-produced code. The dashboard of risks grows faster than the capacity to monitor it.")
+                );
+              },
+              (step) => {
+                step.append(
+                  h("p", null, "This has happened before. The printing press displaced scribes but created publishers. The Industrial Revolution displaced weavers but created factories. The internet displaced gatekeepers but created platforms."),
+                  buildInlineSeed({
+                    id: "goodharts-law", label: "Goodhart's Law", state, plateauId, onOpen: onSeedOpen,
+                    detail: (s) => s && s.v && s.v.includes("quality")
+                      ? "You've thought about who defines quality. Goodhart's Law says: 'When a measure becomes a target, it ceases to be a good measure.' The metrics we use to optimize AI output will be gamed\u2014by the AI itself. Quality becomes a moving target."
+                      : "The principle stating that 'When a measure becomes a target, it ceases to be a good measure,' relevant to how AI optimization can lead to unintended outcomes.",
+                  }),
+                  h("p", null, " But the speed and cognitive scope of AI makes this shift uniquely disorienting. Previous revolutions transformed labor; this one transforms thought itself.")
+                );
+              },
+              (step) => {
+                step.append(
+                  h("p", null, "The strategies span every scale: individuals upskilling, educational systems reforming, regulators drafting frameworks like the EU AI Act."),
+                  buildInlineSeed({
+                    id: "preparation", label: "Is preparation enough?",
+                    type: "fourth-wall", state, plateauId, onOpen: onSeedOpen,
+                    detail: "You've scrolled through a cost curve collapsing, a content flood rising, a risk dashboard expanding, and centuries of historical precedent. Notice that each step made the problem feel larger. That's the honest shape of this question\u2014the strategies exist, but the gap between them and the speed of change is the real terrain you're navigating.",
+                  })
+                );
+              },
+            ],
+            whispers: [
+              { step: 1, text: "How does this compare to the averaging problem?", to: "averaging-problem" },
+              { step: 2, text: "What are the ethical concerns of mass AI content?", to: "quality" },
+              { step: 3, text: "How is 'understanding' misused in misinformation?", to: "understanding-illusion" },
+              { step: 4, text: "How does this change the shaping of society?", to: "the-shaping" },
             ],
           },
         };
@@ -2639,6 +2732,7 @@
         "the-shaping": { requires: ["quality"], keywords: ["preference", "rater"] },
         "practical-guide": { requires: ["next-word", "averaging-problem"], keywords: ["distribution", "probability"] },
         quality: { requires: ["the-shaping"], keywords: ["RLHF", "alignment"] },
+        "near-zero-cost-impact": { requires: ["averaging-problem", "quality"], keywords: ["average", "quality", "distribution"] },
       };
 
       const applyGhostfading = (container, plateauId, visited) => {
