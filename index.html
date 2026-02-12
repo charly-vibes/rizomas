@@ -319,6 +319,10 @@
         opacity: 0.2;
       }
 
+      .scrolly-no-viz {
+        grid-template-columns: 1fr;
+      }
+
       .scrolly-steps {
         padding: 0 36px;
       }
@@ -464,6 +468,7 @@
 
       .seed-growth.is-open {
         max-height: 220px;
+        overflow-y: auto;
       }
 
       .seed-growth-inner {
@@ -501,6 +506,7 @@
 
       .inline-seed-growth.is-open {
         max-height: 180px;
+        overflow-y: auto;
       }
 
       .inline-seed-content {
@@ -626,6 +632,7 @@
         right: -180px;
         top: 0;
         width: 160px;
+        max-width: calc(100vw - 100%);
         font-style: italic;
         color: var(--ink3);
         font-size: 0.78rem;
@@ -755,6 +762,7 @@
 
       .cyoa-expansion.is-open {
         max-height: 300px;
+        overflow-y: auto;
       }
 
       .cyoa-expansion-inner {
@@ -845,11 +853,34 @@
 
         .whisper-layer,
         .trace-pips {
+          font-size: 0.75rem;
+          position: static;
+          flex-direction: row;
+          flex-wrap: wrap;
+          gap: 8px;
+          padding: 8px 20px;
+          border-bottom: 1px solid var(--ink4);
+        }
+
+        .whisper {
+          opacity: 0.7;
+          transform: none;
+        }
+
+        .whisper.is-visible {
+          opacity: 1;
+        }
+
+        .trace-pips {
           display: none;
         }
 
         .dwell-annotation {
-          display: none;
+          position: static;
+          width: auto;
+          margin-top: 8px;
+          padding-left: 12px;
+          border-left: 2px solid var(--ink4);
         }
       }
 
@@ -1364,18 +1395,20 @@
       };
 
       const buildScrolly = ({ steps, whispers, questionCards, scrubUpdate, vizContent }) => {
-        const section = h("section", { class: "scrolly" });
-        const viz = h("div", { class: "scrolly-viz" });
-        const vizMain = h("div", { class: "viz-main" });
-        if (vizContent) {
+        const hasViz = !!vizContent;
+        const section = h("section", { class: hasViz ? "scrolly" : "scrolly scrolly-no-viz" });
+        let viz = null;
+        let vizMain = null;
+        let constellation = null;
+        if (hasViz) {
+          viz = h("div", { class: "scrolly-viz" });
+          vizMain = h("div", { class: "viz-main" });
           vizMain.appendChild(vizContent);
-        } else {
-          vizMain.textContent = "Visual Canvas";
+          const whispersLayer = h("div", { class: "whisper-layer" });
+          const pips = h("div", { class: "trace-pips" });
+          constellation = h("div", { class: "constellation" }, "Constellation");
+          viz.append(vizMain, whispersLayer, pips, constellation);
         }
-        const whispersLayer = h("div", { class: "whisper-layer" });
-        const pips = h("div", { class: "trace-pips" });
-        const constellation = h("div", { class: "constellation" }, "Constellation");
-        viz.append(vizMain, whispersLayer, pips, constellation);
 
         const stepsWrap = h("div", { class: "scrolly-steps" });
         const stepEls = steps.map((content, index) => {
@@ -1390,12 +1423,16 @@
           return step;
         });
 
-        whispers.forEach((whisper) => {
-          const line = h("a", { class: "whisper", href: `#/${whisper.to}` }, whisper.text);
-          whispersLayer.appendChild(line);
-          const pip = h("span", { class: "trace-pip" });
-          pips.appendChild(pip);
-        });
+        if (hasViz) {
+          const whispersLayer = viz.querySelector(".whisper-layer");
+          const pips = viz.querySelector(".trace-pips");
+          whispers.forEach((whisper) => {
+            const line = h("a", { class: "whisper", href: `#/${whisper.to}` }, whisper.text);
+            whispersLayer.appendChild(line);
+            const pip = h("span", { class: "trace-pip" });
+            pips.appendChild(pip);
+          });
+        }
 
         const cards = h("div", { class: "question-cards" });
         questionCards.forEach((card) => {
@@ -1410,7 +1447,8 @@
         });
         stepsWrap.appendChild(cards);
 
-        section.append(viz, stepsWrap);
+        if (viz) section.appendChild(viz);
+        section.appendChild(stepsWrap);
 
         let activeStepIndex = 0;
         const onStep = (idx) => {
@@ -1418,16 +1456,20 @@
           stepEls.forEach((step, index) => {
             step.classList.toggle("is-active", index === idx);
           });
-          whispers.forEach((whisper, index) => {
-            const line = whispersLayer.children[index];
-            const pip = pips.children[index];
-            const isVisible = idx >= whisper.step && idx < steps.length - 1;
-            line.classList.toggle("is-visible", isVisible);
-            pip.classList.toggle("is-lit", idx >= whisper.step);
-          });
-          const isFinal = idx === steps.length - 1;
-          viz.classList.toggle("is-constellation", isFinal);
-          constellation.classList.toggle("is-visible", isFinal);
+          if (hasViz) {
+            const whispersLayer = viz.querySelector(".whisper-layer");
+            const pips = viz.querySelector(".trace-pips");
+            whispers.forEach((whisper, index) => {
+              const line = whispersLayer.children[index];
+              const pip = pips.children[index];
+              const isVisible = idx >= whisper.step && idx < steps.length - 1;
+              line.classList.toggle("is-visible", isVisible);
+              pip.classList.toggle("is-lit", idx >= whisper.step);
+            });
+            const isFinal = idx === steps.length - 1;
+            viz.classList.toggle("is-constellation", isFinal);
+            constellation.classList.toggle("is-visible", isFinal);
+          }
         };
 
         const observer = new IntersectionObserver(
@@ -1753,7 +1795,6 @@
       };
 
       const setupDwellReveal = (container, annotations) => {
-        if (window.innerWidth < 480) return () => {};
         const timers = new Map();
         const revealed = new Set();
         const DWELL_MS = 3000;
@@ -1953,7 +1994,7 @@
       const buildPlateauView = (state, plateauId) => {
         recordVisit(state, plateauId);
         const plateau = getPlateau(plateauId);
-        const scrollyId = new Set(["next-word", "averaging-problem", "the-shaping", "algorithm-as-muse", "echoes-of-the-past", "learning-machines-learning-humans", "automation-of-cognition", "black-box-oracle", "digital-footprints", "artificial-brain", "empathy-machine", "near-zero-cost-impact"]);
+        const scrollyId = new Set(["next-word", "averaging-problem", "the-shaping", "near-zero-cost-impact"]);
         const isScrolly = scrollyId.has(plateauId);
         const questionCardMap = {
           "next-word": [
