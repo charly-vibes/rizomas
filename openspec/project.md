@@ -1,7 +1,7 @@
 # Project Context
 
 ## Purpose
-A collection of 8 interconnected visual essays ("plateaus") explaining how LLMs work, aimed at a general audience. Rhizomatic navigation — any essay can be an entry point, each connects laterally to others. Inspired by Deleuze/Guattari's rhizome structure and Simondon's crystallization metaphor.
+A collection of 17 interconnected visual essays ("plateaus") explaining how LLMs work, aimed at a general audience. Rhizomatic navigation — any essay can be an entry point, each connects laterally to others. Inspired by Deleuze/Guattari's rhizome structure and Simondon's crystallization metaphor.
 
 ## Tech Stack
 - Single HTML file, zero dependencies (Google Fonts only)
