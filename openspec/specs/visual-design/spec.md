@@ -77,6 +77,9 @@ All transitions SHALL respect `prefers-reduced-motion`. The following timings ar
 | Viz output swap | 0.25s | opacity crossfade |
 | Whisper entrance | 0.6s | opacity + translateX |
 | Constellation fade-in | 0.6s | opacity |
+| Mini-map breathing | 5s period | node fill opacity (±0.08) |
+| Mini-map context transition | 0.3s | opacity crossfade |
+| Mini-map hover brighten | 0.2s | border-color |
 
 When `prefers-reduced-motion: reduce` is active, all transition durations SHALL be set to 0s (instant).
 

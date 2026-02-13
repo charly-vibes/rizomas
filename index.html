@@ -161,12 +161,18 @@
         box-shadow: 0 14px 30px rgba(26, 26, 24, 0.08);
         overflow: hidden;
         z-index: 20;
+        transition: border-color 0.2s ease;
       }
 
       .mini-map canvas {
         width: 100%;
         height: 100%;
         display: block;
+      }
+
+      .mini-map:hover {
+        border-color: var(--ink3);
+        transition: border-color 0.2s ease;
       }
 
       .mini-map-button {
@@ -1103,6 +1109,10 @@
         showTrail,
         trailNodes,
         hoveredId,
+        curvedEdges,
+        softenUnvisited,
+        activeGlow,
+        breatheAlpha,
       }) => {
         const ctx = canvas.getContext("2d");
         if (!ctx) return;
@@ -1112,9 +1122,29 @@
 
         const styles = getComputedStyle(document.documentElement);
         const ink = styles.getPropertyValue("--ink").trim();
+        const ink3 = styles.getPropertyValue("--ink3").trim();
         const ink4 = styles.getPropertyValue("--ink4").trim();
         const acc = styles.getPropertyValue("--acc").trim();
         const paper = styles.getPropertyValue("--paper").trim();
+
+        const drawEdgePath = (ctx, fromPos, toPos, curved, fromId, toId) => {
+          ctx.beginPath();
+          ctx.moveTo(fromPos.x, fromPos.y);
+          if (curved) {
+            const mx = (fromPos.x + toPos.x) / 2;
+            const my = (fromPos.y + toPos.y) / 2;
+            const dx = toPos.x - fromPos.x;
+            const dy = toPos.y - fromPos.y;
+            const len = Math.sqrt(dx * dx + dy * dy) || 1;
+            const sign = (fromId < toId) ? 1 : -1;
+            const offset = len * 0.15 * sign;
+            const cpx = mx + (-dy / len) * offset;
+            const cpy = my + (dx / len) * offset;
+            ctx.quadraticCurveTo(cpx, cpy, toPos.x, toPos.y);
+          } else {
+            ctx.lineTo(toPos.x, toPos.y);
+          }
+        };
 
         GRAPH.edges.forEach(([fromId, toId]) => {
           if (edgeFilter && !edgeFilter(fromId, toId)) return;
@@ -1126,18 +1156,21 @@
           const toPos = getNodePx(to, width, height);
           const touchesActive = hoveredId && (fromId === hoveredId || toId === hoveredId);
           const touchesVisited = visited.has(fromId) || visited.has(toId);
-          ctx.globalAlpha = touchesActive ? 0.5 : touchesVisited ? 0.3 : 0.08;
+          if (softenUnvisited) {
+            ctx.globalAlpha = touchesActive ? 0.5 : touchesVisited ? 0.25 : 0.06;
+          } else {
+            ctx.globalAlpha = touchesActive ? 0.5 : touchesVisited ? 0.3 : 0.08;
+          }
           ctx.strokeStyle = ink4;
           ctx.lineWidth = touchesActive ? 1.5 : 1;
-          ctx.beginPath();
-          ctx.moveTo(fromPos.x, fromPos.y);
-          ctx.lineTo(toPos.x, toPos.y);
+          drawEdgePath(ctx, fromPos, toPos, curvedEdges, fromId, toId);
           ctx.stroke();
         });
         ctx.globalAlpha = 1;
 
         if (showTrail && trailNodes && trailNodes.length > 1) {
           ctx.strokeStyle = acc;
+          ctx.globalAlpha = 0.2;
           ctx.lineWidth = 2;
           ctx.beginPath();
           trailNodes.forEach((node, index) => {
@@ -1145,10 +1178,25 @@
             if (index === 0) {
               ctx.moveTo(pos.x, pos.y);
             } else {
-              ctx.lineTo(pos.x, pos.y);
+              const prev = trailNodes[index - 1];
+              const prevPos = getNodePx(prev, width, height);
+              if (curvedEdges) {
+                const mx = (prevPos.x + pos.x) / 2;
+                const my = (prevPos.y + pos.y) / 2;
+                const dx = pos.x - prevPos.x;
+                const dy = pos.y - prevPos.y;
+                const len = Math.sqrt(dx * dx + dy * dy) || 1;
+                const offset = len * 0.15;
+                const cpx = mx + (-dy / len) * offset;
+                const cpy = my + (dx / len) * offset;
+                ctx.quadraticCurveTo(cpx, cpy, pos.x, pos.y);
+              } else {
+                ctx.lineTo(pos.x, pos.y);
+              }
             }
           });
           ctx.stroke();
+          ctx.globalAlpha = 1;
         }
 
         GRAPH.nodes.forEach((node) => {
@@ -1159,13 +1207,35 @@
           const isHovered = node.id === hoveredId;
           const radius = isActive ? 11.5 : isHovered ? 9.5 : 8.5;
 
+          if (activeGlow && isActive) {
+            const glowRadius = radius + 3;
+            const gradient = ctx.createRadialGradient(pos.x, pos.y, radius * 0.5, pos.x, pos.y, glowRadius);
+            gradient.addColorStop(0, "rgba(26,26,24,0.9)");
+            gradient.addColorStop(1, "rgba(26,26,24,0)");
+            ctx.beginPath();
+            ctx.arc(pos.x, pos.y, glowRadius, 0, Math.PI * 2);
+            ctx.fillStyle = gradient;
+            ctx.fill();
+          }
+
+          const nodeAlpha = breatheAlpha != null ? breatheAlpha : 1;
+
           ctx.beginPath();
           ctx.arc(pos.x, pos.y, radius, 0, Math.PI * 2);
-          ctx.fillStyle = isVisited || isActive ? ink : paper;
-          ctx.strokeStyle = ink;
-          ctx.lineWidth = isHovered ? 2 : 1.3;
+          if (softenUnvisited && !isVisited && !isActive) {
+            ctx.globalAlpha = nodeAlpha;
+            ctx.fillStyle = paper;
+            ctx.strokeStyle = ink3;
+            ctx.lineWidth = isHovered ? 1.5 : 0.8;
+          } else {
+            ctx.globalAlpha = nodeAlpha;
+            ctx.fillStyle = isVisited || isActive ? ink : paper;
+            ctx.strokeStyle = ink;
+            ctx.lineWidth = isHovered ? 2 : 1.3;
+          }
           ctx.fill();
           ctx.stroke();
+          ctx.globalAlpha = 1;
 
           if (showLabels) {
             const isRevealed = isVisited || isHovered;
@@ -1351,24 +1421,42 @@
         });
         container.append(canvas, button);
 
-        const visited = new Set(state.v);
-        const activeId = currentId || null;
-        const highlightIds = new Set();
-        if (currentId) {
-          highlightIds.add(currentId);
-          GRAPH.edges.forEach(([fromId, toId]) => {
-            if (fromId === currentId) highlightIds.add(toId);
-            if (toId === currentId) highlightIds.add(fromId);
-          });
-        } else {
-          GRAPH.nodes.forEach((node) => highlightIds.add(node.id));
-        }
+        let visited = new Set(state.v);
+        let activeId = currentId || null;
+        let highlightIds = new Set();
+        let edgeFilter = null;
+        let trailNodes = getTrailSegments(state.tr);
+        let isVisible = true;
+        let rafId = null;
+        let breatheStart = null;
+        let transitionStart = null;
+        let prevHighlightIds = null;
+        let prevEdgeFilter = null;
+        let prevActiveId = null;
 
-        const edgeFilter = currentId
-          ? (fromId, toId) => fromId === currentId || toId === currentId
-          : null;
+        const computeContext = (id) => {
+          const hl = new Set();
+          let ef = null;
+          if (id) {
+            hl.add(id);
+            GRAPH.edges.forEach(([fromId, toId]) => {
+              if (fromId === id) hl.add(toId);
+              if (toId === id) hl.add(fromId);
+            });
+            ef = (fromId, toId) => fromId === id || toId === id;
+          } else {
+            GRAPH.nodes.forEach((node) => hl.add(node.id));
+          }
+          return { hl, ef };
+        };
 
-        const resize = () => {
+        const ctx = computeContext(currentId);
+        highlightIds = ctx.hl;
+        edgeFilter = ctx.ef;
+
+        const isMobile = () => window.matchMedia("(max-width: 480px)").matches;
+
+        const render = (alpha) => {
           const rect = container.getBoundingClientRect();
           if (!rect.width || !rect.height) return;
           drawGraph({
@@ -1380,17 +1468,105 @@
             highlightIds,
             edgeFilter,
             showLabels: false,
+            showTrail: trailNodes.length > 1,
+            trailNodes,
+            curvedEdges: true,
+            softenUnvisited: true,
+            activeGlow: !!activeId,
+            breatheAlpha: alpha,
           });
         };
 
-        const observer = new ResizeObserver(resize);
-        observer.observe(container);
-        resize();
+        const animate = (timestamp) => {
+          if (!isVisible) return;
+          if (breatheStart === null) breatheStart = timestamp;
+          const elapsed = (timestamp - breatheStart) / 1000;
+          const alpha = 1 + 0.08 * Math.sin((2 * Math.PI * elapsed) / 5);
+
+          if (transitionStart !== null) {
+            const tElapsed = timestamp - transitionStart;
+            const tProgress = Math.min(tElapsed / 300, 1);
+            if (tProgress >= 1) {
+              transitionStart = null;
+              prevHighlightIds = null;
+              prevEdgeFilter = null;
+              prevActiveId = null;
+            }
+          }
+
+          render(alpha);
+          rafId = requestAnimationFrame(animate);
+        };
+
+        const startAnimation = () => {
+          if (prefersReducedMotion() || isMobile()) {
+            render(1);
+            return;
+          }
+          if (rafId !== null) return;
+          breatheStart = null;
+          rafId = requestAnimationFrame(animate);
+        };
+
+        const stopAnimation = () => {
+          if (rafId !== null) {
+            cancelAnimationFrame(rafId);
+            rafId = null;
+          }
+        };
+
+        const visObserver = new IntersectionObserver(([entry]) => {
+          isVisible = entry.isIntersecting;
+          if (isVisible) {
+            startAnimation();
+          } else {
+            stopAnimation();
+          }
+        });
+        visObserver.observe(container);
+
+        const resizeObserver = new ResizeObserver(() => {
+          if (prefersReducedMotion() || isMobile()) {
+            render(1);
+          }
+        });
+        resizeObserver.observe(container);
+
+        render(1);
+        startAnimation();
+
+        const updateContext = (newState, newCurrentId) => {
+          const newVisited = new Set(newState.v);
+          const newTrail = getTrailSegments(newState.tr);
+          const newCtx = computeContext(newCurrentId);
+
+          if (!prefersReducedMotion() && !isMobile() && activeId !== (newCurrentId || null)) {
+            prevHighlightIds = highlightIds;
+            prevEdgeFilter = edgeFilter;
+            prevActiveId = activeId;
+            transitionStart = performance.now();
+          }
+
+          visited = newVisited;
+          activeId = newCurrentId || null;
+          highlightIds = newCtx.hl;
+          edgeFilter = newCtx.ef;
+          trailNodes = newTrail;
+
+          if (prefersReducedMotion() || isMobile()) {
+            render(1);
+          }
+        };
 
         return {
           container,
           button,
-          cleanup: () => observer.disconnect(),
+          updateContext,
+          cleanup: () => {
+            stopAnimation();
+            visObserver.disconnect();
+            resizeObserver.disconnect();
+          },
         };
       };
 
@@ -1587,8 +1763,8 @@
         panel.append(closeButton, mapWrap);
         overlay.append(backdrop, panel);
 
-        const visited = new Set(state.v);
-        const trailNodes = getTrailSegments(state.tr);
+        let visited = new Set(state.v);
+        let trailNodes = getTrailSegments(state.tr);
         const linkMap = new Map();
         const hitRadius = 22;
         let lastSize = { width: 0, height: 0 };
@@ -1665,11 +1841,18 @@
 
         const focusables = Array.from(linkLayer.querySelectorAll("a")).concat([closeButton]);
 
+        const updateState = (newState) => {
+          visited = new Set(newState.v);
+          trailNodes = getTrailSegments(newState.tr);
+          resize();
+        };
+
         return {
           overlay,
           backdrop,
           closeButton,
           focusables,
+          updateState,
           cleanup: () => {
             observer.disconnect();
             canvas.removeEventListener("mousemove", handleMouseMove);
@@ -3314,9 +3497,14 @@
         overlay.closeButton.addEventListener("click", closeOverlay);
         overlay.overlay.addEventListener("keydown", handleKeyDown);
 
+        const updateOverlay = (newState) => {
+          overlay.updateState(newState);
+        };
+
         return {
           miniMap,
           overlay,
+          updateOverlay,
           cleanup: () => {
             miniMap.cleanup();
             overlay.cleanup();
@@ -3406,6 +3594,8 @@
         });
       };
 
+      let persistentNavChrome = null;
+
       const renderRoute = (liminalQuestion) => {
         const state = loadState();
         const hash = location.hash.replace(/^#\/?/, "");
@@ -3417,7 +3607,16 @@
         }
 
         const doRender = () => {
-          const navChrome = buildNavigationChrome(state, currentId);
+          if (persistentNavChrome) {
+            persistentNavChrome.miniMap.updateContext(state, currentId);
+            persistentNavChrome.updateOverlay(state);
+          } else {
+            persistentNavChrome = buildNavigationChrome(state, currentId);
+            document.body.append(
+              persistentNavChrome.miniMap.container,
+              persistentNavChrome.overlay.overlay
+            );
+          }
 
           if (!hash) {
             setupBgTemp(true);
@@ -3426,10 +3625,8 @@
               view: landing.view,
               cleanup: () => {
                 landing.cleanup();
-                navChrome.cleanup();
               },
             });
-            document.body.append(navChrome.miniMap.container, navChrome.overlay.overlay);
             return;
           }
           if (currentId) {
@@ -3439,11 +3636,9 @@
               view: plateau.view,
               cleanup: () => {
                 plateau.cleanup();
-                navChrome.cleanup();
                 if (bgTempCleanup) bgTempCleanup();
               },
             });
-            document.body.append(navChrome.miniMap.container, navChrome.overlay.overlay);
             requestAnimationFrame(() => {
               applyGhostfading(plateau.view, currentId, new Set(state.v));
 
