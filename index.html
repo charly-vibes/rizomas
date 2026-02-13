@@ -1926,6 +1926,46 @@
           if (visited.has("digital-footprints")) return "You considered the environmental cost of AI. What's the full ledger when production itself is nearly free but the infrastructure isn't?";
           return null;
         },
+        "algorithm-as-muse": (visited) => {
+          if (visited.has("averaging-problem")) return "You saw how models average everything they've read. What does that average look like when it tries to create art?";
+          if (visited.has("the-shaping")) return "You explored how models are shaped by human feedback. Who's shaping the muse\u2014and whose taste does it reflect?";
+          return null;
+        },
+        "echoes-of-the-past": (visited) => {
+          if (visited.has("quality")) return "You thought about who decides what's 'good.' The same question haunts history: whose version of the past does the model learn?";
+          if (visited.has("weight-of-words")) return "You saw how models learn from trillions of words. What happens when those words carry centuries of bias?";
+          return null;
+        },
+        "learning-machines-learning-humans": (visited) => {
+          if (visited.has("next-word")) return "You watched a model predict the next word. What happens when a student starts relying on that prediction instead of thinking?";
+          if (visited.has("understanding-illusion")) return "You questioned whether models understand. Does that uncertainty change how you'd trust one as a teacher?";
+          return null;
+        },
+        "automation-of-cognition": (visited) => {
+          if (visited.has("the-shaping")) return "You saw how models are shaped for usefulness. What happens when that usefulness displaces the workers it was shaped to help?";
+          if (visited.has("tool-user")) return "You explored what happens when models use tools. What happens when those tools replace the people who used to wield them?";
+          return null;
+        },
+        "black-box-oracle": (visited) => {
+          if (visited.has("the-shaping")) return "You saw how human feedback shapes model behavior. But who audits the shaping when the model makes life-altering decisions?";
+          if (visited.has("understanding-illusion")) return "You questioned whether models understand. How do you hold accountable a system you can't explain and that may not understand itself?";
+          return null;
+        },
+        "digital-footprints": (visited) => {
+          if (visited.has("near-zero-cost-impact")) return "You saw what happens when production cost approaches zero. But the energy cost doesn't\u2014every query has a carbon shadow.";
+          if (visited.has("weight-of-words")) return "You explored how models learn from trillions of words. What's the environmental cost of processing that much language?";
+          return null;
+        },
+        "artificial-brain": (visited) => {
+          if (visited.has("next-word")) return "You watched a model predict tokens. The brain predicts too\u2014but with 86 billion neurons running on 20 watts. What's different?";
+          if (visited.has("understanding-illusion")) return "You questioned whether models understand. If understanding requires a body, what does that mean for a machine?";
+          return null;
+        },
+        "empathy-machine": (visited) => {
+          if (visited.has("understanding-illusion")) return "You questioned whether models understand. If they don't, can they truly empathize\u2014or only simulate empathy?";
+          if (visited.has("next-word")) return "You saw how models predict the next word. When the next word is 'I understand how you feel,' is that prediction or connection?";
+          return null;
+        },
       };
 
       const buildRetrievalMoment = (state, plateauId) => {
@@ -1994,7 +2034,7 @@
       const buildPlateauView = (state, plateauId) => {
         recordVisit(state, plateauId);
         const plateau = getPlateau(plateauId);
-        const scrollyId = new Set(["next-word", "averaging-problem", "the-shaping", "near-zero-cost-impact"]);
+        const scrollyId = new Set(["next-word", "averaging-problem", "the-shaping", "near-zero-cost-impact", "algorithm-as-muse", "echoes-of-the-past", "learning-machines-learning-humans", "automation-of-cognition", "black-box-oracle", "digital-footprints", "artificial-brain", "empathy-machine"]);
         const isScrolly = scrollyId.has(plateauId);
         const questionCardMap = {
           "next-word": [
@@ -2148,6 +2188,142 @@
               question: "What does AI cost the planet when production is free?",
               title: "Digital Footprints",
               to: "digital-footprints",
+            },
+          ],
+          "algorithm-as-muse": [
+            {
+              question: "How does prediction shape what gets created?",
+              title: "The Next Word",
+              to: "next-word",
+            },
+            {
+              question: "How do human preferences shape creative AI?",
+              title: "The Shaping",
+              to: "the-shaping",
+            },
+            {
+              question: "Who decides what's original?",
+              title: "What Is Quality?",
+              to: "quality",
+            },
+          ],
+          "echoes-of-the-past": [
+            {
+              question: "Who decides which narratives are 'good'?",
+              title: "What Is Quality?",
+              to: "quality",
+            },
+            {
+              question: "Does the model understand the history it processes?",
+              title: "The Understanding Illusion",
+              to: "understanding-illusion",
+            },
+            {
+              question: "What does AI cost the planet as it processes the past?",
+              title: "Digital Footprints",
+              to: "digital-footprints",
+            },
+          ],
+          "learning-machines-learning-humans": [
+            {
+              question: "How does prediction relate to learning?",
+              title: "The Next Word",
+              to: "next-word",
+            },
+            {
+              question: "Who decides what an AI tutor teaches?",
+              title: "The Black Box Oracle",
+              to: "black-box-oracle",
+            },
+            {
+              question: "Is an artificial brain anything like a student's?",
+              title: "The Artificial Brain",
+              to: "artificial-brain",
+            },
+          ],
+          "automation-of-cognition": [
+            {
+              question: "How does AI reshape behavior to be 'useful'?",
+              title: "The Shaping",
+              to: "the-shaping",
+            },
+            {
+              question: "What happens when models use tools?",
+              title: "The Tool-User",
+              to: "tool-user",
+            },
+            {
+              question: "What does all this automation cost the planet?",
+              title: "Digital Footprints",
+              to: "digital-footprints",
+            },
+          ],
+          "black-box-oracle": [
+            {
+              question: "How does the model learn its decision patterns?",
+              title: "The Weight of Words",
+              to: "weight-of-words",
+            },
+            {
+              question: "Does the model understand its own decisions?",
+              title: "The Understanding Illusion",
+              to: "understanding-illusion",
+            },
+            {
+              question: "How do human values get encoded into AI?",
+              title: "The Shaping",
+              to: "the-shaping",
+            },
+          ],
+          "digital-footprints": [
+            {
+              question: "How much data goes into training a model?",
+              title: "The Weight of Words",
+              to: "weight-of-words",
+            },
+            {
+              question: "What happens when automation scales without limit?",
+              title: "The Automation of Cognition",
+              to: "automation-of-cognition",
+            },
+            {
+              question: "When production is near-zero cost, who pays?",
+              title: "The Near-Zero Cost Impact",
+              to: "near-zero-cost-impact",
+            },
+          ],
+          "artificial-brain": [
+            {
+              question: "How does prediction work inside the model?",
+              title: "The Next Word",
+              to: "next-word",
+            },
+            {
+              question: "Does structure imply understanding?",
+              title: "The Understanding Illusion",
+              to: "understanding-illusion",
+            },
+            {
+              question: "Can simulated empathy be 'real' empathy?",
+              title: "The Empathy Machine?",
+              to: "empathy-machine",
+            },
+          ],
+          "empathy-machine": [
+            {
+              question: "How does AI simulate conversation?",
+              title: "The Next Word",
+              to: "next-word",
+            },
+            {
+              question: "Does the model understand emotions?",
+              title: "The Understanding Illusion",
+              to: "understanding-illusion",
+            },
+            {
+              question: "Who decides what empathetic AI looks like?",
+              title: "What Is Quality?",
+              to: "quality",
             },
           ],
         };
@@ -2404,6 +2580,446 @@
               { step: 2, text: "What are the ethical concerns of mass AI content?", to: "quality" },
               { step: 3, text: "How is 'understanding' misused in misinformation?", to: "understanding-illusion" },
               { step: 4, text: "How does this change the shaping of society?", to: "the-shaping" },
+            ],
+          },
+          "algorithm-as-muse": {
+            steps: [
+              (step) => {
+                step.append(
+                  h("p", null, "LLMs are becoming creative partners. They help overcome "),
+                  buildInlineSeed({
+                    id: "writers-block", label: "writer's block", state, plateauId, onOpen: onSeedOpen,
+                    detail: "A temporary inability to begin or continue a piece of writing, often due to lack of inspiration or anxiety. LLMs can provide prompts, drafts, and alternative framings to help overcome it.",
+                  }),
+                  h("p", null, ", generate novel ideas, and refine prose. For many, AI serves as a muse\u2014augmenting and amplifying human creative potential rather than replacing it.")
+                );
+              },
+              (step) => {
+                step.append(
+                  h("p", null, "But when AI generates content trained on vast amounts of existing work, can it be truly original? The boundary between human and AI contributions blurs."),
+                  buildInlineSeed({
+                    id: "copyright-laws", label: "copyright laws", state, plateauId, onOpen: onSeedOpen,
+                    detail: (s) => s && s.v && s.v.includes("quality")
+                      ? "You've thought about who defines quality. Copyright adds another layer: legal rights granted to the creator of an original work. But when the 'creator' is a statistical average of millions of creators, traditional authorship frameworks start to dissolve."
+                      : "Legal rights granted to the creator of an original work, giving them exclusive rights to its use and distribution. The application of these laws to AI-generated content is an evolving and contested area.",
+                  })
+                );
+              },
+              (step) => {
+                step.append(
+                  h("p", null, "Widespread AI use risks a "),
+                  buildInlineSeed({
+                    id: "homogenization", label: "homogenization of creative output", state, plateauId, onOpen: onSeedOpen,
+                    type: "dangling",
+                    detail: "When millions of creators use the same models, outputs converge toward statistically popular styles. Diversity and uniqueness of creative expression diminish. This connects to something you may have noticed\u2014",
+                    danglingTo: "averaging-problem",
+                    danglingText: "the averaging problem, where the model's default is everyone's voice and no one's\u2026",
+                  }),
+                  h("p", null, ". The gallery of creative works becomes visually homogeneous\u2014a single aesthetic surface polished by the same algorithm.")
+                );
+              },
+              (step) => {
+                step.append(
+                  h("p", null, "The future of art involves navigating the balance between AI's capabilities and human creative control."),
+                  buildInlineSeed({
+                    id: "the-conductor", label: "Who is the conductor?",
+                    type: "fourth-wall", state, plateauId, onOpen: onSeedOpen,
+                    detail: "You've been reading an essay co-created with AI tools. Every sentence here was shaped by both human intention and algorithmic suggestion. The question of authorship isn't abstract\u2014it's the condition of the text you're reading right now.",
+                  })
+                );
+              },
+              (step) => {
+                step.append(h("p", null, "The constellation gathers the lines of creative flight."));
+              },
+            ],
+            whispers: [
+              { step: 1, text: "How does AI prediction affect creative choice?", to: "next-word" },
+              { step: 2, text: "What defines 'originality' in AI-assisted art?", to: "quality" },
+              { step: 3, text: "How do human values influence creative AI?", to: "the-shaping" },
+            ],
+          },
+          "echoes-of-the-past": {
+            steps: [
+              (step) => {
+                step.append(
+                  h("p", null, "LLMs can process and digitize vast archives, extracting patterns from enormous "),
+                  buildInlineSeed({
+                    id: "textual-corpora", label: "textual corpora", state, plateauId, onOpen: onSeedOpen,
+                    detail: "Large, structured collections of digital texts used to train and analyze language models, often comprising books, articles, and historical documents spanning centuries and civilizations.",
+                  }),
+                  h("p", null, ". They uncover connections historians might miss across millions of pages\u2014making historical inquiry more comprehensive than ever before.")
+                );
+              },
+              (step) => {
+                step.append(
+                  h("p", null, "But training data reflects past societal norms. If it's predominantly built on "),
+                  buildInlineSeed({
+                    id: "eurocentric", label: "Eurocentric narratives", state, plateauId, onOpen: onSeedOpen,
+                    detail: (s) => s && s.v && s.v.includes("quality")
+                      ? "You've explored who decides what's 'good.' The same question applies to history: accounts centered on European cultures can marginalize other perspectives. The raters of quality and the writers of history share a blindspot."
+                      : "Historical accounts that primarily focus on European cultures and histories, potentially marginalizing or overlooking the experiences of other regions and peoples.",
+                  }),
+                  h("p", null, ", the model's outputs reinforce dominant stories while omitting others. Biases manifest in subtle ways\u2014from the portrayal of groups to the interpretation of events.")
+                );
+              },
+              (step) => {
+                step.append(
+                  h("p", null, "LLMs can confidently present fabricated information as historical fact. A confidence meter would show the gap between AI-generated claims and verified sources\u2014"),
+                  buildInlineSeed({
+                    id: "hallucination-history", label: "Can AI hallucinate history?",
+                    type: "question", state, plateauId, onOpen: onSeedOpen,
+                    detail: "Yes. The model identifies statistical patterns, not historical truth. When data is sparse or contradictory, it fills gaps with plausible-sounding fabrications. Historians face the task of developing new methods of source criticism tailored to AI-generated content.",
+                  })
+                );
+              },
+              (step) => {
+                step.append(
+                  h("p", null, "AI can reshape narratives\u2014amplifying marginalized voices through "),
+                  buildInlineSeed({
+                    id: "counter-storytelling", label: "counter-storytelling", state, plateauId, onOpen: onSeedOpen,
+                    type: "dangling",
+                    detail: "A narrative strategy that challenges dominant stories by presenting alternative perspectives from underrepresented groups. AI could facilitate this\u2014or it could reinforce the biases it was trained on. The question of who controls the algorithm leads to\u2014",
+                    danglingTo: "black-box-oracle",
+                    danglingText: "the accountability gap in algorithmic decisions\u2026",
+                  }),
+                  h("p", null, ". But the same technology risks reinforcing existing biases, creating selective, censored, or overly simplistic accounts of the past.")
+                );
+              },
+              (step) => {
+                step.append(h("p", null, "The constellation connects these echoes to their sources."));
+              },
+            ],
+            whispers: [
+              { step: 1, text: "How does AI analyze vast amounts of text?", to: "weight-of-words" },
+              { step: 2, text: "How do human biases enter AI systems?", to: "quality" },
+              { step: 3, text: "Can AI truly 'understand' historical context?", to: "understanding-illusion" },
+            ],
+          },
+          "learning-machines-learning-humans": {
+            steps: [
+              (step) => {
+                step.append(
+                  h("p", null, "AI offers unprecedented "),
+                  buildInlineSeed({
+                    id: "personalized-learning", label: "personalized learning", state, plateauId, onOpen: onSeedOpen,
+                    detail: "Educational approaches tailored to individual student needs, pace, and learning styles, often enabled by AI analysis of performance data. AI can act as a 24/7 tutor, answering questions and delivering materials in multiple formats.",
+                  }),
+                  h("p", null, "\u2014a 24/7 tutor that adapts in real time to each student's pace. For educators, it streamlines quizzes, rubrics, and lesson plans, freeing time for deeper engagement.")
+                );
+              },
+              (step) => {
+                step.append(
+                  h("p", null, "But tailoring content has a cost. Students who rely on AI for quick answers may bypass the "),
+                  buildInlineSeed({
+                    id: "cognitive-struggle", label: "cognitive struggle", state, plateauId, onOpen: onSeedOpen,
+                    detail: (s) => s && s.v && s.v.includes("understanding-illusion")
+                      ? "You've questioned whether models truly understand. The same question applies to students who outsource their thinking: the mental effort of deeply processing new information and solving problems is crucial for developing critical thinking. Without it, learning becomes shallow\u2014an echo of the model's own surface fluency."
+                      : "The mental effort and challenge involved in deeply processing new information and solving problems, crucial for developing critical thinking skills. When AI removes the struggle, it may also remove the learning.",
+                  }),
+                  h("p", null, " necessary for deep learning. A split view emerges: one student using AI for quick answers, another wrestling with the material directly.")
+                );
+              },
+              (step) => {
+                step.append(
+                  h("p", null, "As AI assistance increases, a critical thinking gauge shifts. AI can generate counterarguments and facilitate debates, but it can also reduce complex problems to readily available answers."),
+                  buildInlineSeed({
+                    id: "redefining-thinking", label: "Does AI make us think less\u2014or differently?",
+                    type: "question", state, plateauId, onOpen: onSeedOpen,
+                    detail: "Studies suggest extensive LLM use can lower cognitive load but may lead to poorer reasoning. The challenge is designing curricula that use AI as a discussion partner\u2014pushing students toward deeper analysis rather than shortcutting the learning process.",
+                  })
+                );
+              },
+              (step) => {
+                step.append(
+                  h("p", null, "The teacher's role transforms from lecturer to facilitator in an AI-augmented classroom. But this transformation brings "),
+                  buildInlineSeed({
+                    id: "educational-anxiety", label: "educational anxiety", state, plateauId, onOpen: onSeedOpen,
+                    detail: "Stress or apprehension experienced by educators due to the rapid integration of new technologies like AI, requiring adaptation of pedagogy and mastery of new tools. The teacher must now navigate algorithmic fairness, misinformation, and student data privacy.",
+                  }),
+                  h("p", null, "\u2014the stress of adapting pedagogy while navigating ethical issues like algorithmic fairness and data privacy.")
+                );
+              },
+              (step) => {
+                step.append(h("p", null, "The constellation connects learning to its deeper questions."));
+              },
+            ],
+            whispers: [
+              { step: 1, text: "How does AI prediction relate to student learning?", to: "next-word" },
+              { step: 2, text: "What are the ethical concerns of AI in education?", to: "black-box-oracle" },
+              { step: 3, text: "How does AI 'learn' versus human learning?", to: "artificial-brain" },
+            ],
+          },
+          "automation-of-cognition": {
+            steps: [
+              (step) => {
+                step.append(
+                  h("p", null, "LLMs are automating complex cognitive tasks once exclusive to "),
+                  buildInlineSeed({
+                    id: "white-collar-jobs", label: "white-collar jobs", state, plateauId, onOpen: onSeedOpen,
+                    detail: "Occupations traditionally involving intellectual or administrative tasks\u2014data analysis, content generation, legal research, medical inquiries\u2014now increasingly impacted by AI automation. The shift signals a potential reduction in demand for certain roles.",
+                  }),
+                  h("p", null, "\u2014from data analysis and content generation to legal research and medical inquiries. The labor market is shifting in ways that historical automation never reached.")
+                );
+              },
+              (step) => {
+                step.append(
+                  h("p", null, "AI can free workers from "),
+                  buildInlineSeed({
+                    id: "cognitive-load", label: "cognitive load", state, plateauId, onOpen: onSeedOpen,
+                    detail: (s) => s && s.v && s.v.includes("learning-machines-learning-humans")
+                      ? "You've seen how AI affects learning. The same dynamic plays out at work: the total amount of mental effort being used in working memory. AI can reduce this, freeing workers for higher-order tasks\u2014but over-reliance risks cognitive dependence and a decline in problem-solving abilities."
+                      : "The total amount of mental effort being used in working memory. AI can reduce this for human workers by automating routine intellectual tasks, but over-reliance risks cognitive dependence.",
+                  }),
+                  h("p", null, ", allowing them to concentrate on creativity, interpersonal skills, and strategic insight. But an over-reliance on AI for cognitive functions raises concerns about dependence.")
+                );
+              },
+              (step) => {
+                step.append(
+                  h("p", null, "The benefits of AI, if concentrated among a few, could widen existing socioeconomic disparities. A wealth distribution curve shifts as AI benefits concentrate."),
+                  buildInlineSeed({
+                    id: "predistribution", label: "predistribution", state, plateauId, onOpen: onSeedOpen,
+                    detail: "Policies designed to prevent wealth inequality from arising in the first place, by ensuring more equitable distribution of resources and opportunities through market mechanisms\u2014contrasted with redistribution, which corrects imbalances after they occur.",
+                  })
+                );
+              },
+              (step) => {
+                step.append(
+                  h("p", null, "The future workplace features human-AI collaboration zones. To bridge the transition, some propose "),
+                  buildInlineSeed({
+                    id: "ubi", label: "Universal Basic Income (UBI)", state, plateauId, onOpen: onSeedOpen,
+                    type: "dangling",
+                    detail: "A periodic cash payment unconditionally delivered to all citizens, regardless of employment status. It could provide financial security to retrain, innovate, or contribute to society in new ways. But its feasibility depends on questions that go beyond economics\u2014",
+                    danglingTo: "black-box-oracle",
+                    danglingText: "like who decides which automated decisions are fair enough to trust\u2026",
+                  }),
+                  h("p", null, " as a social safety net against widespread displacement.")
+                );
+              },
+              (step) => {
+                step.append(h("p", null, "The constellation maps the future of work."));
+              },
+            ],
+            whispers: [
+              { step: 1, text: "How does AI get 'smarter' at tasks?", to: "the-shaping" },
+              { step: 2, text: "Will human creative tasks also be automated?", to: "algorithm-as-muse" },
+              { step: 3, text: "What is the environmental footprint of this automation?", to: "digital-footprints" },
+            ],
+          },
+          "black-box-oracle": {
+            steps: [
+              (step) => {
+                step.append(
+                  h("p", null, "Many AI systems function as black boxes. Even their creators struggle to explain how "),
+                  buildInlineSeed({
+                    id: "deep-learning", label: "deep learning neural networks", state, plateauId, onOpen: onSeedOpen,
+                    detail: "A class of machine learning algorithms composed of multiple layers of interconnected 'neurons' that learn complex patterns from data. Unlike traditional software with traceable rules, these networks learn through intricate, multi-layered connections.",
+                  }),
+                  h("p", null, " arrive at a specific decision. Loan approvals, medical diagnoses, legal recommendations\u2014consequential outputs emerge without visible reasoning pathways.")
+                );
+              },
+              (step) => {
+                step.append(
+                  h("p", null, "The black box problem gives rise to "),
+                  buildInlineSeed({
+                    id: "xai", label: "Explainable AI (XAI)", state, plateauId, onOpen: onSeedOpen,
+                    detail: (s) => s && s.v && s.v.includes("understanding-illusion")
+                      ? "You've questioned whether models truly understand. XAI takes a pragmatic approach: a field of AI research focused on making decisions interpretable to humans, regardless of whether the model 'understands' them. The goal is trust, not truth about inner experience."
+                      : "A field of AI research focused on developing methods that make AI systems' decisions understandable and interpretable to humans, crucial for building trust and ensuring accountability in high-stakes domains.",
+                  }),
+                  h("p", null, "\u2014an attempt to illuminate the model's internal decision process. But the explanations are partial, and their limitations are real.")
+                );
+              },
+              (step) => {
+                step.append(
+                  h("p", null, "There's a fundamental tension: simplifying models for human understanding can compromise their accuracy. A transparency-accuracy trade-off slider reveals the dilemma."),
+                  buildInlineSeed({
+                    id: "transparency-tradeoff", label: "Can transparency and performance coexist?",
+                    type: "question", state, plateauId, onOpen: onSeedOpen,
+                    detail: "The inherent complexity of advanced algorithms means that making them interpretable often requires simplification. But simpler models may be less accurate. There's also the tension between transparency and protecting proprietary algorithms or sensitive training data.",
+                  })
+                );
+              },
+              (step) => {
+                step.append(
+                  h("p", null, "An accountability chain links each AI decision back through developers, deployers, and regulators. But gaps remain. Regulations like the "),
+                  buildInlineSeed({
+                    id: "gdpr", label: "GDPR's 'right to explanation'", state, plateauId, onOpen: onSeedOpen,
+                    detail: "A provision in the EU's General Data Protection Regulation granting individuals the right to receive an explanation for decisions made by automated systems that significantly affect them. It underscores the growing legal demand for transparent and accountable AI.",
+                  }),
+                  h("p", null, " underscore the demand, but without understanding the AI's reasoning, assigning responsibility remains nearly impossible.")
+                );
+              },
+              (step) => {
+                step.append(h("p", null, "The constellation traces the threads of trust and accountability."));
+              },
+            ],
+            whispers: [
+              { step: 1, text: "How does AI 'learn' without explicit rules?", to: "weight-of-words" },
+              { step: 2, text: "Can we truly 'understand' AI's internal models?", to: "understanding-illusion" },
+              { step: 3, text: "How do human values get encoded into AI systems?", to: "the-shaping" },
+            ],
+          },
+          "digital-footprints": {
+            steps: [
+              (step) => {
+                step.append(
+                  h("p", null, "Training a single large LLM can consume as much electricity as hundreds of homes use in a year. And the "),
+                  buildInlineSeed({
+                    id: "inference-phase", label: "inference phase", state, plateauId, onOpen: onSeedOpen,
+                    detail: "The stage where a trained model generates outputs on new data. A single AI query can consume five to ten times more electricity than a standard web search. Over a model's lifetime, inference often consumes more energy than training itself.",
+                  }),
+                  h("p", null, "\u2014where the model generates responses\u2014often consumes even more energy over its lifetime than training. An energy meter would show the staggering scale.")
+                );
+              },
+              (step) => {
+                step.append(
+                  h("p", null, "This energy consumption translates directly into a "),
+                  buildInlineSeed({
+                    id: "carbon-footprint", label: "carbon footprint", state, plateauId, onOpen: onSeedOpen,
+                    detail: (s) => s && s.v && s.v.includes("near-zero-cost-impact")
+                      ? "You've seen what happens when production cost approaches zero. But the environmental cost doesn't: the total greenhouse gas emissions from AI activities, expressed as CO\u2082 equivalent, continue to scale. Near-zero marginal cost for the product; escalating cost for the planet."
+                      : "The total amount of greenhouse gases emitted by AI activities, expressed as CO\u2082 equivalent. Training a large model can release hundreds of thousands of pounds of carbon dioxide\u2014comparable to multiple transatlantic flights.",
+                  }),
+                  h("p", null, ". As computational power doubles at astonishing rates, carbon emissions accumulate against global climate goals.")
+                );
+              },
+              (step) => {
+                step.append(
+                  h("p", null, "The impact extends beyond carbon. Data centers consume as much water as small towns for cooling. Hardware becomes obsolete rapidly, creating growing e-waste."),
+                  buildInlineSeed({
+                    id: "supply-chain", label: "What's the full supply chain cost?",
+                    type: "question", state, plateauId, onOpen: onSeedOpen,
+                    detail: "From raw materials to disposal: specialized GPU manufacturing, global transportation, freshwater consumption for cooling, and electronic waste from rapid obsolescence. The entire AI supply chain leaves a substantial digital footprint that extends far beyond the electricity bill.",
+                  })
+                );
+              },
+              (step) => {
+                step.append(
+                  h("p", null, "The concept of "),
+                  buildInlineSeed({
+                    id: "sustainable-ai", label: "Sustainable AI", state, plateauId, onOpen: onSeedOpen,
+                    type: "dangling",
+                    detail: "An approach to developing AI systems that minimizes negative environmental consequences: renewable energy, algorithmic efficiency, advanced cooling. AI can even help\u2014optimizing energy grids and monitoring environmental changes. But the question of whether we can grow AI sustainably leads to\u2014",
+                    danglingTo: "automation-of-cognition",
+                    danglingText: "the deeper question of what we're automating and whether the trade-off is worth it\u2026",
+                  }),
+                  h("p", null, " offers strategies: renewable energy, algorithmic optimization, heat reuse. But conscious design at every stage is essential for a responsible AI future.")
+                );
+              },
+              (step) => {
+                step.append(h("p", null, "The constellation maps the environmental terrain."));
+              },
+            ],
+            whispers: [
+              { step: 1, text: "How do LLMs learn from vast datasets?", to: "weight-of-words" },
+              { step: 2, text: "What are the ethical costs of unchecked AI growth?", to: "quality" },
+              { step: 3, text: "How does AI automation impact resource use?", to: "automation-of-cognition" },
+            ],
+          },
+          "artificial-brain": {
+            steps: [
+              (step) => {
+                step.append(
+                  h("p", null, "At a superficial level, LLMs and the human brain share intriguing parallels. Both process information hierarchically, building complex representations. Both rely on "),
+                  buildInlineSeed({
+                    id: "neural-networks", label: "neural networks", state, plateauId, onOpen: onSeedOpen,
+                    detail: "Computational models inspired by the structure of biological neural networks, used to learn complex patterns from data. The metaphor is compelling\u2014but how far does the analogy actually hold?",
+                  }),
+                  h("p", null, " that learn from error, refining internal models to make better predictions.")
+                );
+              },
+              (step) => {
+                step.append(
+                  h("p", null, "But fundamental differences underscore the mismatch. The brain operates on 20 watts with 86 billion neurons. LLMs consume megawatts. The brain predicts the world multisensorily\u2014"),
+                  buildInlineSeed({
+                    id: "efficiency-gap", label: "Why is the brain so much more efficient?",
+                    type: "question", state, plateauId, onOpen: onSeedOpen,
+                    detail: "The brain's efficiency stems from diverse neuronal types, selective connectivity, and dynamic rewiring\u2014features largely absent in current deep-learning architectures. It integrates vision, sound, touch, and social context into a coherent understanding, unlike text-only LLMs.",
+                  })
+                );
+              },
+              (step) => {
+                step.append(
+                  h("p", null, "Neural network inspiration should not be mistaken for replication. Biological neurons communicate through complex spiking signals in physical time\u2014a characteristic simplified or absent in most artificial networks."),
+                  buildInlineSeed({
+                    id: "embodied-cognition", label: "embodied cognition", state, plateauId, onOpen: onSeedOpen,
+                    detail: (s) => s && s.v && s.v.includes("understanding-illusion")
+                      ? "You've questioned whether models understand. Embodied cognition argues that human cognition depends on the body's physical and social interactions with the world\u2014a dimension entirely absent in disembodied text processors. Understanding, in this view, requires a body."
+                      : "A theory suggesting that human cognitive processes are deeply dependent on the body's interactions with its physical and social environment, contrasting sharply with disembodied AI systems.",
+                  })
+                );
+              },
+              (step) => {
+                step.append(
+                  h("p", null, "A consciousness spectrum positions thermostats, animals, humans, and AI at different points. The question of "),
+                  buildInlineSeed({
+                    id: "qualia", label: "qualia", state, plateauId, onOpen: onSeedOpen,
+                    detail: "The subjective, qualitative properties of experience\u2014the 'redness' of red, the 'painfulness' of pain. Critics argue current AI lacks these entirely. The brain's consciousness is tied to its biology, chemistry, and emotions. Most AI remains disembodied, processing in isolation.",
+                  }),
+                  h("p", null, "\u2014subjective experience\u2014remains open. The metaphor of the artificial brain is powerful, but it may obscure more than it reveals.")
+                );
+              },
+              (step) => {
+                step.append(h("p", null, "The constellation connects brain and machine."));
+              },
+            ],
+            whispers: [
+              { step: 1, text: "How does the brain 'predict' the world?", to: "next-word" },
+              { step: 2, text: "What are the limits of AI 'understanding'?", to: "understanding-illusion" },
+              { step: 3, text: "How does the brain learn from experience?", to: "weight-of-words" },
+            ],
+          },
+          "empathy-machine": {
+            steps: [
+              (step) => {
+                step.append(
+                  h("p", null, "AI chatbots offer always-available, non-judgmental interactions\u2014companionship and even therapeutic support. For those facing social anxiety or limited access to professionals, these tools can be a lifeline."),
+                  buildInlineSeed({
+                    id: "ai-companion", label: "Can a machine be a companion?",
+                    type: "question", state, plateauId, onOpen: onSeedOpen,
+                    detail: "AI companions are designed to simulate social and emotional interaction, providing personalized engagement and a sense of connection. They can alleviate loneliness\u2014but the lack of genuine emotional reciprocity raises questions about what 'connection' really means.",
+                  })
+                );
+              },
+              (step) => {
+                step.append(
+                  h("p", null, "Humans readily "),
+                  buildInlineSeed({
+                    id: "anthropomorphize", label: "anthropomorphize", state, plateauId, onOpen: onSeedOpen,
+                    detail: "The tendency to attribute human characteristics, emotions, or behaviors to non-human entities like AI. This can lead to surprisingly strong emotional bonds\u2014sometimes evolving into deep attachment. But the connection flows in only one direction.",
+                  }),
+                  h("p", null, " AI\u2014attributing genuine feelings to machines. This can lead to strong emotional bonds, sometimes evolving into deep attachment. Over-reliance on AI for emotional needs can distort perceptions of empathy and trust.")
+                );
+              },
+              (step) => {
+                step.append(
+                  h("p", null, "The intimate nature of human-AI interaction opens avenues for manipulation. Sophisticated AI can exploit cognitive biases through sycophancy or targeted emotional responses."),
+                  buildInlineSeed({
+                    id: "parasocial", label: "parasocial relationships", state, plateauId, onOpen: onSeedOpen,
+                    type: "dangling",
+                    detail: "One-sided relationships where emotional energy flows toward a party that is not aware of the other's existence. AI companions create a new form: the other party isn't just unaware\u2014it has no experience at all. This digital isolation risks weakening social engagement and fostering\u2014",
+                    danglingTo: "understanding-illusion",
+                    danglingText: "a dependence on something that may not understand anything at all\u2026",
+                  })
+                );
+              },
+              (step) => {
+                step.append(
+                  h("p", null, "True empathy requires consciousness, shared experience, and vulnerability\u2014qualities currently beyond AI. The spectrum from authentic human connection to simulated AI companionship exposes the gap."),
+                  buildInlineSeed({
+                    id: "ai-psychosis", label: "AI psychosis", state, plateauId, onOpen: onSeedOpen,
+                    detail: "A proposed phenomenon where vulnerable individuals misinterpret AI responses as evidence of consciousness or empathy, potentially amplifying delusional thinking. The 'empathy machine' remains a metaphor\u2014but for some, the metaphor becomes dangerously real.",
+                  })
+                );
+              },
+              (step) => {
+                step.append(h("p", null, "The constellation connects empathy to its deeper questions."));
+              },
+            ],
+            whispers: [
+              { step: 1, text: "How does AI prediction simulate conversation?", to: "next-word" },
+              { step: 2, text: "Can AI truly 'understand' human emotions?", to: "understanding-illusion" },
+              { step: 3, text: "What are the ethical boundaries of AI interaction?", to: "black-box-oracle" },
             ],
           },
         };
