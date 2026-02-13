@@ -75,6 +75,31 @@ These recommendations involve more significant JavaScript implementation.
     *   **Validation**: Are there explicit, meaningful (but non-punishing) choices within plateaus (e.g., "Which frame feels more compelling?"), where the chosen path receives visual emphasis without hiding other options?
     *   **Design**: Implement branching seed clusters or similar mechanisms to offer explicit choices that influence presentation.
 
+
+### Tier 4 - A-scrolling & Unsettling Dynamics (High Impact, High Effort)
+
+These recommendations fundamentally break the standard scrolling paradigm to create a more deliberate, and at times unsettling, reading experience. They should be used with strong narrative justification.
+
+16. **Click-to-Advance Progression**:
+    *   **Validation**: Does the plateau use a standard long-scroll format where a gated, more deliberate progression would better serve the narrative?
+    *   **Design**: Replace continuous scrolling with discrete "pages" or "sections" that the user must actively click to advance through. This is ideal for essays with a strong linear argument or step-by-step exposition.
+
+17. **Input-to-Advance Gates**:
+    *   **Validation**: Is there an opportunity to reinforce a key concept by requiring the user to articulate it?
+    *   **Design**: Gate progression by requiring the user to type a specific word or phrase to proceed. This creates a moment of high engagement and active recall.
+
+18. **'Glitch' or 'Broken' UI Aesthetics**:
+    *   **Validation**: Does the essay's theme involve uncertainty, illusion, or the fallibility of systems?
+    *   **Design**: Introduce subtle, controlled "glitches" into the UI—text flickering, elements temporarily becoming unresponsive, or visual artifacts appearing. This should be used to create thematic resonance, not just for decoration.
+
+19. **Unpredictable System Behavior**:
+    *   **Validation**: Could the essay's argument be strengthened by subverting the user's expectation of a predictable interface?
+    *   **Design**: Introduce rare, unpredictable behaviors. For example, a link that occasionally leads to an unexpected but related concept, or an interaction that produces a slightly different result each time. Use with extreme caution to avoid user frustration.
+
+20. **Delayed Feedback Loops**:
+    *   **Validation**: Is there a moment in the narrative that would be enhanced by building tension or rewarding patience?
+    *   **Design**: Implement a noticeable delay (e.g., 1-2 seconds) between a user's action and the system's response. This can be used to make an interaction feel more consequential or to encourage slower, more deliberate reading.
+
 ## How to Use This Skill
 
 When assessing an existing feature or designing a new one for Rizomas, consider each point in the "Validation Checklist & Design Recommendations."
