@@ -919,23 +919,23 @@
     <script>
       const GRAPH = {
         nodes: [
-          { id: "next-word", title: "The Next Word", label: "Next Word", shortQ: "What does it do when it talks?", x: 0.50, y: 0.08 },
-          { id: "weight-of-words", title: "The Weight of Words", label: "Weight", shortQ: "How does it learn from words?", x: 0.30, y: 0.15 },
-          { id: "algorithm-as-muse", title: "The Algorithm as Muse", label: "Muse", shortQ: "When AI creates art, who's the artist?", x: 0.70, y: 0.15 },
-          { id: "averaging-problem", title: "The Averaging Problem", label: "Averaging", shortQ: "Best essay or average essay?", x: 0.50, y: 0.28 },
-          { id: "the-shaping", title: "The Shaping", label: "Shaping", shortQ: "Autocomplete to assistant?", x: 0.20, y: 0.35 },
-          { id: "understanding-illusion", title: "The Understanding Illusion", label: "Understanding", shortQ: "Does it understand?", x: 0.80, y: 0.35 },
-          { id: "learning-machines-learning-humans", title: "Learning Machines, Learning Humans", label: "Learning AI", shortQ: "What happens when AI has all answers?", x: 0.05, y: 0.45 },
-          { id: "echoes-of-the-past", title: "Echoes of the Past", label: "Echoes", shortQ: "What if AI reads history with bias?", x: 0.95, y: 0.45 },
-          { id: "tool-user", title: "The Tool-User", label: "Tool-User", shortQ: "What if it can use tools?", x: 0.35, y: 0.55 },
-          { id: "quality", title: "What Is Quality?", label: "Quality", shortQ: "Who decides what's good?", x: 0.65, y: 0.55 },
-          { id: "black-box-oracle", title: "The Black Box Oracle", label: "Black Box", shortQ: "Trust a decision you can't explain?", x: 0.10, y: 0.65 },
-          { id: "near-zero-cost-impact", title: "The Near-Zero Cost Impact", label: "Near-Zero", shortQ: "When production cost approaches zero?", x: 0.50, y: 0.65 },
-          { id: "practical-guide", title: "The Field Guide", label: "Field Guide", shortQ: "What do I actually do?", x: 0.90, y: 0.65 },
-          { id: "automation-of-cognition", title: "The Automation of Cognition", label: "Automation", shortQ: "When machines do the thinking?", x: 0.25, y: 0.75 },
-          { id: "digital-footprints", title: "Digital Footprints", label: "Footprints", shortQ: "What does AI cost the planet?", x: 0.75, y: 0.75 },
-          { id: "artificial-brain", title: "The Artificial Brain", label: "Art. Brain", shortQ: "Is a neural network like a brain?", x: 0.40, y: 0.88 },
-          { id: "empathy-machine", title: "The Empathy Machine?", label: "Empathy", shortQ: "Can simulated empathy help or harm?", x: 0.60, y: 0.88 },
+          { id: "next-word", title: "The Next Word", label: "Next Word", shortQ: "What does it do when it talks?", x: 0.48, y: 0.07 },
+          { id: "weight-of-words", title: "The Weight of Words", label: "Weight", shortQ: "How does it learn from words?", x: 0.27, y: 0.17 },
+          { id: "algorithm-as-muse", title: "The Algorithm as Muse", label: "Muse", shortQ: "When AI creates art, who's the artist?", x: 0.73, y: 0.13 },
+          { id: "averaging-problem", title: "The Averaging Problem", label: "Averaging", shortQ: "Best essay or average essay?", x: 0.53, y: 0.26 },
+          { id: "the-shaping", title: "The Shaping", label: "Shaping", shortQ: "Autocomplete to assistant?", x: 0.17, y: 0.37 },
+          { id: "understanding-illusion", title: "The Understanding Illusion", label: "Understanding", shortQ: "Does it understand?", x: 0.82, y: 0.33 },
+          { id: "learning-machines-learning-humans", title: "Learning Machines, Learning Humans", label: "Learning AI", shortQ: "What happens when AI has all answers?", x: 0.06, y: 0.48 },
+          { id: "echoes-of-the-past", title: "Echoes of the Past", label: "Echoes", shortQ: "What if AI reads history with bias?", x: 0.93, y: 0.43 },
+          { id: "tool-user", title: "The Tool-User", label: "Tool-User", shortQ: "What if it can use tools?", x: 0.38, y: 0.53 },
+          { id: "quality", title: "What Is Quality?", label: "Quality", shortQ: "Who decides what's good?", x: 0.67, y: 0.57 },
+          { id: "black-box-oracle", title: "The Black Box Oracle", label: "Black Box", shortQ: "Trust a decision you can't explain?", x: 0.08, y: 0.63 },
+          { id: "near-zero-cost-impact", title: "The Near-Zero Cost Impact", label: "Near-Zero", shortQ: "When production cost approaches zero?", x: 0.52, y: 0.67 },
+          { id: "practical-guide", title: "The Field Guide", label: "Field Guide", shortQ: "What do I actually do?", x: 0.88, y: 0.62 },
+          { id: "automation-of-cognition", title: "The Automation of Cognition", label: "Automation", shortQ: "When machines do the thinking?", x: 0.22, y: 0.77 },
+          { id: "digital-footprints", title: "Digital Footprints", label: "Footprints", shortQ: "What does AI cost the planet?", x: 0.78, y: 0.73 },
+          { id: "artificial-brain", title: "The Artificial Brain", label: "Art. Brain", shortQ: "Is a neural network like a brain?", x: 0.37, y: 0.86 },
+          { id: "empathy-machine", title: "The Empathy Machine?", label: "Empathy", shortQ: "Can simulated empathy help or harm?", x: 0.63, y: 0.90 },
         ],
         edges: [
           ["next-word", "averaging-problem"],
@@ -1169,33 +1169,33 @@
         ctx.globalAlpha = 1;
 
         if (showTrail && trailNodes && trailNodes.length > 1) {
-          ctx.strokeStyle = acc;
-          ctx.globalAlpha = 0.2;
-          ctx.lineWidth = 2;
-          ctx.beginPath();
-          trailNodes.forEach((node, index) => {
+          const segCount = trailNodes.length - 1;
+          for (let i = 1; i < trailNodes.length; i++) {
+            const prev = trailNodes[i - 1];
+            const node = trailNodes[i];
+            const prevPos = getNodePx(prev, width, height);
             const pos = getNodePx(node, width, height);
-            if (index === 0) {
-              ctx.moveTo(pos.x, pos.y);
+            const t = i / segCount;
+            ctx.strokeStyle = acc;
+            ctx.globalAlpha = 0.06 + 0.22 * t;
+            ctx.lineWidth = 1 + 1.2 * t;
+            ctx.beginPath();
+            ctx.moveTo(prevPos.x, prevPos.y);
+            if (curvedEdges) {
+              const mx = (prevPos.x + pos.x) / 2;
+              const my = (prevPos.y + pos.y) / 2;
+              const dx = pos.x - prevPos.x;
+              const dy = pos.y - prevPos.y;
+              const len = Math.sqrt(dx * dx + dy * dy) || 1;
+              const offset = len * 0.15;
+              const cpx = mx + (-dy / len) * offset;
+              const cpy = my + (dx / len) * offset;
+              ctx.quadraticCurveTo(cpx, cpy, pos.x, pos.y);
             } else {
-              const prev = trailNodes[index - 1];
-              const prevPos = getNodePx(prev, width, height);
-              if (curvedEdges) {
-                const mx = (prevPos.x + pos.x) / 2;
-                const my = (prevPos.y + pos.y) / 2;
-                const dx = pos.x - prevPos.x;
-                const dy = pos.y - prevPos.y;
-                const len = Math.sqrt(dx * dx + dy * dy) || 1;
-                const offset = len * 0.15;
-                const cpx = mx + (-dy / len) * offset;
-                const cpy = my + (dx / len) * offset;
-                ctx.quadraticCurveTo(cpx, cpy, pos.x, pos.y);
-              } else {
-                ctx.lineTo(pos.x, pos.y);
-              }
+              ctx.lineTo(pos.x, pos.y);
             }
-          });
-          ctx.stroke();
+            ctx.stroke();
+          }
           ctx.globalAlpha = 1;
         }
 
@@ -1369,15 +1369,15 @@
 
         const observer = new ResizeObserver(draw);
         observer.observe(wrap);
-        canvas.addEventListener("mousemove", handleMouseMove);
-        canvas.addEventListener("mouseleave", handleMouseLeave);
+        wrap.addEventListener("mousemove", handleMouseMove);
+        wrap.addEventListener("mouseleave", handleMouseLeave);
         canvas.addEventListener("click", handleClick);
         draw();
 
         const cleanup = () => {
           observer.disconnect();
-          canvas.removeEventListener("mousemove", handleMouseMove);
-          canvas.removeEventListener("mouseleave", handleMouseLeave);
+          wrap.removeEventListener("mousemove", handleMouseMove);
+          wrap.removeEventListener("mouseleave", handleMouseLeave);
           canvas.removeEventListener("click", handleClick);
         };
 
@@ -1768,6 +1768,7 @@
         const linkMap = new Map();
         const hitRadius = 22;
         let lastSize = { width: 0, height: 0 };
+        let hoveredId = null;
 
         GRAPH.nodes.forEach((node) => {
           const link = h("a", {
@@ -1779,19 +1780,26 @@
           linkMap.set(node.id, link);
         });
 
-        const resize = () => {
-          const rect = mapWrap.getBoundingClientRect();
-          if (!rect.width || !rect.height) return;
-          lastSize = { width: rect.width, height: rect.height };
+        const redraw = () => {
+          if (!lastSize.width || !lastSize.height) return;
           drawGraph({
             canvas,
-            width: rect.width,
-            height: rect.height,
+            width: lastSize.width,
+            height: lastSize.height,
             visited,
             showLabels: true,
             showTrail: true,
             trailNodes,
+            hoveredId,
+            curvedEdges: true,
           });
+        };
+
+        const resize = () => {
+          const rect = mapWrap.getBoundingClientRect();
+          if (!rect.width || !rect.height) return;
+          lastSize = { width: rect.width, height: rect.height };
+          redraw();
           GRAPH.nodes.forEach((node) => {
             const link = linkMap.get(node.id);
             if (!link) return;
@@ -1806,16 +1814,26 @@
         };
 
         const handleMouseMove = (event) => {
-          const rect = canvas.getBoundingClientRect();
+          const rect = mapWrap.getBoundingClientRect();
           const x = event.clientX - rect.left;
           const y = event.clientY - rect.top;
-          const isHovering = GRAPH.nodes.some((node) => {
+          const hit = GRAPH.nodes.find((node) => {
             const pos = getNodePx(node, lastSize.width, lastSize.height);
-            const dx = x - pos.x;
-            const dy = y - pos.y;
-            return Math.hypot(dx, dy) <= hitRadius;
+            return Math.hypot(x - pos.x, y - pos.y) <= hitRadius;
           });
-          canvas.style.cursor = isHovering ? "pointer" : "default";
+          const newId = hit ? hit.id : null;
+          canvas.style.cursor = newId ? "pointer" : "default";
+          if (newId !== hoveredId) {
+            hoveredId = newId;
+            redraw();
+          }
+        };
+
+        const handleMouseLeave = () => {
+          if (hoveredId) {
+            hoveredId = null;
+            redraw();
+          }
         };
 
         const handleClick = (event) => {
@@ -1835,7 +1853,8 @@
 
         const observer = new ResizeObserver(resize);
         observer.observe(mapWrap);
-        canvas.addEventListener("mousemove", handleMouseMove);
+        mapWrap.addEventListener("mousemove", handleMouseMove);
+        mapWrap.addEventListener("mouseleave", handleMouseLeave);
         canvas.addEventListener("click", handleClick);
         resize();
 
@@ -1855,7 +1874,8 @@
           updateState,
           cleanup: () => {
             observer.disconnect();
-            canvas.removeEventListener("mousemove", handleMouseMove);
+            mapWrap.removeEventListener("mousemove", handleMouseMove);
+            mapWrap.removeEventListener("mouseleave", handleMouseLeave);
             canvas.removeEventListener("click", handleClick);
           },
         };

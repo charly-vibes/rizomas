@@ -45,7 +45,7 @@ On plateaus, the active node SHALL display a radial gradient glow (center: `--in
 
 When `prefers-reduced-motion` is not active, nodes SHALL exhibit a subtle ambient breathing animation: a sinusoidal opacity oscillation with a 5s period and ±0.08 maximum delta, applied only to node fill opacity. The animation SHALL be paused via IntersectionObserver when the mini-map is not visible in the viewport. On mobile (mini-map collapsed to circle), the breathing animation SHALL be disabled.
 
-When the reader has visited 2 or more plateaus, the mini-map SHALL render a faint journey trail connecting visited nodes in chronological order (using `state.tr`). The trail SHALL use `--acc` color at 0.2 opacity with curved segments matching the edge style.
+When the reader has visited 2 or more plateaus, the mini-map SHALL render a fading journey trail connecting visited nodes in chronological order (using `state.tr`). Each trail segment SHALL be drawn individually with opacity and line width increasing from oldest to most recent: the earliest segment uses `--acc` at 0.06 opacity and 1px width, ramping linearly to 0.28 opacity and 2.2px width at the most recent segment. Curved segments SHALL match the edge style.
 
 On hover, the mini-map container SHALL subtly brighten (border opacity increases to `--ink3`). The mini-map instance SHALL persist across route changes to enable smooth context transitions; when navigating between plateaus, the highlighted nodes and edge filter SHALL crossfade over 0.3s rather than snapping.
 
@@ -77,9 +77,9 @@ On hover, the mini-map container SHALL subtly brighten (border opacity increases
 - **WHEN** the user has `prefers-reduced-motion: reduce` enabled
 - **THEN** no breathing animation runs; nodes render at static opacity.
 
-#### Scenario: Journey trail appears after second visit
-- **WHEN** the reader has visited 2 or more plateaus
-- **THEN** a faint trail in `--acc` at 0.2 opacity connects visited nodes in visit order.
+#### Scenario: Journey trail fades with distance
+- **WHEN** the reader has visited 4 plateaus in sequence
+- **THEN** the trail segment between the 1st and 2nd plateau is faint (0.06 opacity, 1px), and the segment between the 3rd and 4th is strong (0.28 opacity, 2.2px).
 
 #### Scenario: Smooth context transition between plateaus
 - **WHEN** the user navigates from one plateau to another
@@ -88,7 +88,9 @@ On hover, the mini-map container SHALL subtly brighten (border opacity increases
 ---
 
 ### Requirement: Rhizome Overlay
-A full-screen modal with frosted backdrop SHALL display a larger canvas (max 700x550px) showing all nodes and edges. The navigation trail SHALL be drawn as a faint path connecting visited nodes in chronological order (color defined in visual-design). The overlay SHALL close via close button, backdrop click, or Escape key. On viewports smaller than the max canvas size, the canvas SHALL scale down proportionally. The overlay SHALL set `role="dialog"` and `aria-modal="true"`, trap focus within it while open, and return focus to the trigger element on close.
+A full-screen modal with frosted backdrop SHALL display a larger canvas (max 700x550px) showing all nodes and edges with curved bezier edges matching the mini-map style. The navigation trail SHALL be drawn as a fading path connecting visited nodes in chronological order (same per-segment fade as the mini-map trail). The overlay SHALL close via close button, backdrop click, or Escape key. On viewports smaller than the max canvas size, the canvas SHALL scale down proportionally. The overlay SHALL set `role="dialog"` and `aria-modal="true"`, trap focus within it while open, and return focus to the trigger element on close.
+
+When the user hovers over a node on the overlay canvas, the node's label (or short question) SHALL appear beside it, matching the home map hover behavior. The hover state SHALL also brighten connected edges.
 
 The overlay SHALL include a DOM accessibility layer: a set of visually-hidden anchor elements (one per node, `role="link"`) positioned over their canvas locations. These anchors provide keyboard tab-order and screen-reader announcements (e.g., "Next Word, visited" or "Steering, not visited") without duplicating the visual rendering. All node navigation SHALL work through these anchors rather than canvas click detection alone.
 
@@ -96,9 +98,26 @@ The overlay SHALL include a DOM accessibility layer: a set of visually-hidden an
 - **WHEN** the user opens the rhizome overlay after visiting 3 plateaus
 - **THEN** all 17 nodes are shown with a trail path connecting the 3 visited nodes in order.
 
+#### Scenario: Overlay node hover shows label
+- **WHEN** the user hovers over a node on the overlay canvas
+- **THEN** the node's label or short question appears beside it and connected edges brighten.
+
 #### Scenario: Overlay closes on Escape
 - **WHEN** the user presses the Escape key while the overlay is open
 - **THEN** the overlay closes and focus returns to the mini-map button.
+
+### Requirement: Landing Page Map
+The landing page SHALL display a canvas-based graph map showing all 17 nodes and all edges with labels. Node positions SHALL use organic, asymmetric coordinates — no grid alignment or mirror symmetry — to reinforce the rhizomatic nature of the content. When the user hovers over a node, the node's label SHALL switch to its short question, connected edges SHALL brighten, and the cursor SHALL change to pointer. Clicking a node SHALL navigate to that plateau. Mouse event listeners SHALL be attached to the map wrapper element (not the canvas directly) so that the DOM accessibility overlay does not intercept hover detection.
+
+#### Scenario: Landing map hover shows question
+- **WHEN** the user hovers over a node on the landing page map
+- **THEN** the node's short question replaces its label and connected edges brighten.
+
+#### Scenario: Landing map node positions are organic
+- **WHEN** the landing page map renders
+- **THEN** nodes are positioned with irregular, non-symmetric coordinates that avoid grid alignment.
+
+---
 
 ### Requirement: Liminal Transitions
 When navigating between plateaus, the application SHALL display a transitional moment lasting 500ms--1s. A frosted overlay SHALL appear centered on the viewport, displaying the connecting question (the whisper text or question card text that triggered the navigation). The transition sequence SHALL be: (1) current view begins fading out, (2) frosted overlay fades in over 200ms showing the connecting question centered in italic text, (3) overlay holds for 500ms, (4) overlay fades out over 200ms as the new plateau fades in. The connecting question SHALL use `--ink` color at 1.1rem on a frosted `--paper` background. When `prefers-reduced-motion` is active, the liminal transition SHALL be skipped entirely --- navigation SHALL be instant. When navigation is triggered from the landing page map (no connecting question), the destination plateau's entry question SHALL be used instead. The overlay SHALL not trap focus --- it is a passive visual transition, not a dialog.
