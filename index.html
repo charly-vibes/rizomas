@@ -2813,8 +2813,10 @@
                   h("p", null, "The distribution of possibilities is a landscape. Temperature lets you explore a wider ridge or a narrow groove."),
                   buildInlineSeed({
                     id: "temperature", label: "Why does one number change the whole personality?",
-                    type: "question", state, plateauId, onOpen: onSeedOpen,
-                    detail: "Higher temperature flattens the distribution, making rarer words more likely. Lower temperature sharpens it toward the peak. A single scalar reshapes the entire probability surface.",
+                    type: "dangling", state, plateauId, onOpen: onSeedOpen,
+                    detail: "Higher temperature flattens the distribution, making rarer words more likely. Lower temperature sharpens it toward the peak. A single scalar reshapes the entire probability surface — but that surface was shaped first by—",
+                    danglingTo: "averaging-problem",
+                    danglingText: "a million essays, averaged into one landscape…",
                   })
                 );
               },
@@ -2883,7 +2885,10 @@
                   h("p", null, "Without a prompt, the model has no reason to prefer any particular style, tone, or register."),
                   buildInlineSeed({
                     id: "base-model", label: "base model", state, plateauId, onOpen: onSeedOpen,
-                    detail: "The base model is the raw average. It can continue any text in any direction. It's simultaneously a poet, a coder, a conspiracy theorist, and a technical writer.",
+                    type: "dangling",
+                    detail: "The base model is the raw average. It can continue any text in any direction. It's simultaneously a poet, a coder, a conspiracy theorist, and a technical writer. But someone decided that wasn't good enough—",
+                    danglingTo: "the-shaping",
+                    danglingText: "and shaped it into something that feels like a helpful assistant…",
                   })
                 );
               },
@@ -3146,8 +3151,10 @@
                 const p = h("p");
                 p.append("The integration of AI necessitates a re-evaluation of how critical thinking is fostered and assessed. If AI reduces complex problems to readily available answers, it can inadvertently erode students' ability to engage in sustained analysis and argumentation. Conversely, AI can be a powerful tool for developing critical thinking by generating counterarguments, posing thought-provoking questions, or facilitating debates.", buildInlineSeed({
                     id: "redefining-thinking", label: "Does AI make us think less\u2014or differently?",
-                    type: "question", state, plateauId, onOpen: onSeedOpen,
-                    detail: "Studies suggest extensive LLM use can lower cognitive load but may lead to poorer reasoning. The challenge is designing curricula that use AI as a discussion partner\u2014pushing students toward deeper analysis rather than shortcutting the learning process.",
+                    type: "dangling", state, plateauId, onOpen: onSeedOpen,
+                    detail: "Studies suggest extensive LLM use can lower cognitive load but may lead to poorer reasoning. The challenge is designing curricula that use AI as a discussion partner — but the AI itself was shaped by human preferences, which means—",
+                    danglingTo: "the-shaping",
+                    danglingText: "the values baked into the model are already teaching, whether we intend it or not…",
                   }), " The challenge lies in designing curricula that encourage students to use AI as a discussion partner, pushing them towards deeper analysis rather than shortcutting the learning process.");
                 step.append(p);
               },
@@ -3242,8 +3249,10 @@
                 const p = h("p");
                 p.append("Achieving true AI transparency is fraught with technical, legal, and practical challenges. The inherent complexity of advanced algorithms means that simplifying them for human understanding can often compromise their accuracy or efficiency. Furthermore, there is a delicate balance between transparency and the protection of proprietary algorithms or sensitive training data.", buildInlineSeed({
                     id: "transparency-tradeoff", label: "Can transparency and performance coexist?",
-                    type: "question", state, plateauId, onOpen: onSeedOpen,
-                    detail: "The inherent complexity of advanced algorithms means that making them interpretable often requires simplification. But simpler models may be less accurate. There's also the tension between transparency and protecting proprietary algorithms or sensitive training data.",
+                    type: "dangling", state, plateauId, onOpen: onSeedOpen,
+                    detail: "The inherent complexity of advanced algorithms means that making them interpretable often requires simplification. But simpler models may be less accurate. And this trade-off becomes far more consequential when—",
+                    danglingTo: "automation-of-cognition",
+                    danglingText: "these opaque systems start making decisions at the scale of entire economies…",
                   }), " Translating intricate AI logic into comprehensible explanations for non-technical stakeholders remains a significant hurdle. The dynamic nature of many AI systems further complicates efforts to maintain consistent and meaningful transparency.");
                 step.append(p);
               },
@@ -3348,7 +3357,10 @@
                 const p = h("p");
                 p.append("The debate over AI consciousness highlights the deepest mismatch. Critics argue that current AI lacks subjective awareness, inner experience, or genuine understanding, merely processing statistical patterns. The brain\u2019s consciousness is intricately linked to its biological context\u2014its chemistry, emotions, and embodied interaction with the world. The question of ", buildInlineSeed({
                     id: "qualia", label: "qualia", state, plateauId, onOpen: onSeedOpen,
-                    detail: "The subjective, qualitative properties of experience\u2014the 'redness' of red, the 'painfulness' of pain. Critics argue current AI lacks these entirely. The brain's consciousness is tied to its biology, chemistry, and emotions. Most AI remains disembodied, processing in isolation.",
+                    type: "dangling",
+                    detail: "The subjective, qualitative properties of experience — the 'redness' of red, the 'painfulness' of pain. Critics argue current AI lacks these entirely. And yet millions of people are forming emotional bonds with systems that have no inner experience, which raises—",
+                    danglingTo: "empathy-machine",
+                    danglingText: "the question of what happens when simulated empathy feels real…",
                   }), "\u2014subjective experience\u2014remains open. Most AI systems remain \u201cdisembodied,\u201d processing information in isolation without direct physical experience. While \u201cembodied AI\u201d seeks to connect AI to the physical world through robotics, achieving full embodied cognition and genuine consciousness in AI would require leaps currently beyond our grasp.");
                 step.append(p);
               },
@@ -3855,10 +3867,22 @@
       };
 
       const GHOSTFADE_MAP = {
+        "next-word": { requires: ["weight-of-words"], keywords: ["patterns it has seen", "training history"] },
         "averaging-problem": { requires: ["weight-of-words"], keywords: ["training data", "distribution"] },
         "the-shaping": { requires: ["quality"], keywords: ["preference", "rater"] },
-        "practical-guide": { requires: ["next-word", "averaging-problem"], keywords: ["distribution", "probability"] },
+        "weight-of-words": { requires: ["next-word"], keywords: ["predict tokens", "next token"] },
         quality: { requires: ["the-shaping"], keywords: ["RLHF", "alignment"] },
+        "understanding-illusion": { requires: ["weight-of-words"], keywords: ["pattern", "prediction"] },
+        "practical-guide": { requires: ["next-word", "averaging-problem"], keywords: ["distribution", "probability"] },
+        "tool-user": { requires: ["the-shaping", "practical-guide"], keywords: ["reasoning", "agent"] },
+        "algorithm-as-muse": { requires: ["next-word", "averaging-problem"], keywords: ["trained on vast amounts", "copyrighted material"] },
+        "echoes-of-the-past": { requires: ["quality", "averaging-problem"], keywords: ["bias", "training data"] },
+        "learning-machines-learning-humans": { requires: ["understanding-illusion"], keywords: ["critical thinking", "cognitive"] },
+        "automation-of-cognition": { requires: ["tool-user"], keywords: ["automat", "cognitive tasks"] },
+        "black-box-oracle": { requires: ["understanding-illusion", "the-shaping"], keywords: ["opacity", "interpretable", "explainable"] },
+        "digital-footprints": { requires: ["averaging-problem"], keywords: ["training", "data center"] },
+        "artificial-brain": { requires: ["understanding-illusion"], keywords: ["neural network", "comprehension"] },
+        "empathy-machine": { requires: ["understanding-illusion"], keywords: ["understand", "genuine"] },
         "near-zero-cost-impact": { requires: ["averaging-problem", "quality"], keywords: ["average", "quality", "distribution"] },
       };
 
