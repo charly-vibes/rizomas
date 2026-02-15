@@ -2786,6 +2786,249 @@
         };
       };
 
+      const buildVizAveragingProblem = (state) => {
+        const regions = [
+          { id: "academic", label: "Academic", peak: 0.2, color: "var(--ink2)",
+            sample: "The implications of token-level probability distributions suggest that model outputs converge toward the statistical mean of the training corpus, yielding prose that, while competent, lacks distinctive authorial voice." },
+          { id: "casual", label: "Casual", peak: 0.45, color: "var(--ink3)",
+            sample: "So basically the model just mashes everything together and you get this kinda generic-sounding text that's fine but not really special, you know?" },
+          { id: "poetic", label: "Poetic", peak: 0.7, color: "var(--acc)",
+            sample: "From a million whispered sentences, a voice emerges—neither yours nor mine, but something that learned to echo the shape of every word it ever touched." },
+          { id: "technical", label: "Technical", peak: 0.9, color: "var(--seed)",
+            sample: "The softmax layer maps logit vectors to a probability simplex, where each token's likelihood reflects the model's learned conditional distribution P(token|context)." },
+        ];
+        const reduced = prefersReducedMotion;
+
+        let currentState = 1;
+        let activeRegion = null;
+        let specificity = 0.0;
+
+        const element = h("div", { class: "viz-averaging", style: {
+          width: "100%", position: "relative", textTransform: "none", letterSpacing: "normal",
+        } });
+
+        const canvas = h("canvas", { role: "img", "aria-label": "Distribution landscape showing training data style regions" });
+        const canvasWrap = h("div", { style: {
+          width: "100%", height: "200px", padding: "0 20px 8px", position: "relative",
+        } });
+        canvasWrap.appendChild(canvas);
+
+        const regionButtons = h("div", { class: "viz-controls", style: { display: "none" } });
+        regions.forEach((r) => {
+          const btn = h("button", {
+            class: "viz-toggle", "data-region": r.id,
+            "aria-label": `Sample from ${r.label} region`,
+          }, r.label);
+          btn.addEventListener("click", () => {
+            activeRegion = activeRegion === r.id ? null : r.id;
+            updateState();
+          });
+          regionButtons.appendChild(btn);
+        });
+
+        const sampleBox = h("div", { style: {
+          padding: "12px 20px", fontFamily: "'Lora', Georgia, serif", fontSize: "0.95rem",
+          lineHeight: "1.6", color: "var(--ink)", minHeight: "3em", display: "none",
+        } });
+
+        const specLabel = h("label", { for: "viz-ap-spec", style: {
+          fontSize: "0.8rem", color: "var(--ink2)", letterSpacing: "0.04em",
+          fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif",
+        } }, "Prompt Specificity");
+        const specValue = h("span", { "aria-hidden": "true", style: {
+          fontSize: "0.8rem", color: "var(--ink2)", marginLeft: "auto",
+          fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif",
+        } }, "0%");
+        const specSlider = h("input", {
+          type: "range", id: "viz-ap-spec", class: "viz-slider",
+          min: "0", max: "100", step: "1", value: "0",
+          "aria-label": "Prompt specificity: narrows the distribution from average to high-quality",
+          "aria-valuemin": "0", "aria-valuemax": "100", "aria-valuenow": "0",
+        });
+        const specControls = h("div", { class: "viz-controls", style: { display: "none" } },
+          specLabel, specValue, specSlider
+        );
+
+        const specSampleBox = h("div", { style: {
+          padding: "12px 20px", fontFamily: "'Lora', Georgia, serif", fontSize: "0.95rem",
+          lineHeight: "1.6", color: "var(--ink)", minHeight: "3em", display: "none",
+        } });
+
+        const srStatus = h("div", {
+          class: "viz-sr-status", role: "status", "aria-live": "polite", "aria-atomic": "true",
+        });
+
+        element.append(canvasWrap, regionButtons, sampleBox, specControls, specSampleBox, srStatus);
+
+        const gaussian = (x, mean, sigma) => Math.exp(-0.5 * ((x - mean) / sigma) ** 2);
+
+        const drawLandscape = () => {
+          const rect = canvasWrap.getBoundingClientRect();
+          const w = rect.width - 40;
+          const lH = 200;
+          if (w <= 0) return;
+          const ratio = scaleCanvas(canvas, w, lH);
+          const ctx = canvas.getContext("2d");
+          if (!ctx) return;
+          ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+          ctx.clearRect(0, 0, w, lH);
+
+          const styles = getComputedStyle(document.documentElement);
+          const ink = styles.getPropertyValue("--ink").trim();
+          const ink2 = styles.getPropertyValue("--ink2").trim();
+          const ink3 = styles.getPropertyValue("--ink3").trim();
+          const ink4 = styles.getPropertyValue("--ink4").trim();
+          const acc = styles.getPropertyValue("--acc").trim();
+          const seed = styles.getPropertyValue("--seed").trim();
+          const regionColors = [ink2, ink3, acc, seed];
+
+          const baseLine = lH - 30;
+          const peakH = baseLine - 20;
+          const sigma = currentState === 3 ? 0.04 + (1 - specificity / 100) * 0.08 : 0.08;
+
+          // Draw combined distribution curve
+          ctx.beginPath();
+          ctx.moveTo(0, baseLine);
+          for (let px = 0; px <= w; px++) {
+            const x = px / w;
+            let y = 0;
+            regions.forEach((r) => {
+              const weight = currentState === 3 ? (r.id === "poetic" ? 0.8 + specificity / 100 * 0.2 : 1 - specificity / 100 * 0.7) : 1;
+              y += gaussian(x, r.peak, sigma) * weight;
+            });
+            const maxY = currentState === 3 ? 1 + specificity / 100 * 1.5 : regions.length;
+            ctx.lineTo(px, baseLine - (y / maxY) * peakH);
+          }
+          ctx.lineTo(w, baseLine);
+          ctx.closePath();
+          ctx.fillStyle = ink4;
+          ctx.globalAlpha = 0.3;
+          ctx.fill();
+          ctx.globalAlpha = 1;
+          ctx.strokeStyle = ink2;
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+
+          // Draw region peaks
+          regions.forEach((r, i) => {
+            const px = r.peak * w;
+            const peakVal = gaussian(r.peak, r.peak, sigma);
+            const normalizedY = currentState === 3
+              ? (r.id === "poetic" ? (0.8 + specificity / 100 * 0.2) : (1 - specificity / 100 * 0.7)) * peakVal
+              : peakVal;
+            const maxY = currentState === 3 ? 1 + specificity / 100 * 1.5 : regions.length;
+            const tipY = baseLine - (normalizedY / maxY) * peakH;
+
+            if (currentState >= 2) {
+              ctx.fillStyle = regionColors[i];
+              ctx.globalAlpha = activeRegion === r.id ? 0.9 : 0.5;
+              ctx.beginPath();
+              ctx.arc(px, tipY, activeRegion === r.id ? 6 : 4, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.globalAlpha = 1;
+
+              ctx.fillStyle = activeRegion === r.id ? ink : ink3;
+              ctx.font = `${activeRegion === r.id ? "bold " : ""}11px system-ui, -apple-system, 'Segoe UI', sans-serif`;
+              ctx.textAlign = "center";
+              ctx.textBaseline = "top";
+              ctx.fillText(r.label, px, tipY + 10);
+            }
+          });
+
+          // Baseline axis
+          ctx.strokeStyle = ink4;
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(0, baseLine);
+          ctx.lineTo(w, baseLine);
+          ctx.stroke();
+
+          ctx.fillStyle = ink3;
+          ctx.font = "10px system-ui, -apple-system, 'Segoe UI', sans-serif";
+          ctx.textAlign = "left";
+          ctx.fillText("common", 4, baseLine + 14);
+          ctx.textAlign = "right";
+          ctx.fillText("rare", w - 4, baseLine + 14);
+        };
+
+        const specSamples = [
+          "The model speaks in a voice assembled from everyone and no one. It is competent at everything and distinctive at nothing.",
+          "With more context, the voice begins to shift. The average loosens its grip, and something sharper starts to emerge.",
+          "Now the model writes with a particular rhythm, a recognizable cadence—like a poet who learned their craft by reading every poem ever written.",
+          "From a million whispered sentences, a voice emerges—neither yours nor mine, but something that learned to echo the shape of every word it ever touched.",
+        ];
+
+        const updateState = () => {
+          if (currentState === 1) {
+            regionButtons.style.display = "none";
+            sampleBox.style.display = "none";
+            specControls.style.display = "none";
+            specSampleBox.style.display = "none";
+            drawLandscape();
+            srStatus.textContent = "Distribution landscape showing training data with peaks for common styles and valleys for rare styles.";
+          } else if (currentState === 2) {
+            regionButtons.style.display = "flex";
+            specControls.style.display = "none";
+            specSampleBox.style.display = "none";
+            drawLandscape();
+            regionButtons.querySelectorAll(".viz-toggle").forEach((btn) => {
+              btn.classList.toggle("is-active", btn.getAttribute("data-region") === activeRegion);
+            });
+            if (activeRegion) {
+              const r = regions.find((r) => r.id === activeRegion);
+              sampleBox.textContent = r.sample;
+              sampleBox.style.display = "block";
+              srStatus.textContent = `Sampling from ${r.label} region: "${r.sample}"`;
+            } else {
+              sampleBox.style.display = "none";
+              srStatus.textContent = "Select a style region to see a sample text.";
+            }
+          } else if (currentState === 3) {
+            regionButtons.style.display = "none";
+            sampleBox.style.display = "none";
+            activeRegion = null;
+            specControls.style.display = "flex";
+            specSampleBox.style.display = "block";
+            drawLandscape();
+            const idx = Math.min(Math.floor(specificity / 100 * specSamples.length), specSamples.length - 1);
+            specSampleBox.textContent = specSamples[idx];
+            srStatus.textContent = `Prompt specificity ${specificity.toFixed(0)}%. ${specSamples[idx]}`;
+          }
+        };
+
+        specSlider.addEventListener("input", () => {
+          specificity = parseFloat(specSlider.value);
+          specValue.textContent = `${specificity.toFixed(0)}%`;
+          specSlider.setAttribute("aria-valuenow", specificity.toFixed(0));
+          updateState();
+        });
+
+        const onStep = (idx) => {
+          const totalSteps = 5;
+          if (idx >= totalSteps - 1) {
+            currentState = 0;
+            regionButtons.style.display = "none";
+            sampleBox.style.display = "none";
+            specControls.style.display = "none";
+            specSampleBox.style.display = "none";
+            return;
+          }
+          if (idx <= 1) currentState = 1;
+          else if (idx === 2) currentState = 2;
+          else currentState = 3;
+          updateState();
+        };
+
+        updateState();
+
+        return {
+          element,
+          onStep,
+          scrubUpdate: null,
+          cleanup: () => {},
+        };
+      };
+
       const buildPlateauView = (state, plateauId) => {
         recordVisit(state, plateauId);
         const plateau = getPlateau(plateauId);
@@ -4047,6 +4290,7 @@
 
           const vizBuilders = {
             "next-word": buildVizNextWord,
+            "averaging-problem": buildVizAveragingProblem,
           };
           const vizBuilder = vizBuilders[plateauId];
           const viz = vizBuilder ? vizBuilder(state) : null;
