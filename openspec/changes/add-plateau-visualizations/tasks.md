@@ -1,7 +1,7 @@
 ## 1. Scaffolding
-- [ ] 1.1 Add `vizBuilders` dispatch map in `buildPlateauView` mapping plateau IDs to builder functions (initially empty); when a builder exists, call it and pass `element` as `vizContent` and `scrubUpdate` to the existing `buildScrolly` call
-- [ ] 1.2 Add an `onStepChange` callback to `buildScrolly` spec interface — the engine calls it inside its existing `onStep` with the active step index, so viz builders can react to step changes
-- [ ] 1.3 Add base CSS for visualization panel: canvas fill behavior, slider/toggle styling (44px touch targets, full-width on mobile), common layout patterns using existing custom properties
+- [x] 1.1 Add `vizBuilders` dispatch map in `buildPlateauView` mapping plateau IDs to builder functions (initially empty); when a builder exists, call it and pass `element` as `vizContent` and `scrubUpdate` to the existing `buildScrolly` call
+- [x] 1.2 Add an `onStepChange` callback to `buildScrolly` spec interface — the engine calls it inside its existing `onStep` with the active step index, so viz builders can react to step changes
+- [x] 1.3 Add base CSS for visualization panel: canvas fill behavior, slider/toggle styling (44px touch targets, full-width on mobile), common layout patterns using existing custom properties
 
 ## 2. Tier 1 — Core Mechanics
 - [ ] 2.1 **Next Word visualization**: Implement per plateaus spec visual states 1–3. Author sample content: sentence, candidate tokens with probabilities, temperature-response curves. Map to scrolly steps per design.md step-index mapping.
