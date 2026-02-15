@@ -408,6 +408,17 @@
         opacity: 1;
       }
 
+      .simple-constellation {
+        margin-top: 48px;
+        display: flex;
+        justify-content: center;
+      }
+
+      .simple-constellation canvas {
+        display: block;
+        max-width: 100%;
+      }
+
       .question-cards {
         margin-top: 32px;
         display: grid;
@@ -1365,6 +1376,92 @@
       };
 
       const prefersReducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      const buildSimpleConstellation = (currentId, visited, whisperQuestions) => {
+        const size = 320;
+        const canvas = h("canvas", {
+          role: "img",
+          "aria-label": "Constellation map of connected plateaus",
+        });
+        const wrap = h("div", { class: "simple-constellation" }, canvas);
+
+        const connectedIds = new Set();
+        GRAPH.edges.forEach(([a, b]) => {
+          if (a === currentId) connectedIds.add(b);
+          if (b === currentId) connectedIds.add(a);
+        });
+
+        const neighbors = GRAPH.nodes.filter((n) => connectedIds.has(n.id));
+        const centerNode = getPlateau(currentId);
+        if (!centerNode || neighbors.length === 0) return wrap;
+
+        const ratio = scaleCanvas(canvas, size, size);
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return wrap;
+        ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+
+        const styles = getComputedStyle(document.documentElement);
+        const ink = styles.getPropertyValue("--ink").trim();
+        const ink2 = styles.getPropertyValue("--ink2").trim();
+        const ink3 = styles.getPropertyValue("--ink3").trim();
+        const ink4 = styles.getPropertyValue("--ink4").trim();
+
+        const cx = size / 2;
+        const cy = size / 2;
+        const radius = size * 0.35;
+
+        neighbors.forEach((neighbor, i) => {
+          const angle = (i / neighbors.length) * Math.PI * 2 - Math.PI / 2;
+          const nx = cx + Math.cos(angle) * radius;
+          const ny = cy + Math.sin(angle) * radius;
+
+          ctx.strokeStyle = ink4;
+          ctx.lineWidth = 1;
+          ctx.globalAlpha = visited.has(neighbor.id) ? 0.3 : 0.1;
+          ctx.beginPath();
+          ctx.moveTo(cx, cy);
+          ctx.lineTo(nx, ny);
+          ctx.stroke();
+          ctx.globalAlpha = 1;
+
+          const nodeRadius = 5;
+          ctx.beginPath();
+          ctx.arc(nx, ny, nodeRadius, 0, Math.PI * 2);
+          if (visited.has(neighbor.id)) {
+            ctx.fillStyle = ink;
+            ctx.fill();
+          } else {
+            ctx.strokeStyle = ink3;
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+          }
+
+          const whisper = whisperQuestions.find((w) => w.to === neighbor.id);
+          const label = whisper ? whisper.text : neighbor.title;
+          ctx.font = "italic 10px Lora, Georgia, serif";
+          ctx.fillStyle = ink2;
+          ctx.textAlign = Math.cos(angle) >= 0 ? "left" : "right";
+          ctx.textBaseline = "middle";
+          const labelX = nx + (Math.cos(angle) >= 0 ? 10 : -10);
+          const labelY = ny;
+          const maxW = size * 0.3;
+          ctx.fillText(label, labelX, labelY, maxW);
+        });
+
+        const centerRadius = 7;
+        ctx.beginPath();
+        ctx.arc(cx, cy, centerRadius, 0, Math.PI * 2);
+        ctx.fillStyle = ink;
+        ctx.fill();
+
+        ctx.font = "600 11px Lora, Georgia, serif";
+        ctx.fillStyle = ink;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "top";
+        ctx.fillText(centerNode.title, cx, cy + centerRadius + 6);
+
+        return wrap;
+      };
 
       const buildLandingMap = (visitedSet, traversedEdges) => {
         const canvas = h("canvas", {
@@ -3582,6 +3679,9 @@
           } else {
             main.append(seeds, engagementEl);
           }
+
+          const constellationEl = buildSimpleConstellation(plateauId, visited, simpleWhispers);
+          main.appendChild(constellationEl);
 
           const cards = h("div", { class: "question-cards" });
           (questionCardMap[plateauId] || []).forEach((card) => {
