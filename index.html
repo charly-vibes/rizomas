@@ -44,6 +44,7 @@
         font-family: "Lora", Georgia, serif;
         font-size: 18px;
         line-height: 1.65;
+        overflow-x: hidden;
       }
 
       a {
@@ -443,7 +444,54 @@
         gap: 18px;
       }
 
+      .simple-whisper {
+        position: absolute;
+        right: -220px;
+        top: 10px;
+        width: 190px;
+        font-style: italic;
+        color: var(--ink2);
+        font-size: 0.82rem;
+        text-align: right;
+        opacity: 0;
+        transform: translateX(8px);
+        transition: opacity var(--t-whisper) ease, transform var(--t-whisper) ease;
+        text-decoration: none;
+      }
+
+      .simple-whisper::before {
+        content: "\2192 ";
+      }
+
+      .simple-whisper.is-visible {
+        opacity: 1;
+        transform: translateX(0);
+      }
+
+      .simple-whisper-pips {
+        position: fixed;
+        right: 24px;
+        top: 50%;
+        transform: translateY(-50%);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .simple-whisper-pip {
+        width: 6px;
+        height: 6px;
+        border-radius: 999px;
+        background: var(--ink4);
+        transition: background 0.3s ease;
+      }
+
+      .simple-whisper-pip.is-lit {
+        background: var(--ink);
+      }
+
       .seed-item {
+        position: relative;
         border: 1px solid var(--ink4);
         border-radius: 16px;
         padding: 14px 16px;
@@ -851,6 +899,22 @@
           margin-top: 8px;
           padding-left: 12px;
           border-left: 2px solid var(--ink4);
+        }
+
+        .simple-whisper {
+          position: static;
+          width: auto;
+          text-align: left;
+          margin-top: 8px;
+          transform: none;
+        }
+
+        .simple-whisper.is-visible {
+          transform: none;
+        }
+
+        .simple-whisper-pips {
+          display: none;
         }
       }
 
@@ -3439,6 +3503,43 @@
 
           const seeds = buildSeedCluster(seedList, { state, plateauId, onSeedOpen });
 
+          const simpleWhispers = simpleWhisperMap[plateauId] || [];
+          let whisperObserver = null;
+          if (simpleWhispers.length > 0 && !prefersReducedMotion()) {
+            const pips = h("div", { class: "simple-whisper-pips" });
+            const seedItems = seeds.querySelectorAll(".seed-item");
+            simpleWhispers.forEach((w) => {
+              const pip = h("span", { class: "simple-whisper-pip" });
+              pips.appendChild(pip);
+              const seedIdx = seedList.findIndex((s) => s.id === w.seed);
+              const seedItem = seedIdx >= 0 ? seedItems[seedIdx] : null;
+              if (seedItem) {
+                const link = h("a", { class: "simple-whisper", href: `#/${w.to}` }, w.text);
+                seedItem.appendChild(link);
+                w._el = link;
+                w._pip = pip;
+                w._item = seedItem;
+              }
+            });
+            main.appendChild(pips);
+            whisperObserver = new IntersectionObserver((entries) => {
+              entries.forEach((entry) => {
+                if (!entry.isIntersecting) return;
+                const w = simpleWhispers.find((sw) => sw._item === entry.target);
+                if (w && w._el) {
+                  w._el.classList.add("is-visible");
+                  if (w._pip) w._pip.classList.add("is-lit");
+                  whisperObserver.unobserve(entry.target);
+                }
+              });
+            }, { threshold: 0.5 });
+            simpleWhispers.forEach((w) => {
+              if (w._item) whisperObserver.observe(w._item);
+            });
+            const prevCleanup = cleanup;
+            cleanup = () => { prevCleanup(); whisperObserver.disconnect(); pips.remove(); };
+          }
+
           if (plateauId === "weight-of-words") {
             const scatter = buildScatterToText();
             const scatterWrap = h("div", {
@@ -3588,11 +3689,11 @@
       let liminalPending = null;
 
       document.addEventListener("click", (e) => {
-        const link = e.target.closest("a.whisper, a.question-card, a.dangling-link");
+        const link = e.target.closest("a.whisper, a.simple-whisper, a.question-card, a.dangling-link");
         if (!link) return;
         const href = link.getAttribute("href");
         if (!href || !href.startsWith("#/")) return;
-        if (link.classList.contains("whisper")) {
+        if (link.classList.contains("whisper") || link.classList.contains("simple-whisper")) {
           liminalPending = link.textContent.trim();
         } else if (link.classList.contains("question-card")) {
           const span = link.querySelector("span");
