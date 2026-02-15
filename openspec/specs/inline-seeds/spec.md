@@ -1,33 +1,49 @@
 # Inline Seeds
 
 ## Purpose
-Expandable inline content buttons within step text that reveal additional context, implementing the crystallization metaphor. Seeds provide depth without disrupting the reading flow.
+Inline content buttons within step text that reveal additional context in a floating popover, implementing the crystallization metaphor. Seeds provide depth without disrupting the reading flow or paragraph layout.
 ## Requirements
 ### Requirement: Seed Toggle Behavior
-Inline seeds SHALL be small interactive elements within step text that toggle between collapsed and expanded states on click. When expanded, a growth zone SHALL animate open to reveal 1–3 sentences of additional context with a left border and indented content. When collapsed, the growth zone SHALL animate closed. Seeds SHALL have a distinct background color (per visual-design palette) and a subtle dotted underline to signal interactivity — background color alone is insufficient as an affordance. Each seed button SHALL have `aria-expanded` set to `true` or `false` reflecting its current state, and the growth zone SHALL have `aria-hidden` toggled accordingly.
+Inline seeds SHALL be small interactive elements within step text that toggle a floating popover on click. The seed button SHALL remain inline within the paragraph text flow and SHALL NOT disrupt paragraph layout when the popover is shown. When activated, a popover SHALL appear as a fixed-position floating panel near the seed button, revealing 1–3 sentences of additional context. The popover SHALL fade in with a subtle vertical translation animation. When deactivated, the popover SHALL fade out. Only one seed popover SHALL be open at a time — opening a new seed SHALL close any previously open popover. Seeds SHALL have a distinct background color (per visual-design palette) and a subtle dotted underline to signal interactivity — background color alone is insufficient as an affordance. Each seed button SHALL have `aria-expanded` set to `true` or `false` reflecting its current state, and the popover SHALL have `aria-hidden` toggled accordingly. The popover SHALL close when clicking outside it or pressing Escape.
 
-#### Scenario: Seed expands on click
+#### Scenario: Seed opens popover on click
 - **WHEN** the user clicks an inline seed button
-- **THEN** the growth zone expands to reveal additional context with a left border
+- **THEN** a floating popover appears near the button with additional context
 
-#### Scenario: Seed collapses on second click
+#### Scenario: Seed closes popover on second click
 - **WHEN** the user clicks an already-open seed button
-- **THEN** the growth zone collapses back to hidden
+- **THEN** the popover fades out
+
+#### Scenario: Popover closes on outside click
+- **WHEN** a popover is open and the user clicks outside of it
+- **THEN** the popover closes
+
+#### Scenario: Popover closes on Escape
+- **WHEN** a popover is open and the user presses Escape
+- **THEN** the popover closes
+
+#### Scenario: Only one popover open at a time
+- **WHEN** the user clicks a seed while another seed's popover is open
+- **THEN** the previous popover closes and the new one opens
 
 #### Scenario: Seed is keyboard accessible
 - **WHEN** the user tabs to a seed and presses Enter or Space
-- **THEN** the seed toggles between expanded and collapsed states
+- **THEN** the seed toggles the popover between open and closed states
+
+#### Scenario: Popover auto-positions
+- **WHEN** there is not enough space below the seed button
+- **THEN** the popover appears above the button instead
 
 ### Requirement: Nested Seeds
 A seed's expanded content MAY contain additional seed elements. Parent and child seeds SHALL toggle independently.
 
 #### Scenario: Nested seed expands independently
 - **WHEN** a parent seed is open and the user clicks a nested seed within it
-- **THEN** the nested seed expands within the parent's growth zone
+- **THEN** the nested seed opens its own popover
 
 #### Scenario: Parent closes while nested seed is open
 - **WHEN** a parent seed is collapsed while a nested seed inside it is open
-- **THEN** the parent's growth zone collapses, hiding the nested seed's content. Reopening the parent SHALL restore the nested seed to its previous state.
+- **THEN** the parent's popover closes. Reopening the parent SHALL restore the nested seed to its previous state.
 
 ### Requirement: Seed Content and Placement
 The following seeds SHALL exist in the specified scrolly plateaus:
@@ -91,7 +107,7 @@ In "The Tool-User":
 
 #### Scenario: Simple plateau seeds expand on click
 - **WHEN** the user clicks a seed in a simple plateau
-- **THEN** the growth zone expands to reveal explanatory content
+- **THEN** a popover appears with explanatory content
 
 ---
 
@@ -103,7 +119,7 @@ The following seeds SHALL exist in "The Algorithm as Muse":
 
 #### Scenario: Algorithm as Muse seeds expand on click
 - **WHEN** the user clicks a seed in The Algorithm as Muse
-- **THEN** the growth zone expands to reveal explanatory content about creativity and AI
+- **THEN** a popover appears with explanatory content about creativity and AI
 
 ---
 
@@ -115,7 +131,7 @@ The following seeds SHALL exist in "Echoes of the Past":
 
 #### Scenario: Echoes of the Past seeds expand on click
 - **WHEN** the user clicks a seed in Echoes of the Past
-- **THEN** the growth zone expands to reveal explanatory content about historical bias
+- **THEN** a popover appears with explanatory content about historical bias
 
 ---
 
@@ -127,7 +143,7 @@ The following seeds SHALL exist in "Learning Machines, Learning Humans":
 
 #### Scenario: Learning Machines seeds expand on click
 - **WHEN** the user clicks a seed in Learning Machines, Learning Humans
-- **THEN** the growth zone expands to reveal explanatory content about AI in education
+- **THEN** a popover appears with explanatory content about AI in education
 
 ---
 
@@ -140,7 +156,7 @@ The following seeds SHALL exist in "The Automation of Cognition":
 
 #### Scenario: Automation of Cognition seeds expand on click
 - **WHEN** the user clicks a seed in The Automation of Cognition
-- **THEN** the growth zone expands to reveal explanatory content about labor and economics
+- **THEN** a popover appears with explanatory content about labor and economics
 
 ---
 
@@ -152,7 +168,7 @@ The following seeds SHALL exist in "The Black Box Oracle":
 
 #### Scenario: Black Box Oracle seeds expand on click
 - **WHEN** the user clicks a seed in The Black Box Oracle
-- **THEN** the growth zone expands to reveal explanatory content about transparency and accountability
+- **THEN** a popover appears with explanatory content about transparency and accountability
 
 ---
 
@@ -164,7 +180,7 @@ The following seeds SHALL exist in "Digital Footprints":
 
 #### Scenario: Digital Footprints seeds expand on click
 - **WHEN** the user clicks a seed in Digital Footprints
-- **THEN** the growth zone expands to reveal explanatory content about environmental costs
+- **THEN** a popover appears with explanatory content about environmental costs
 
 ---
 
@@ -176,7 +192,7 @@ The following seeds SHALL exist in "The Artificial Brain":
 
 #### Scenario: Artificial Brain seeds expand on click
 - **WHEN** the user clicks a seed in The Artificial Brain
-- **THEN** the growth zone expands to reveal explanatory content about brain-AI parallels
+- **THEN** a popover appears with explanatory content about brain-AI parallels
 
 ---
 
@@ -188,7 +204,7 @@ The following seeds SHALL exist in "The Empathy Machine?":
 
 #### Scenario: Empathy Machine seeds expand on click
 - **WHEN** the user clicks a seed in The Empathy Machine?
-- **THEN** the growth zone expands to reveal explanatory content about human-AI relationships
+- **THEN** a popover appears with explanatory content about human-AI relationships
 
 ---
 
@@ -201,7 +217,7 @@ The following seeds SHALL exist in "The Near-Zero Cost Impact":
 
 #### Scenario: Near-Zero Cost Impact seeds expand on click
 - **WHEN** the user clicks a seed in The Near-Zero Cost Impact
-- **THEN** the growth zone expands to reveal explanatory content about AI economics and abundance
+- **THEN** a popover appears with explanatory content about AI economics and abundance
 
 ---
 
@@ -210,7 +226,7 @@ Some inline seeds SHALL present as questions rather than content labels, impleme
 
 #### Scenario: Question-seed reveals answer on click
 - **WHEN** the user clicks a question-seed
-- **THEN** the growth zone expands to reveal the answer, and the seed label retains its question form
+- **THEN** a popover appears with the answer, and the seed label retains its question form
 
 #### Scenario: Question-seed is visually distinct
 - **WHEN** a step contains both content-seeds and question-seeds

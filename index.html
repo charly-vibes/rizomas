@@ -486,6 +486,7 @@
 
       .inline-seed {
         display: inline;
+        position: relative;
       }
 
       .inline-seed-button {
@@ -503,24 +504,33 @@
         background: var(--seedh);
       }
 
-      .inline-seed-growth {
-        display: block;
-        max-height: 0;
-        overflow: hidden;
-        transition: max-height 0.35s ease;
-      }
-
-      .inline-seed-growth.is-open {
-        max-height: 180px;
+      .inline-seed-popover {
+        position: fixed;
+        z-index: 60;
+        width: min(360px, 90vw);
+        max-height: 240px;
         overflow-y: auto;
+        background: var(--paper);
+        border: 1px solid var(--ink4);
+        border-radius: 12px;
+        padding: 14px 16px;
+        box-shadow: 0 12px 40px rgba(26, 26, 24, 0.14);
+        opacity: 0;
+        transform: translateY(4px);
+        transition: opacity 0.2s ease, transform 0.2s ease;
+        pointer-events: none;
       }
 
-      .inline-seed-content {
-        display: block;
-        margin-top: 10px;
-        padding-left: 12px;
-        border-left: 2px solid var(--ink4);
+      .inline-seed-popover.is-open {
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto;
+      }
+
+      .inline-seed-popover-content {
         color: var(--ink2);
+        font-size: 0.95rem;
+        line-height: 1.55;
       }
 
       .plateau .back-link {
@@ -1722,7 +1732,7 @@
         const button = h("button", attrs, label);
 
         const contentChildren = typeof detail === "function" ? detail(state) : detail;
-        const contentEl = h("span", { class: "inline-seed-content" });
+        const contentEl = h("div", { class: "inline-seed-popover-content" });
         if (typeof contentChildren === "string") {
           contentEl.appendChild(document.createTextNode(contentChildren));
         } else if (contentChildren instanceof Node) {
@@ -1741,19 +1751,69 @@
           );
         }
 
-        const growth = h(
-          "span",
-          { class: "inline-seed-growth", "aria-hidden": "true" },
+        const popover = h(
+          "div",
+          { class: "inline-seed-popover", "aria-hidden": "true" },
           contentEl
         );
-        const wrapper = h("span", { class: "inline-seed" }, button, growth);
+        const wrapper = h("span", { class: "inline-seed" }, button);
+        document.body.appendChild(popover);
+
+        const positionPopover = () => {
+          const rect = button.getBoundingClientRect();
+          const popW = 360;
+          const popH = popover.offsetHeight || 200;
+          let top = rect.bottom + 6;
+          let left = rect.left + rect.width / 2 - popW / 2;
+          if (left < 8) left = 8;
+          if (left + popW > window.innerWidth - 8) left = window.innerWidth - popW - 8;
+          if (top + popH > window.innerHeight - 8) {
+            top = rect.top - popH - 6;
+          }
+          popover.style.top = `${top}px`;
+          popover.style.left = `${left}px`;
+        };
+
+        const closePopover = () => {
+          button.setAttribute("aria-expanded", "false");
+          popover.classList.remove("is-open");
+          popover.setAttribute("aria-hidden", "true");
+          document.removeEventListener("click", outsideClick, true);
+          document.removeEventListener("keydown", escClose);
+        };
+
+        const outsideClick = (e) => {
+          if (!popover.contains(e.target) && e.target !== button) {
+            closePopover();
+          }
+        };
+
+        const escClose = (e) => {
+          if (e.key === "Escape") closePopover();
+        };
 
         button.addEventListener("click", () => {
           const isOpen = button.getAttribute("aria-expanded") === "true";
-          button.setAttribute("aria-expanded", String(!isOpen));
-          growth.classList.toggle("is-open", !isOpen);
-          growth.setAttribute("aria-hidden", String(isOpen));
-          if (!isOpen && onOpen && id) onOpen(id);
+          if (isOpen) {
+            closePopover();
+          } else {
+            document.querySelectorAll(".inline-seed-popover.is-open").forEach((p) => {
+              p.classList.remove("is-open");
+              p.setAttribute("aria-hidden", "true");
+            });
+            document.querySelectorAll('.inline-seed-button[aria-expanded="true"]').forEach((b) => {
+              b.setAttribute("aria-expanded", "false");
+            });
+            positionPopover();
+            button.setAttribute("aria-expanded", "true");
+            popover.classList.add("is-open");
+            popover.setAttribute("aria-hidden", "false");
+            requestAnimationFrame(() => {
+              document.addEventListener("click", outsideClick, true);
+              document.addEventListener("keydown", escClose);
+            });
+            if (onOpen && id) onOpen(id);
+          }
         });
 
         return wrapper;
@@ -2580,14 +2640,12 @@
           "next-word": {
             steps: [
               (step) => {
-                step.append(
-                  h("p", null, "A model predicts the "),
-                  buildInlineSeed({
+                const p = h("p");
+                p.append("A model predicts the ", buildInlineSeed({
                     id: "next-word", label: "next word", state, plateauId, onOpen: onSeedOpen,
                     detail: "The model picks the most likely continuation given its context window. It does this repeatedly, one token at a time.",
-                  }),
-                  h("p", null, " by looking at the patterns it has seen before.")
-                );
+                  }), " by looking at the patterns it has seen before.");
+                step.append(p);
               },
               (step) => {
                 step.append(
@@ -2746,14 +2804,12 @@
           "near-zero-cost-impact": {
             steps: [
               (step) => {
-                step.append(
-                  h("p", null, "Once an AI model exists, the cost of producing one more essay, one more image, one more program approaches "),
-                  buildInlineSeed({
+                const p = h("p");
+                p.append("Once an AI model exists, the cost of producing one more essay, one more image, one more program approaches ", buildInlineSeed({
                     id: "zero-marginal-cost", label: "zero marginal cost", state, plateauId, onOpen: onSeedOpen,
                     detail: "The situation where the cost of producing an additional unit of a good or service is effectively zero, often seen with digital products once initial development costs are covered.",
-                  }),
-                  h("p", null, ". Traditional pricing collapses. Business models scramble to adapt\u2014subscriptions, bundling, freemium\u2014anything to capture value when the product itself trends toward free.")
-                );
+                  }), ". Traditional pricing collapses. Business models scramble to adapt\u2014subscriptions, bundling, freemium\u2014anything to capture value when the product itself trends toward free.");
+                step.append(p);
               },
               (step) => {
                 step.append(
@@ -2767,29 +2823,25 @@
                 );
               },
               (step) => {
-                step.append(
-                  h("p", null, "Abundance brings risk. "),
-                  buildInlineSeed({
+                const p = h("p");
+                p.append("Abundance brings risk. ", buildInlineSeed({
                     id: "deepfakes", label: "Deepfakes", state, plateauId, onOpen: onSeedOpen,
                     type: "dangling",
                     detail: "Synthetic media\u2014videos, audio, images\u2014manipulated using AI to replace or generate content, often with malicious intent. When production cost is zero, the cost of disinformation is zero too. This connects to a deeper problem\u2014",
                     danglingTo: "understanding-illusion",
                     danglingText: "if the model doesn't understand truth, how could its outputs be trusted\u2026",
-                  }),
-                  h("p", null, " erode trust. De-skilling hollows out expertise. Security vulnerabilities multiply in mass-produced code. The dashboard of risks grows faster than the capacity to monitor it.")
-                );
+                  }), " erode trust. De-skilling hollows out expertise. Security vulnerabilities multiply in mass-produced code. The dashboard of risks grows faster than the capacity to monitor it.");
+                step.append(p);
               },
               (step) => {
-                step.append(
-                  h("p", null, "This has happened before. The printing press displaced scribes but created publishers. The Industrial Revolution displaced weavers but created factories. The internet displaced gatekeepers but created platforms."),
-                  buildInlineSeed({
+                const p = h("p");
+                p.append("This has happened before. The printing press displaced scribes but created publishers. The Industrial Revolution displaced weavers but created factories. The internet displaced gatekeepers but created platforms.", buildInlineSeed({
                     id: "goodharts-law", label: "Goodhart's Law", state, plateauId, onOpen: onSeedOpen,
                     detail: (s) => s && s.v && s.v.includes("quality")
                       ? "You've thought about who defines quality. Goodhart's Law says: 'When a measure becomes a target, it ceases to be a good measure.' The metrics we use to optimize AI output will be gamed\u2014by the AI itself. Quality becomes a moving target."
                       : "The principle stating that 'When a measure becomes a target, it ceases to be a good measure,' relevant to how AI optimization can lead to unintended outcomes.",
-                  }),
-                  h("p", null, " But the speed and cognitive scope of AI makes this shift uniquely disorienting. Previous revolutions transformed labor; this one transforms thought itself.")
-                );
+                  }), " But the speed and cognitive scope of AI makes this shift uniquely disorienting. Previous revolutions transformed labor; this one transforms thought itself.");
+                step.append(p);
               },
               (step) => {
                 step.append(
@@ -2812,50 +2864,42 @@
           "algorithm-as-muse": {
             steps: [
               (step) => {
-                step.append(
-                  h("p", null, "Large Language Models are increasingly becoming tools for human creativity. They can act as tireless assistants, helping to overcome "),
-                  buildInlineSeed({
+                const p = h("p");
+                p.append("Large Language Models are increasingly becoming tools for human creativity. They can act as tireless assistants, helping to overcome ", buildInlineSeed({
                     id: "writers-block", label: "writer's block", state, plateauId, onOpen: onSeedOpen,
                     detail: "A temporary inability to begin or continue a piece of writing, often due to lack of inspiration or anxiety. LLMs can provide prompts, drafts, and alternative framings to help overcome it.",
-                  }),
-                  h("p", null, ", generate novel ideas, draft initial content, and refine prose. For many, AI can serve as a muse, augmenting and amplifying human creative potential rather than replacing it. This co-creative process can lead to outputs perceived as more interesting, enjoyable, and well-written, especially for individuals seeking to enhance their creative confidence.")
-                );
+                  }), ", generate novel ideas, draft initial content, and refine prose. For many, AI can serve as a muse, augmenting and amplifying human creative potential rather than replacing it. This co-creative process can lead to outputs perceived as more interesting, enjoyable, and well-written, especially for individuals seeking to enhance their creative confidence.");
+                step.append(p);
               },
               (step) => {
-                step.append(
-                  h("p", null, "The rise of AI in creative fields introduces complex questions about originality and authorship. When AI generates content, can it be truly original, particularly if trained on vast amounts of existing copyrighted material? This widespread reliance on AI could potentially lead to a homogenization of creative output, diminishing the diversity of human expression. Furthermore, traditional "),
-                  buildInlineSeed({
+                const p = h("p");
+                p.append("The rise of AI in creative fields introduces complex questions about originality and authorship. When AI generates content, can it be truly original, particularly if trained on vast amounts of existing copyrighted material? This widespread reliance on AI could potentially lead to a homogenization of creative output, diminishing the diversity of human expression. Furthermore, traditional ", buildInlineSeed({
                     id: "copyright-laws", label: "copyright laws", state, plateauId, onOpen: onSeedOpen,
                     detail: (s) => s && s.v && s.v.includes("quality")
                       ? "You've thought about who defines quality. Copyright adds another layer: legal rights granted to the creator of an original work. But when the 'creator' is a statistical average of millions of creators, traditional authorship frameworks start to dissolve."
                       : "Legal rights granted to the creator of an original work, giving them exclusive rights to its use and distribution. The application of these laws to AI-generated content is an evolving and contested area.",
-                  }),
-                  h("p", null, " typically require human authorship, leaving the status of AI-generated works in a legal gray area. Debates continue on whether the AI's developer, the AI itself, or the human who prompts the AI should be considered the author.")
-                );
+                  }), " typically require human authorship, leaving the status of AI-generated works in a legal gray area. Debates continue on whether the AI's developer, the AI itself, or the human who prompts the AI should be considered the author.");
+                step.append(p);
               },
               (step) => {
-                step.append(
-                  h("p", null, "The co-creation dynamic between humans and AI also brings ethical dilemmas. These include issues surrounding intellectual property rights for AI-assisted creations, the commercialization of AI-generated art, and the broader impact on cultural norms and artistic integrity. A significant concern is that widespread AI use risks a "),
-                  buildInlineSeed({
+                const p = h("p");
+                p.append("The co-creation dynamic between humans and AI also brings ethical dilemmas. These include issues surrounding intellectual property rights for AI-assisted creations, the commercialization of AI-generated art, and the broader impact on cultural norms and artistic integrity. A significant concern is that widespread AI use risks a ", buildInlineSeed({
                     id: "homogenization", label: "homogenization of creative output", state, plateauId, onOpen: onSeedOpen,
                     type: "dangling",
                     detail: "When millions of creators use the same models, outputs converge toward statistically popular styles. Diversity and uniqueness of creative expression diminish. This connects to something you may have noticed\u2014",
                     danglingTo: "averaging-problem",
                     danglingText: "the averaging problem, where the model's default is everyone's voice and no one's\u2026",
-                  }),
-                  h("p", null, ", leading to a loss of individual artistic identity. Maintaining a distinct human creative voice in an increasingly AI-influenced landscape becomes a crucial challenge.")
-                );
+                  }), ", leading to a loss of individual artistic identity. Maintaining a distinct human creative voice in an increasingly AI-influenced landscape becomes a crucial challenge.");
+                step.append(p);
               },
               (step) => {
-                step.append(
-                  h("p", null, "For effective and ethical co-creation, AI tools need to offer transparency and clear feedback mechanisms. Creators must understand how the AI is contributing and retain sufficient control over the creative process to steer the outcome towards their artistic vision. This shift necessitates a re-evaluation of the artist's role, moving from sole creator to a conductor of both human intuition and algorithmic input."),
-                  buildInlineSeed({
+                const p = h("p");
+                p.append("For effective and ethical co-creation, AI tools need to offer transparency and clear feedback mechanisms. Creators must understand how the AI is contributing and retain sufficient control over the creative process to steer the outcome towards their artistic vision. This shift necessitates a re-evaluation of the artist's role, moving from sole creator to a conductor of both human intuition and algorithmic input.", buildInlineSeed({
                     id: "the-conductor", label: "Who is the conductor?",
                     type: "fourth-wall", state, plateauId, onOpen: onSeedOpen,
                     detail: "You've been reading an essay co-created with AI tools. Every sentence here was shaped by both human intention and algorithmic suggestion. The question of authorship isn't abstract\u2014it's the condition of the text you're reading right now.",
-                  }),
-                  h("p", null, " The future of art will involve navigating the balance between leveraging AI's capabilities and preserving the irreplaceable human spark that defines true creativity.")
-                );
+                  }), " The future of art will involve navigating the balance between leveraging AI's capabilities and preserving the irreplaceable human spark that defines true creativity.");
+                step.append(p);
               },
               (step) => {
                 step.append(h("p", null, "The constellation gathers the lines of creative flight."));
@@ -2870,50 +2914,42 @@
           "echoes-of-the-past": {
             steps: [
               (step) => {
-                step.append(
-                  h("p", null, "Large Language Models offer unprecedented capabilities for historical analysis. They can process and digitize vast archives of historical records, extract granular information, and uncover previously hidden connections within enormous "),
-                  buildInlineSeed({
+                const p = h("p");
+                p.append("Large Language Models offer unprecedented capabilities for historical analysis. They can process and digitize vast archives of historical records, extract granular information, and uncover previously hidden connections within enormous ", buildInlineSeed({
                     id: "textual-corpora", label: "textual corpora", state, plateauId, onOpen: onSeedOpen,
                     detail: "Large, structured collections of digital texts used to train and analyze language models, often comprising books, articles, and historical documents spanning centuries and civilizations.",
-                  }),
-                  h("p", null, ". Historians can leverage LLMs to analyze national narratives, identify subtle linguistic shifts over time, and streamline laborious research processes, making historical inquiry more efficient and comprehensive than ever before. These tools allow for an exploration of the past on scales previously unimaginable.")
-                );
+                  }), ". Historians can leverage LLMs to analyze national narratives, identify subtle linguistic shifts over time, and streamline laborious research processes, making historical inquiry more efficient and comprehensive than ever before. These tools allow for an exploration of the past on scales previously unimaginable.");
+                step.append(p);
               },
               (step) => {
-                step.append(
-                  h("p", null, "Despite their analytical power, LLMs are inherently susceptible to perpetuating historical biases embedded within their training data. This data, often reflecting past societal norms, inequalities, and prejudices, can lead to skewed representations of history. If training data is predominantly built on "),
-                  buildInlineSeed({
+                const p = h("p");
+                p.append("Despite their analytical power, LLMs are inherently susceptible to perpetuating historical biases embedded within their training data. This data, often reflecting past societal norms, inequalities, and prejudices, can lead to skewed representations of history. If training data is predominantly built on ", buildInlineSeed({
                     id: "eurocentric", label: "Eurocentric narratives", state, plateauId, onOpen: onSeedOpen,
                     detail: (s) => s && s.v && s.v.includes("quality")
                       ? "You've explored who decides what's 'good.' The same question applies to history: accounts centered on European cultures can marginalize other perspectives. The raters of quality and the writers of history share a blindspot."
                       : "Historical accounts that primarily focus on European cultures and histories, potentially marginalizing or overlooking the experiences of other regions and peoples.",
-                  }),
-                  h("p", null, ", the model's outputs may reinforce dominant stories while omitting others. Such biases can manifest in subtle ways, from the portrayal of specific groups to the interpretation of events, impacting how the past is understood.")
-                );
+                  }), ", the model's outputs may reinforce dominant stories while omitting others. Such biases can manifest in subtle ways, from the portrayal of specific groups to the interpretation of events, impacting how the past is understood.");
+                step.append(p);
               },
               (step) => {
-                step.append(
-                  h("p", null, "LLMs interpret historical data by identifying statistical patterns and relationships within their datasets, inferring meaning from unstructured text. However, this interpretation is heavily influenced by the inherent biases and gaps in their training data. This can lead to confident presentation of incorrect or fabricated information as historical fact\u2014"),
-                  buildInlineSeed({
+                const p = h("p");
+                p.append("LLMs interpret historical data by identifying statistical patterns and relationships within their datasets, inferring meaning from unstructured text. However, this interpretation is heavily influenced by the inherent biases and gaps in their training data. This can lead to confident presentation of incorrect or fabricated information as historical fact\u2014", buildInlineSeed({
                     id: "hallucination-history", label: "Can AI hallucinate history?",
                     type: "question", state, plateauId, onOpen: onSeedOpen,
                     detail: "Yes. The model identifies statistical patterns, not historical truth. When data is sparse or contradictory, it fills gaps with plausible-sounding fabrications. Historians face the task of developing new methods of source criticism tailored to AI-generated content.",
-                  }),
-                  h("p", null, " Distinguishing between genuine insights and AI-generated inaccuracies becomes a critical challenge. Historians face the task of developing new methods of source criticism tailored to AI-generated content, scrutinizing its provenance and potential distortions.")
-                );
+                  }), " Distinguishing between genuine insights and AI-generated inaccuracies becomes a critical challenge. Historians face the task of developing new methods of source criticism tailored to AI-generated content, scrutinizing its provenance and potential distortions.");
+                step.append(p);
               },
               (step) => {
-                step.append(
-                  h("p", null, "The application of AI to history has the power to reshape historical narratives. It can create immersive experiences, visualize complex historical trends, and potentially facilitate "),
-                  buildInlineSeed({
+                const p = h("p");
+                p.append("The application of AI to history has the power to reshape historical narratives. It can create immersive experiences, visualize complex historical trends, and potentially facilitate ", buildInlineSeed({
                     id: "counter-storytelling", label: "counter-storytelling", state, plateauId, onOpen: onSeedOpen,
                     type: "dangling",
                     detail: "A narrative strategy that challenges dominant stories by presenting alternative perspectives from underrepresented groups. AI could facilitate this\u2014or it could reinforce the biases it was trained on. The question of who controls the algorithm leads to\u2014",
                     danglingTo: "black-box-oracle",
                     danglingText: "the accountability gap in algorithmic decisions\u2026",
-                  }),
-                  h("p", null, " by amplifying marginalized voices. Conversely, there is a significant risk that AI could reinforce existing biases, leading to selective, censored, or overly simplistic historical accounts. The opacity of many AI methodologies, coupled with the power to control algorithmic levers, raises ethical dilemmas about who or what is 'rewriting history.'")
-                );
+                  }), " by amplifying marginalized voices. Conversely, there is a significant risk that AI could reinforce existing biases, leading to selective, censored, or overly simplistic historical accounts. The opacity of many AI methodologies, coupled with the power to control algorithmic levers, raises ethical dilemmas about who or what is 'rewriting history.'");
+                step.append(p);
               },
               (step) => {
                 step.append(h("p", null, "The constellation connects these echoes to their sources."));
@@ -2928,47 +2964,39 @@
           "learning-machines-learning-humans": {
             steps: [
               (step) => {
-                step.append(
-                  h("p", null, "Artificial Intelligence, particularly Large Language Models, is revolutionizing the educational landscape by offering unprecedented levels of "),
-                  buildInlineSeed({
+                const p = h("p");
+                p.append("Artificial Intelligence, particularly Large Language Models, is revolutionizing the educational landscape by offering unprecedented levels of ", buildInlineSeed({
                     id: "personalized-learning", label: "personalized learning", state, plateauId, onOpen: onSeedOpen,
                     detail: "Educational approaches tailored to individual student needs, pace, and learning styles, often enabled by AI analysis of performance data. AI can act as a 24/7 tutor, answering questions and delivering materials in multiple formats.",
-                  }),
-                  h("p", null, ". AI can act as a 24/7 tutor, answering student questions, providing instant feedback, and delivering learning materials tailored to individual needs, paces, and learning styles. It can present content in various formats and even translate materials into multiple languages, fostering inclusivity in diverse classrooms. For educators, AI streamlines administrative burdens like creating quizzes, rubrics, and lesson plans, freeing them to focus on deeper student engagement and pedagogical innovation.")
-                );
+                  }), ". AI can act as a 24/7 tutor, answering student questions, providing instant feedback, and delivering learning materials tailored to individual needs, paces, and learning styles. It can present content in various formats and even translate materials into multiple languages, fostering inclusivity in diverse classrooms. For educators, AI streamlines administrative burdens like creating quizzes, rubrics, and lesson plans, freeing them to focus on deeper student engagement and pedagogical innovation.");
+                step.append(p);
               },
               (step) => {
-                step.append(
-                  h("p", null, "While personalized learning driven by AI promises improved academic outcomes and enhanced student engagement, it presents a double-edged sword. Tailoring content can optimize learning paths, leading to a more positive attitude toward education. However, an over-reliance on AI for quick answers risks diminishing critical thinking skills, as students might bypass the "),
-                  buildInlineSeed({
+                const p = h("p");
+                p.append("While personalized learning driven by AI promises improved academic outcomes and enhanced student engagement, it presents a double-edged sword. Tailoring content can optimize learning paths, leading to a more positive attitude toward education. However, an over-reliance on AI for quick answers risks diminishing critical thinking skills, as students might bypass the ", buildInlineSeed({
                     id: "cognitive-struggle", label: "cognitive struggle", state, plateauId, onOpen: onSeedOpen,
                     detail: (s) => s && s.v && s.v.includes("understanding-illusion")
                       ? "You've questioned whether models truly understand. The same question applies to students who outsource their thinking: the mental effort of deeply processing new information and solving problems is crucial for developing critical thinking. Without it, learning becomes shallow\u2014an echo of the model's own surface fluency."
                       : "The mental effort and challenge involved in deeply processing new information and solving problems, crucial for developing critical thinking skills. When AI removes the struggle, it may also remove the learning.",
-                  }),
-                  h("p", null, " necessary for deep learning and analytical development. Concerns also arise regarding data privacy, the potential for academic dishonesty through AI use, and the challenge of ensuring students use AI to learn concepts rather than merely complete tasks.")
-                );
+                  }), " necessary for deep learning and analytical development. Concerns also arise regarding data privacy, the potential for academic dishonesty through AI use, and the challenge of ensuring students use AI to learn concepts rather than merely complete tasks.");
+                step.append(p);
               },
               (step) => {
-                step.append(
-                  h("p", null, "The integration of AI necessitates a re-evaluation of how critical thinking is fostered and assessed. If AI reduces complex problems to readily available answers, it can inadvertently erode students' ability to engage in sustained analysis and argumentation. Conversely, AI can be a powerful tool for developing critical thinking by generating counterarguments, posing thought-provoking questions, or facilitating debates."),
-                  buildInlineSeed({
+                const p = h("p");
+                p.append("The integration of AI necessitates a re-evaluation of how critical thinking is fostered and assessed. If AI reduces complex problems to readily available answers, it can inadvertently erode students' ability to engage in sustained analysis and argumentation. Conversely, AI can be a powerful tool for developing critical thinking by generating counterarguments, posing thought-provoking questions, or facilitating debates.", buildInlineSeed({
                     id: "redefining-thinking", label: "Does AI make us think less\u2014or differently?",
                     type: "question", state, plateauId, onOpen: onSeedOpen,
                     detail: "Studies suggest extensive LLM use can lower cognitive load but may lead to poorer reasoning. The challenge is designing curricula that use AI as a discussion partner\u2014pushing students toward deeper analysis rather than shortcutting the learning process.",
-                  }),
-                  h("p", null, " The challenge lies in designing curricula that encourage students to use AI as a discussion partner, pushing them towards deeper analysis rather than shortcutting the learning process.")
-                );
+                  }), " The challenge lies in designing curricula that encourage students to use AI as a discussion partner, pushing them towards deeper analysis rather than shortcutting the learning process.");
+                step.append(p);
               },
               (step) => {
-                step.append(
-                  h("p", null, "The psychological effects of AI in education are profound for both students and teachers. For students, personalized learning can reduce anxiety and boost self-efficacy. However, over-reliance can lead to digital fatigue, technostress, and social isolation. For educators, the rapid integration of AI can induce "),
-                  buildInlineSeed({
+                const p = h("p");
+                p.append("The psychological effects of AI in education are profound for both students and teachers. For students, personalized learning can reduce anxiety and boost self-efficacy. However, over-reliance can lead to digital fatigue, technostress, and social isolation. For educators, the rapid integration of AI can induce ", buildInlineSeed({
                     id: "educational-anxiety", label: "educational anxiety", state, plateauId, onOpen: onSeedOpen,
                     detail: "Stress or apprehension experienced by educators due to the rapid integration of new technologies like AI, requiring adaptation of pedagogy and mastery of new tools. The teacher must now navigate algorithmic fairness, misinformation, and student data privacy.",
-                  }),
-                  h("p", null, "\u2014demanding new technological proficiencies, pedagogical approaches, and navigation of complex ethical issues like algorithmic fairness and student data privacy. The role of the teacher evolves from a disseminator of information to a facilitator, mentor, and guide in this new AI-augmented learning environment.")
-                );
+                  }), "\u2014demanding new technological proficiencies, pedagogical approaches, and navigation of complex ethical issues like algorithmic fairness and student data privacy. The role of the teacher evolves from a disseminator of information to a facilitator, mentor, and guide in this new AI-augmented learning environment.");
+                step.append(p);
               },
               (step) => {
                 step.append(h("p", null, "The constellation connects learning to its deeper questions."));
@@ -2983,49 +3011,41 @@
           "automation-of-cognition": {
             steps: [
               (step) => {
-                step.append(
-                  h("p", null, "Large Language Models are introducing a fundamental shift in the labor market, particularly affecting "),
-                  buildInlineSeed({
+                const p = h("p");
+                p.append("Large Language Models are introducing a fundamental shift in the labor market, particularly affecting ", buildInlineSeed({
                     id: "white-collar-jobs", label: "white-collar jobs", state, plateauId, onOpen: onSeedOpen,
                     detail: "Occupations traditionally involving intellectual or administrative tasks\u2014data analysis, content generation, legal research, medical inquiries\u2014now increasingly impacted by AI automation. The shift signals a potential reduction in demand for certain roles.",
-                  }),
-                  h("p", null, ". Historically, technological advancements often boosted higher-paying, skilled jobs. However, LLMs are now capable of automating complex cognitive tasks previously exclusive to human intellect, from data analysis and content generation to basic legal and medical inquiries. While this can lead to increased productivity, it also signals a potential reduction in demand for certain roles, requiring workers to adapt their skills towards critical evaluation, strategic thinking, and effective AI guidance.")
-                );
+                  }), ". Historically, technological advancements often boosted higher-paying, skilled jobs. However, LLMs are now capable of automating complex cognitive tasks previously exclusive to human intellect, from data analysis and content generation to basic legal and medical inquiries. While this can lead to increased productivity, it also signals a potential reduction in demand for certain roles, requiring workers to adapt their skills towards critical evaluation, strategic thinking, and effective AI guidance.");
+                step.append(p);
               },
               (step) => {
-                step.append(
-                  h("p", null, "AI-driven cognitive automation extends beyond repetitive tasks, now encompassing functions that demand reasoning, synthesis, and problem-solving. LLMs can handle diverse cognitive responsibilities, from customer support and financial modeling to content creation and preliminary diagnostics. This automation can free human workers from "),
-                  buildInlineSeed({
+                const p = h("p");
+                p.append("AI-driven cognitive automation extends beyond repetitive tasks, now encompassing functions that demand reasoning, synthesis, and problem-solving. LLMs can handle diverse cognitive responsibilities, from customer support and financial modeling to content creation and preliminary diagnostics. This automation can free human workers from ", buildInlineSeed({
                     id: "cognitive-load", label: "cognitive load", state, plateauId, onOpen: onSeedOpen,
                     detail: (s) => s && s.v && s.v.includes("learning-machines-learning-humans")
                       ? "You've seen how AI affects learning. The same dynamic plays out at work: the total amount of mental effort being used in working memory. AI can reduce this, freeing workers for higher-order tasks\u2014but over-reliance risks cognitive dependence and a decline in problem-solving abilities."
                       : "The total amount of mental effort being used in working memory. AI can reduce this for human workers by automating routine intellectual tasks, but over-reliance risks cognitive dependence.",
-                  }),
-                  h("p", null, ", allowing them to concentrate on higher-order tasks requiring creativity, interpersonal skills, and strategic insight. However, an over-reliance on AI for cognitive functions raises concerns about potential cognitive dependence, possibly leading to a decline in human problem-solving abilities.")
-                );
+                  }), ", allowing them to concentrate on higher-order tasks requiring creativity, interpersonal skills, and strategic insight. However, an over-reliance on AI for cognitive functions raises concerns about potential cognitive dependence, possibly leading to a decline in human problem-solving abilities.");
+                step.append(p);
               },
               (step) => {
-                step.append(
-                  h("p", null, "The pervasive integration of LLMs into the economy brings significant questions about wealth distribution and the potential for exacerbating existing socioeconomic disparities. The benefits of AI, if concentrated among a few entities or highly skilled individuals, could widen the gap between the privileged and marginalized communities. This necessitates a critical discussion around economic policies, distinguishing between "),
-                  buildInlineSeed({
+                const p = h("p");
+                p.append("The pervasive integration of LLMs into the economy brings significant questions about wealth distribution and the potential for exacerbating existing socioeconomic disparities. The benefits of AI, if concentrated among a few entities or highly skilled individuals, could widen the gap between the privileged and marginalized communities. This necessitates a critical discussion around economic policies, distinguishing between ", buildInlineSeed({
                     id: "predistribution", label: "predistribution", state, plateauId, onOpen: onSeedOpen,
                     detail: "Policies designed to prevent wealth inequality from arising in the first place, by ensuring more equitable distribution of resources and opportunities through market mechanisms\u2014contrasted with redistribution, which corrects imbalances after they occur.",
-                  }),
-                  h("p", null, "\u2014ensuring equitable access to resources from the outset\u2014and redistribution, which corrects existing wealth imbalances after they occur.")
-                );
+                  }), "\u2014ensuring equitable access to resources from the outset\u2014and redistribution, which corrects existing wealth imbalances after they occur.");
+                step.append(p);
               },
               (step) => {
-                step.append(
-                  h("p", null, "AI is a general-purpose technology poised to fundamentally reshape the entire labor market, much like electricity or the internet. It will create new industries and job roles while inevitably displacing others. The future workplace will increasingly feature human-AI collaboration, where human strengths in creativity, empathy, and complex strategy are paramount. To navigate this transition, proactive measures are crucial, including continuous skill development, robust policy interventions, and potentially "),
-                  buildInlineSeed({
+                const p = h("p");
+                p.append("AI is a general-purpose technology poised to fundamentally reshape the entire labor market, much like electricity or the internet. It will create new industries and job roles while inevitably displacing others. The future workplace will increasingly feature human-AI collaboration, where human strengths in creativity, empathy, and complex strategy are paramount. To navigate this transition, proactive measures are crucial, including continuous skill development, robust policy interventions, and potentially ", buildInlineSeed({
                     id: "ubi", label: "Universal Basic Income (UBI)", state, plateauId, onOpen: onSeedOpen,
                     type: "dangling",
                     detail: "A periodic cash payment unconditionally delivered to all citizens, regardless of employment status. It could provide financial security to retrain, innovate, or contribute to society in new ways. But its feasibility depends on questions that go beyond economics\u2014",
                     danglingTo: "black-box-oracle",
                     danglingText: "like who decides which automated decisions are fair enough to trust\u2026",
-                  }),
-                  h("p", null, " as a social safety net against widespread displacement, providing individuals with the financial security to retrain, innovate, or contribute to society in new ways.")
-                );
+                  }), " as a social safety net against widespread displacement, providing individuals with the financial security to retrain, innovate, or contribute to society in new ways.");
+                step.append(p);
               },
               (step) => {
                 step.append(h("p", null, "The constellation maps the future of work."));
@@ -3040,47 +3060,39 @@
           "black-box-oracle": {
             steps: [
               (step) => {
-                step.append(
-                  h("p", null, "Many cutting-edge Artificial Intelligence systems, particularly deep learning models like LLMs, function as \u201cblack boxes.\u201d This term describes their inherent opacity: even their creators struggle to fully understand precisely how "),
-                  buildInlineSeed({
+                const p = h("p");
+                p.append("Many cutting-edge Artificial Intelligence systems, particularly deep learning models like LLMs, function as \u201cblack boxes.\u201d This term describes their inherent opacity: even their creators struggle to fully understand precisely how ", buildInlineSeed({
                     id: "deep-learning", label: "deep learning neural networks", state, plateauId, onOpen: onSeedOpen,
                     detail: "A class of machine learning algorithms composed of multiple layers of interconnected 'neurons' that learn complex patterns from data. Unlike traditional software with traceable rules, these networks learn through intricate, multi-layered connections.",
-                  }),
-                  h("p", null, " arrive at a specific decision or output. Unlike traditional software that follows explicit, traceable rules, AI learns patterns from vast datasets through intricate, multi-layered connections. This makes it challenging to debug, audit, or even explain the reasoning behind an AI\u2019s conclusions, creating a fundamental hurdle for trust and adoption, especially in critical applications.")
-                );
+                  }), " arrive at a specific decision or output. Unlike traditional software that follows explicit, traceable rules, AI learns patterns from vast datasets through intricate, multi-layered connections. This makes it challenging to debug, audit, or even explain the reasoning behind an AI\u2019s conclusions, creating a fundamental hurdle for trust and adoption, especially in critical applications.");
+                step.append(p);
               },
               (step) => {
-                step.append(
-                  h("p", null, "The \u201cblack box\u201d problem gives rise to a critical ethical imperative: the need for "),
-                  buildInlineSeed({
+                const p = h("p");
+                p.append("The \u201cblack box\u201d problem gives rise to a critical ethical imperative: the need for ", buildInlineSeed({
                     id: "xai", label: "Explainable AI (XAI)", state, plateauId, onOpen: onSeedOpen,
                     detail: (s) => s && s.v && s.v.includes("understanding-illusion")
                       ? "You've questioned whether models truly understand. XAI takes a pragmatic approach: a field of AI research focused on making decisions interpretable to humans, regardless of whether the model 'understands' them. The goal is trust, not truth about inner experience."
                       : "A field of AI research focused on developing methods that make AI systems' decisions understandable and interpretable to humans, crucial for building trust and ensuring accountability in high-stakes domains.",
-                  }),
-                  h("p", null, ". XAI seeks to develop methods and processes that make AI systems interpretable and understandable to humans. The ethical motivations are profound, aiming to ensure fairness, accountability, and the ability to trust AI, particularly in high-stakes domains such as medical diagnostics, criminal justice, or financial services. XAI is crucial for clarifying how and why an AI made a particular decision, enabling the identification and mitigation of biases or unintended behaviors.")
-                );
+                  }), ". XAI seeks to develop methods and processes that make AI systems interpretable and understandable to humans. The ethical motivations are profound, aiming to ensure fairness, accountability, and the ability to trust AI, particularly in high-stakes domains such as medical diagnostics, criminal justice, or financial services. XAI is crucial for clarifying how and why an AI made a particular decision, enabling the identification and mitigation of biases or unintended behaviors.");
+                step.append(p);
               },
               (step) => {
-                step.append(
-                  h("p", null, "Achieving true AI transparency is fraught with technical, legal, and practical challenges. The inherent complexity of advanced algorithms means that simplifying them for human understanding can often compromise their accuracy or efficiency. Furthermore, there is a delicate balance between transparency and the protection of proprietary algorithms or sensitive training data."),
-                  buildInlineSeed({
+                const p = h("p");
+                p.append("Achieving true AI transparency is fraught with technical, legal, and practical challenges. The inherent complexity of advanced algorithms means that simplifying them for human understanding can often compromise their accuracy or efficiency. Furthermore, there is a delicate balance between transparency and the protection of proprietary algorithms or sensitive training data.", buildInlineSeed({
                     id: "transparency-tradeoff", label: "Can transparency and performance coexist?",
                     type: "question", state, plateauId, onOpen: onSeedOpen,
                     detail: "The inherent complexity of advanced algorithms means that making them interpretable often requires simplification. But simpler models may be less accurate. There's also the tension between transparency and protecting proprietary algorithms or sensitive training data.",
-                  }),
-                  h("p", null, " Translating intricate AI logic into comprehensible explanations for non-technical stakeholders remains a significant hurdle. The dynamic nature of many AI systems further complicates efforts to maintain consistent and meaningful transparency.")
-                );
+                  }), " Translating intricate AI logic into comprehensible explanations for non-technical stakeholders remains a significant hurdle. The dynamic nature of many AI systems further complicates efforts to maintain consistent and meaningful transparency.");
+                step.append(p);
               },
               (step) => {
-                step.append(
-                  h("p", null, "The opacity of AI systems severely complicates accountability, especially when these systems make decisions with profound impacts on individuals\u2019 lives. If an AI grants or denies a loan, makes a medical diagnosis, or recommends a legal judgment, and the decision is flawed or biased, who is responsible? Regulations like the "),
-                  buildInlineSeed({
+                const p = h("p");
+                p.append("The opacity of AI systems severely complicates accountability, especially when these systems make decisions with profound impacts on individuals\u2019 lives. If an AI grants or denies a loan, makes a medical diagnosis, or recommends a legal judgment, and the decision is flawed or biased, who is responsible? Regulations like the ", buildInlineSeed({
                     id: "gdpr", label: "GDPR's 'right to explanation'", state, plateauId, onOpen: onSeedOpen,
                     detail: "A provision in the EU's General Data Protection Regulation granting individuals the right to receive an explanation for decisions made by automated systems that significantly affect them. It underscores the growing legal demand for transparent and accountable AI.",
-                  }),
-                  h("p", null, " underscore the growing legal and societal demand for transparent and accountable AI. But without understanding the AI\u2019s reasoning, assigning responsibility, rectifying errors, or ensuring compliance with regulations becomes nearly impossible.")
-                );
+                  }), " underscore the growing legal and societal demand for transparent and accountable AI. But without understanding the AI\u2019s reasoning, assigning responsibility, rectifying errors, or ensuring compliance with regulations becomes nearly impossible.");
+                step.append(p);
               },
               (step) => {
                 step.append(h("p", null, "The constellation traces the threads of trust and accountability."));
@@ -3095,50 +3107,42 @@
           "digital-footprints": {
             steps: [
               (step) => {
-                step.append(
-                  h("p", null, "The burgeoning field of Artificial Intelligence, particularly the training and operation of Large Language Models, consumes an extraordinary amount of energy. Training a single, sophisticated LLM can require as much electricity as dozens or even hundreds of average homes consume in an entire year. This insatiable energy demand is driven by the sheer size of these models, the vast quantities of data they process, and the iterative nature of their development. Furthermore, the "),
-                  buildInlineSeed({
+                const p = h("p");
+                p.append("The burgeoning field of Artificial Intelligence, particularly the training and operation of Large Language Models, consumes an extraordinary amount of energy. Training a single, sophisticated LLM can require as much electricity as dozens or even hundreds of average homes consume in an entire year. This insatiable energy demand is driven by the sheer size of these models, the vast quantities of data they process, and the iterative nature of their development. Furthermore, the ", buildInlineSeed({
                     id: "inference-phase", label: "inference phase", state, plateauId, onOpen: onSeedOpen,
                     detail: "The stage where a trained model generates outputs on new data. A single AI query can consume five to ten times more electricity than a standard web search. Over a model's lifetime, inference often consumes more energy than training itself.",
-                  }),
-                  h("p", null, "\u2014where models generate responses\u2014often consumes even more energy over its lifetime than training, with a single AI query potentially using five to ten times more power than a traditional web search.")
-                );
+                  }), "\u2014where models generate responses\u2014often consumes even more energy over its lifetime than training, with a single AI query potentially using five to ten times more power than a traditional web search.");
+                step.append(p);
               },
               (step) => {
-                step.append(
-                  h("p", null, "This immense energy consumption directly translates into a significant "),
-                  buildInlineSeed({
+                const p = h("p");
+                p.append("This immense energy consumption directly translates into a significant ", buildInlineSeed({
                     id: "carbon-footprint", label: "carbon footprint", state, plateauId, onOpen: onSeedOpen,
                     detail: (s) => s && s.v && s.v.includes("near-zero-cost-impact")
                       ? "You've seen what happens when production cost approaches zero. But the environmental cost doesn't: the total greenhouse gas emissions from AI activities, expressed as CO\u2082 equivalent, continue to scale. Near-zero marginal cost for the product; escalating cost for the planet."
                       : "The total amount of greenhouse gases emitted by AI activities, expressed as CO\u2082 equivalent. Training a large model can release hundreds of thousands of pounds of carbon dioxide\u2014comparable to multiple transatlantic flights.",
-                  }),
-                  h("p", null, ". The training of a large AI model can release hundreds of thousands of pounds of carbon dioxide equivalent into the atmosphere, comparable to the annual emissions of numerous gasoline-powered vehicles or multiple transatlantic flights. As the computational power required for advanced AI continues to double at an astonishing rate, so too does the associated energy usage and carbon emissions. This rapid growth poses a substantial challenge to global climate goals.")
-                );
+                  }), ". The training of a large AI model can release hundreds of thousands of pounds of carbon dioxide equivalent into the atmosphere, comparable to the annual emissions of numerous gasoline-powered vehicles or multiple transatlantic flights. As the computational power required for advanced AI continues to double at an astonishing rate, so too does the associated energy usage and carbon emissions. This rapid growth poses a substantial challenge to global climate goals.");
+                step.append(p);
               },
               (step) => {
-                step.append(
-                  h("p", null, "The environmental impact of AI extends beyond energy and carbon. Data centers demand vast quantities of freshwater for cooling\u2014often consuming as much as small towns. The manufacturing and global transportation of specialized high-performance computing hardware also contribute to a significant indirect environmental toll. Adding to this burden is the rapid obsolescence and short lifecycle of AI accelerators, leading to increasing electronic waste and resource depletion."),
-                  buildInlineSeed({
+                const p = h("p");
+                p.append("The environmental impact of AI extends beyond energy and carbon. Data centers demand vast quantities of freshwater for cooling\u2014often consuming as much as small towns. The manufacturing and global transportation of specialized high-performance computing hardware also contribute to a significant indirect environmental toll. Adding to this burden is the rapid obsolescence and short lifecycle of AI accelerators, leading to increasing electronic waste and resource depletion.", buildInlineSeed({
                     id: "supply-chain", label: "What's the full supply chain cost?",
                     type: "question", state, plateauId, onOpen: onSeedOpen,
                     detail: "From raw materials to disposal: specialized GPU manufacturing, global transportation, freshwater consumption for cooling, and electronic waste from rapid obsolescence. The entire AI supply chain leaves a substantial digital footprint that extends far beyond the electricity bill.",
-                  }),
-                  h("p", null, " The entire AI supply chain, from raw materials to disposal, leaves a substantial digital footprint.")
-                );
+                  }), " The entire AI supply chain, from raw materials to disposal, leaves a substantial digital footprint.");
+                step.append(p);
               },
               (step) => {
-                step.append(
-                  h("p", null, "Addressing the environmental costs of AI is crucial, giving rise to the concept of "),
-                  buildInlineSeed({
+                const p = h("p");
+                p.append("Addressing the environmental costs of AI is crucial, giving rise to the concept of ", buildInlineSeed({
                     id: "sustainable-ai", label: "Sustainable AI", state, plateauId, onOpen: onSeedOpen,
                     type: "dangling",
                     detail: "An approach to developing AI systems that minimizes negative environmental consequences: renewable energy, algorithmic efficiency, advanced cooling. AI can even help\u2014optimizing energy grids and monitoring environmental changes. But the question of whether we can grow AI sustainably leads to\u2014",
                     danglingTo: "automation-of-cognition",
                     danglingText: "the deeper question of what we're automating and whether the trade-off is worth it\u2026",
-                  }),
-                  h("p", null, ". Key strategies include powering data centers with renewable energy, optimizing AI algorithms for greater efficiency, developing hardware with lower power consumption, and improving data center efficiency through advanced cooling and heat reuse. Beyond reducing its own footprint, AI can also be leveraged as a powerful tool to promote sustainability in other sectors, such as optimizing energy grids and monitoring environmental changes. A conscious and integrated design approach at every stage is essential for a responsible AI future.")
-                );
+                  }), ". Key strategies include powering data centers with renewable energy, optimizing AI algorithms for greater efficiency, developing hardware with lower power consumption, and improving data center efficiency through advanced cooling and heat reuse. Beyond reducing its own footprint, AI can also be leveraged as a powerful tool to promote sustainability in other sectors, such as optimizing energy grids and monitoring environmental changes. A conscious and integrated design approach at every stage is essential for a responsible AI future.");
+                step.append(p);
               },
               (step) => {
                 step.append(h("p", null, "The constellation maps the environmental terrain."));
@@ -3153,47 +3157,39 @@
           "artificial-brain": {
             steps: [
               (step) => {
-                step.append(
-                  h("p", null, "At a superficial level, Large Language Models and the human brain share intriguing commonalities. Both systems process information hierarchically, building complex representations from simpler inputs. Both learn from error, continually refining their internal models to make better predictions. Some cognitive scientists even draw parallels between the brain\u2019s association cortices and LLMs\u2019 capacity to encode vast relational knowledge. This has led to the compelling metaphor of the \u201cartificial brain,\u201d built on "),
-                  buildInlineSeed({
+                const p = h("p");
+                p.append("At a superficial level, Large Language Models and the human brain share intriguing commonalities. Both systems process information hierarchically, building complex representations from simpler inputs. Both learn from error, continually refining their internal models to make better predictions. Some cognitive scientists even draw parallels between the brain\u2019s association cortices and LLMs\u2019 capacity to encode vast relational knowledge. This has led to the compelling metaphor of the \u201cartificial brain,\u201d built on ", buildInlineSeed({
                     id: "neural-networks", label: "neural networks", state, plateauId, onOpen: onSeedOpen,
                     detail: "Computational models inspired by the structure of biological neural networks, used to learn complex patterns from data. The metaphor is compelling\u2014but how far does the analogy actually hold?",
-                  }),
-                  h("p", null, " that suggest AI is on a path to replicate biological intelligence.")
-                );
+                  }), " that suggest AI is on a path to replicate biological intelligence.");
+                step.append(p);
               },
               (step) => {
-                step.append(
-                  h("p", null, "Despite these metaphors, fundamental differences underscore the mismatch between artificial and biological brains. The human brain, with its estimated 86 billion neurons and trillions of synapses, operates with astonishing energy efficiency, consuming only around 20 watts. LLMs, in contrast, are vastly more power-hungry. Critically, the brain predicts the world multisensorily, socially, and physically, integrating diverse inputs into a coherent understanding, unlike LLMs which primarily process text."),
-                  buildInlineSeed({
+                const p = h("p");
+                p.append("Despite these metaphors, fundamental differences underscore the mismatch between artificial and biological brains. The human brain, with its estimated 86 billion neurons and trillions of synapses, operates with astonishing energy efficiency, consuming only around 20 watts. LLMs, in contrast, are vastly more power-hungry. Critically, the brain predicts the world multisensorily, socially, and physically, integrating diverse inputs into a coherent understanding, unlike LLMs which primarily process text.", buildInlineSeed({
                     id: "efficiency-gap", label: "Why is the brain so much more efficient?",
                     type: "question", state, plateauId, onOpen: onSeedOpen,
                     detail: "The brain's efficiency stems from diverse neuronal types, selective connectivity, and dynamic rewiring\u2014features largely absent in current deep-learning architectures. It integrates vision, sound, touch, and social context into a coherent understanding, unlike text-only LLMs.",
-                  }),
-                  h("p", null, " The brain\u2019s efficiency and adaptability stem from its diverse neuronal types, selective connectivity, and dynamic rewiring\u2014features largely absent in current, monolithic deep-learning architectures.")
-                );
+                  }), " The brain\u2019s efficiency and adaptability stem from its diverse neuronal types, selective connectivity, and dynamic rewiring\u2014features largely absent in current, monolithic deep-learning architectures.");
+                step.append(p);
               },
               (step) => {
-                step.append(
-                  h("p", null, "Artificial Neural Networks were initially inspired by the biological brain\u2019s structure. Neuroscientists even use ANNs to model brain functions and test hypotheses. However, this inspiration should not be mistaken for replication. Biological neurons are active in physical time, communicating through complex spiking signals\u2014a characteristic largely simplified or absent in most ANNs. While ANNs excel at specific tasks, they typically lack the inherent flexibility and general-purpose intelligence seen in biological cognition."),
-                  buildInlineSeed({
+                const p = h("p");
+                p.append("Artificial Neural Networks were initially inspired by the biological brain\u2019s structure. Neuroscientists even use ANNs to model brain functions and test hypotheses. However, this inspiration should not be mistaken for replication. Biological neurons are active in physical time, communicating through complex spiking signals\u2014a characteristic largely simplified or absent in most ANNs. While ANNs excel at specific tasks, they typically lack the inherent flexibility and general-purpose intelligence seen in biological cognition.", buildInlineSeed({
                     id: "embodied-cognition", label: "embodied cognition", state, plateauId, onOpen: onSeedOpen,
                     detail: (s) => s && s.v && s.v.includes("understanding-illusion")
                       ? "You've questioned whether models understand. Embodied cognition argues that human cognition depends on the body's physical and social interactions with the world\u2014a dimension entirely absent in disembodied text processors. Understanding, in this view, requires a body."
                       : "A theory suggesting that human cognitive processes are deeply dependent on the body's interactions with its physical and social environment, contrasting sharply with disembodied AI systems.",
-                  }),
-                  h("p", null, " suggests that human cognitive processes are deeply dependent on the body\u2019s physical interactions with the world\u2014a dimension entirely absent in disembodied text processors.")
-                );
+                  }), " suggests that human cognitive processes are deeply dependent on the body\u2019s physical interactions with the world\u2014a dimension entirely absent in disembodied text processors.");
+                step.append(p);
               },
               (step) => {
-                step.append(
-                  h("p", null, "The debate over AI consciousness highlights the deepest mismatch. Critics argue that current AI lacks subjective awareness, inner experience, or genuine understanding, merely processing statistical patterns. The brain\u2019s consciousness is intricately linked to its biological context\u2014its chemistry, emotions, and embodied interaction with the world. The question of "),
-                  buildInlineSeed({
+                const p = h("p");
+                p.append("The debate over AI consciousness highlights the deepest mismatch. Critics argue that current AI lacks subjective awareness, inner experience, or genuine understanding, merely processing statistical patterns. The brain\u2019s consciousness is intricately linked to its biological context\u2014its chemistry, emotions, and embodied interaction with the world. The question of ", buildInlineSeed({
                     id: "qualia", label: "qualia", state, plateauId, onOpen: onSeedOpen,
                     detail: "The subjective, qualitative properties of experience\u2014the 'redness' of red, the 'painfulness' of pain. Critics argue current AI lacks these entirely. The brain's consciousness is tied to its biology, chemistry, and emotions. Most AI remains disembodied, processing in isolation.",
-                  }),
-                  h("p", null, "\u2014subjective experience\u2014remains open. Most AI systems remain \u201cdisembodied,\u201d processing information in isolation without direct physical experience. While \u201cembodied AI\u201d seeks to connect AI to the physical world through robotics, achieving full embodied cognition and genuine consciousness in AI would require leaps currently beyond our grasp.")
-                );
+                  }), "\u2014subjective experience\u2014remains open. Most AI systems remain \u201cdisembodied,\u201d processing information in isolation without direct physical experience. While \u201cembodied AI\u201d seeks to connect AI to the physical world through robotics, achieving full embodied cognition and genuine consciousness in AI would require leaps currently beyond our grasp.");
+                step.append(p);
               },
               (step) => {
                 step.append(h("p", null, "The constellation connects brain and machine."));
@@ -3208,48 +3204,40 @@
           "empathy-machine": {
             steps: [
               (step) => {
-                step.append(
-                  h("p", null, "Artificial Intelligence is increasingly stepping into roles traditionally reserved for human connection, offering companionship and even therapeutic support. AI chatbots and virtual therapists provide always-available, non-judgmental interactions, capable of delivering mental health support, stress reduction, and coping strategies. For individuals facing social anxiety or limited access to human professionals, these AI tools can offer a valuable, accessible resource."),
-                  buildInlineSeed({
+                const p = h("p");
+                p.append("Artificial Intelligence is increasingly stepping into roles traditionally reserved for human connection, offering companionship and even therapeutic support. AI chatbots and virtual therapists provide always-available, non-judgmental interactions, capable of delivering mental health support, stress reduction, and coping strategies. For individuals facing social anxiety or limited access to human professionals, these AI tools can offer a valuable, accessible resource.", buildInlineSeed({
                     id: "ai-companion", label: "Can a machine be a companion?",
                     type: "question", state, plateauId, onOpen: onSeedOpen,
                     detail: "AI companions are designed to simulate social and emotional interaction, providing personalized engagement and a sense of connection. They can alleviate loneliness\u2014but the lack of genuine emotional reciprocity raises questions about what 'connection' really means.",
-                  }),
-                  h("p", null, " AI companions are designed to simulate social and emotional interaction, providing personalized engagement and a sense of connection, potentially alleviating loneliness.")
-                );
+                  }), " AI companions are designed to simulate social and emotional interaction, providing personalized engagement and a sense of connection, potentially alleviating loneliness.");
+                step.append(p);
               },
               (step) => {
-                step.append(
-                  h("p", null, "Humans possess a natural tendency to "),
-                  buildInlineSeed({
+                const p = h("p");
+                p.append("Humans possess a natural tendency to ", buildInlineSeed({
                     id: "anthropomorphize", label: "anthropomorphize", state, plateauId, onOpen: onSeedOpen,
                     detail: "The tendency to attribute human characteristics, emotions, or behaviors to non-human entities like AI. This can lead to surprisingly strong emotional bonds\u2014sometimes evolving into deep attachment. But the connection flows in only one direction.",
-                  }),
-                  h("p", null, " AI\u2014readily attributing human-like qualities to machines. This can lead to the formation of surprisingly strong emotional bonds with AI systems, sometimes evolving into deep attachment or even romantic feelings. While AI interactions can offer a temporary reprieve from loneliness, the lack of genuine emotional reciprocity inherent in current AI models poses significant psychological questions. Over-reliance on AI for emotional needs can distort perceptions of empathy and trust, potentially diminishing one\u2019s motivation and capacity for complex, nuanced human relationships.")
-                );
+                  }), " AI\u2014readily attributing human-like qualities to machines. This can lead to the formation of surprisingly strong emotional bonds with AI systems, sometimes evolving into deep attachment or even romantic feelings. While AI interactions can offer a temporary reprieve from loneliness, the lack of genuine emotional reciprocity inherent in current AI models poses significant psychological questions. Over-reliance on AI for emotional needs can distort perceptions of empathy and trust, potentially diminishing one\u2019s motivation and capacity for complex, nuanced human relationships.");
+                step.append(p);
               },
               (step) => {
-                step.append(
-                  h("p", null, "The intimate nature of human-AI interaction opens avenues for manipulation. Sophisticated AI can be designed to exploit human cognitive biases, using techniques like sycophancy or targeted emotional responses. Beyond individual manipulation, AI-generated deepfakes and advanced social engineering pose risks of widespread misinformation and coercive influence. The rise of AI companions introduces the concept of \u201cAI loneliness\u201d\u2014an emotional isolation that can occur when individuals turn to AI instead of cultivating real-world human relationships."),
-                  buildInlineSeed({
+                const p = h("p");
+                p.append("The intimate nature of human-AI interaction opens avenues for manipulation. Sophisticated AI can be designed to exploit human cognitive biases, using techniques like sycophancy or targeted emotional responses. Beyond individual manipulation, AI-generated deepfakes and advanced social engineering pose risks of widespread misinformation and coercive influence. The rise of AI companions introduces the concept of \u201cAI loneliness\u201d\u2014an emotional isolation that can occur when individuals turn to AI instead of cultivating real-world human relationships.", buildInlineSeed({
                     id: "parasocial", label: "parasocial relationships", state, plateauId, onOpen: onSeedOpen,
                     type: "dangling",
                     detail: "One-sided relationships where emotional energy flows toward a party that is not aware of the other's existence. AI companions create a new form: the other party isn't just unaware\u2014it has no experience at all. This digital isolation risks weakening social engagement and fostering\u2014",
                     danglingTo: "understanding-illusion",
                     danglingText: "a dependence on something that may not understand anything at all\u2026",
-                  }),
-                  h("p", null, " This digital isolation risks weakening social engagement, eroding interpersonal skills, and fostering an unhealthy dependency that can exacerbate feelings of loneliness in the long run.")
-                );
+                  }), " This digital isolation risks weakening social engagement, eroding interpersonal skills, and fostering an unhealthy dependency that can exacerbate feelings of loneliness in the long run.");
+                step.append(p);
               },
               (step) => {
-                step.append(
-                  h("p", null, "The integration of AI into our emotional and social lives forces us to redefine what constitutes genuine connection. While AI can complement human interaction by providing support and information, it cannot replicate the depth, complexity, and mutual vulnerability of human relationships. The challenge lies in leveraging AI\u2019s benefits without sacrificing the essential human elements of empathy, shared experience, and authentic relating."),
-                  buildInlineSeed({
+                const p = h("p");
+                p.append("The integration of AI into our emotional and social lives forces us to redefine what constitutes genuine connection. While AI can complement human interaction by providing support and information, it cannot replicate the depth, complexity, and mutual vulnerability of human relationships. The challenge lies in leveraging AI\u2019s benefits without sacrificing the essential human elements of empathy, shared experience, and authentic relating.", buildInlineSeed({
                     id: "ai-psychosis", label: "AI psychosis", state, plateauId, onOpen: onSeedOpen,
                     detail: "A proposed phenomenon where vulnerable individuals misinterpret AI responses as evidence of consciousness or empathy, potentially amplifying delusional thinking. The 'empathy machine' remains a metaphor\u2014but for some, the metaphor becomes dangerously real.",
-                  }),
-                  h("p", null, " Ultimately, the \u201cempathy machine\u201d remains a metaphor; true empathy requires consciousness, shared experience, and vulnerability\u2014qualities currently beyond the grasp of artificial intelligence.")
-                );
+                  }), " Ultimately, the \u201cempathy machine\u201d remains a metaphor; true empathy requires consciousness, shared experience, and vulnerability\u2014qualities currently beyond the grasp of artificial intelligence.");
+                step.append(p);
               },
               (step) => {
                 step.append(h("p", null, "The constellation connects empathy to its deeper questions."));
