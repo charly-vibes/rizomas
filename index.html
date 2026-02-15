@@ -3560,6 +3560,21 @@
 
       let liminalPending = null;
 
+      document.addEventListener("click", (e) => {
+        const link = e.target.closest("a.whisper, a.question-card, a.dangling-link");
+        if (!link) return;
+        const href = link.getAttribute("href");
+        if (!href || !href.startsWith("#/")) return;
+        if (link.classList.contains("whisper")) {
+          liminalPending = link.textContent.trim();
+        } else if (link.classList.contains("question-card")) {
+          const span = link.querySelector("span");
+          liminalPending = span ? span.textContent.trim() : link.textContent.trim();
+        } else if (link.classList.contains("dangling-link")) {
+          liminalPending = link.textContent.trim();
+        }
+      });
+
       const showLiminalTransition = (questionText, callback) => {
         if (prefersReducedMotion() || !questionText) {
           callback();
@@ -3727,8 +3742,9 @@
         const targetId = hash && getPlateau(hash) ? hash : null;
         let question = null;
         if (targetId) {
-          question = ENTRY_QUESTIONS[targetId] || null;
+          question = liminalPending || ENTRY_QUESTIONS[targetId] || null;
         }
+        liminalPending = null;
         renderRoute(question);
       });
       renderRoute();
