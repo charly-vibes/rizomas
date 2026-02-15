@@ -3406,6 +3406,33 @@
               },
             ],
           };
+          const simpleWhisperMap = {
+            "weight-of-words": [
+              { seed: "learning-loop", text: "What does this loop produce, one token at a time?", to: "next-word" },
+              { seed: "data-scale", text: "When scale creates structure, can structure be shaped?", to: "the-shaping" },
+              { seed: "scaling-laws", text: "If capability is a surface, what does the average look like?", to: "averaging-problem" },
+            ],
+            quality: [
+              { seed: "who-decides", text: "How was the model shaped before the raters arrived?", to: "the-shaping" },
+              { seed: "sycophancy", text: "Does fluent agreement mask a deeper illusion?", to: "understanding-illusion" },
+              { seed: "cultural-bias", text: "What practical moves survive these biases?", to: "practical-guide" },
+            ],
+            "understanding-illusion": [
+              { seed: "stochastic-parrot", text: "What does the parrot learn from trillions of tokens?", to: "averaging-problem" },
+              { seed: "world-models", text: "Who decides if these models are good enough?", to: "quality" },
+              { seed: "othello-gpt", text: "What can you do with uncertain understanding?", to: "practical-guide" },
+            ],
+            "practical-guide": [
+              { seed: "narrowing", text: "Where does the vast distribution come from?", to: "weight-of-words" },
+              { seed: "scaffolding", text: "Does the scaffolding create understanding or just fluency?", to: "understanding-illusion" },
+              { seed: "failure-modes", text: "What happens when agents can act on the world?", to: "tool-user" },
+            ],
+            "tool-user": [
+              { seed: "reason-act", text: "How do practical patterns change with agency?", to: "practical-guide" },
+              { seed: "experts", text: "Does routing imply a kind of understanding?", to: "understanding-illusion" },
+              { seed: "delegated-memory", text: "What was the model shaped to do before it got tools?", to: "the-shaping" },
+            ],
+          };
           const seedList = seedMap[plateauId] || [];
           initEngagement(state, plateauId, seedList.length);
           engagementEl.textContent = `${(state.eg[plateauId] || {}).opened || 0} of ${seedList.length} seeds opened`;
