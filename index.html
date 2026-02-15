@@ -3265,11 +3265,6 @@
           main.append(scrolly.section, engagementEl);
           cleanup = scrolly.cleanup;
         } else {
-          const body = h(
-            "p",
-            { style: { color: "var(--ink2)" } },
-            "This plateau will unfold as a field of seeds and facets."
-          );
           const seedMap = {
             "weight-of-words": [
               {
@@ -3422,7 +3417,7 @@
             const scatterWrap = h("div", {
               style: { width: "100%", height: "240px", border: "1px solid var(--ink4)", borderRadius: "20px", marginTop: "24px", overflow: "hidden", position: "relative" },
             }, scatter.container);
-            main.append(body, scatterWrap, seeds, engagementEl);
+            main.append(scatterWrap, seeds, engagementEl);
 
             if (!prefersReducedMotion()) {
               let sTicking = false;
@@ -3455,9 +3450,9 @@
                 },
               ],
             });
-            main.append(body, seeds, fork, engagementEl);
+            main.append(seeds, fork, engagementEl);
           } else {
-            main.append(body, seeds, engagementEl);
+            main.append(seeds, engagementEl);
           }
 
           const cards = h("div", { class: "question-cards" });
