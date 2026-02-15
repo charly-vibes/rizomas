@@ -409,6 +409,10 @@
         border: 0;
       }
 
+      @keyframes viz-nw-blink {
+        50% { opacity: 0; }
+      }
+
       @media (max-width: 840px) {
         .viz-main .viz-slider {
           width: 100%;
@@ -2584,6 +2588,204 @@
         ],
       };
 
+      const buildVizNextWord = (state) => {
+        const sentence = ["The", "model", "looks", "at", "everything", "before", "and", "predicts", "the", "next"];
+        const candidates = [
+          { token: "word", prob: 0.41 },
+          { token: "token", prob: 0.28 },
+          { token: "step", prob: 0.14 },
+          { token: "thing", prob: 0.09 },
+          { token: "move", prob: 0.05 },
+          { token: "one", prob: 0.03 },
+        ];
+        const reduced = prefersReducedMotion;
+
+        let currentState = 1;
+        let temperature = 1.0;
+        let cursorPos = 0;
+
+        const applyTemperature = (probs, temp) => {
+          if (temp <= 0.01) {
+            return probs.map((p, i) => i === 0 ? 1 : 0);
+          }
+          const logits = probs.map((p) => Math.log(Math.max(p, 1e-9)) / temp);
+          const maxLogit = Math.max(...logits);
+          const exps = logits.map((l) => Math.exp(l - maxLogit));
+          const sum = exps.reduce((a, b) => a + b, 0);
+          return exps.map((e) => e / sum);
+        };
+
+        const element = h("div", { class: "viz-next-word", style: {
+          width: "100%", position: "relative", textTransform: "none", letterSpacing: "normal",
+        } });
+
+        const sentenceEl = h("div", { class: "viz-nw-sentence", style: {
+          fontFamily: "'Lora', Georgia, serif", fontSize: "1.1rem", lineHeight: "1.6",
+          padding: "20px 20px 12px", minHeight: "3.2em", color: "var(--ink)",
+        } });
+
+        const canvas = h("canvas", { role: "img", "aria-label": "Probability bars for candidate next tokens" });
+        const canvasWrap = h("div", { style: {
+          width: "100%", height: "160px", padding: "0 20px 8px", display: "none",
+        } });
+        canvasWrap.appendChild(canvas);
+
+        const tempLabel = h("label", { for: "viz-nw-temp", style: {
+          fontSize: "0.8rem", color: "var(--ink2)", letterSpacing: "0.04em",
+          fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif",
+        } }, "Temperature");
+        const tempValue = h("span", { "aria-hidden": "true", style: {
+          fontSize: "0.8rem", color: "var(--ink2)", marginLeft: "auto",
+          fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif",
+        } }, "1.0");
+        const tempSlider = h("input", {
+          type: "range", id: "viz-nw-temp", class: "viz-slider",
+          min: "0.1", max: "2.0", step: "0.1", value: "1.0",
+          "aria-label": "Temperature: controls creativity of word choice",
+          "aria-valuemin": "0.1", "aria-valuemax": "2.0", "aria-valuenow": "1.0",
+        });
+        const controls = h("div", { class: "viz-controls", style: { display: "none" } },
+          tempLabel, tempValue, tempSlider
+        );
+
+        const srStatus = h("div", {
+          class: "viz-sr-status", role: "status", "aria-live": "polite", "aria-atomic": "true",
+        });
+
+        element.append(sentenceEl, canvasWrap, controls, srStatus);
+
+        const renderSentence = () => {
+          sentenceEl.textContent = "";
+          const wordsToShow = Math.min(cursorPos, sentence.length);
+          const text = sentence.slice(0, wordsToShow).join(" ");
+          sentenceEl.appendChild(document.createTextNode(text ? text + " " : ""));
+          const cursor = h("span", { style: {
+            display: "inline-block", width: "2px", height: "1.1em",
+            background: "var(--acc)", verticalAlign: "text-bottom",
+            animation: reduced() ? "none" : "viz-nw-blink 1s step-end infinite",
+          } });
+          sentenceEl.appendChild(cursor);
+        };
+
+        const drawBars = () => {
+          const rect = canvasWrap.getBoundingClientRect();
+          const w = rect.width - 40;
+          const barH = 160;
+          if (w <= 0) return;
+          const ratio = scaleCanvas(canvas, w, barH);
+          const ctx = canvas.getContext("2d");
+          if (!ctx) return;
+          ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+          ctx.clearRect(0, 0, w, barH);
+
+          const styles = getComputedStyle(document.documentElement);
+          const ink = styles.getPropertyValue("--ink").trim();
+          const ink2 = styles.getPropertyValue("--ink2").trim();
+          const ink4 = styles.getPropertyValue("--ink4").trim();
+          const acc = styles.getPropertyValue("--acc").trim();
+
+          const probs = applyTemperature(candidates.map((c) => c.prob), temperature);
+          const maxProb = Math.max(...probs);
+          const rowH = barH / candidates.length;
+          const labelW = 52;
+          const barMaxW = w - labelW - 56;
+
+          candidates.forEach((c, i) => {
+            const y = i * rowH;
+            const prob = probs[i];
+            const barW = (prob / maxProb) * barMaxW;
+
+            ctx.fillStyle = ink2;
+            ctx.font = "12px system-ui, -apple-system, 'Segoe UI', sans-serif";
+            ctx.textBaseline = "middle";
+            ctx.textAlign = "left";
+            ctx.fillText(c.token, 0, y + rowH / 2);
+
+            ctx.fillStyle = i === 0 ? acc : ink4;
+            ctx.globalAlpha = 0.7 + prob * 0.3;
+            const barRadius = 3;
+            const barX = labelW;
+            const barY = y + rowH / 2 - 8;
+            ctx.beginPath();
+            ctx.roundRect(barX, barY, Math.max(barW, 2), 16, barRadius);
+            ctx.fill();
+            ctx.globalAlpha = 1;
+
+            ctx.fillStyle = ink2;
+            ctx.textAlign = "left";
+            ctx.fillText((prob * 100).toFixed(1) + "%", labelW + barW + 8, y + rowH / 2);
+          });
+        };
+
+        const updateState = () => {
+          if (currentState === 1) {
+            canvasWrap.style.display = "none";
+            controls.style.display = "none";
+            renderSentence();
+            srStatus.textContent = `Typing: "${sentence.slice(0, Math.min(cursorPos, sentence.length)).join(" ")}"`;
+          } else if (currentState === 2) {
+            cursorPos = sentence.length;
+            renderSentence();
+            canvasWrap.style.display = "block";
+            controls.style.display = "none";
+            drawBars();
+            const desc = candidates.map((c) => `${c.token}: ${(c.prob * 100).toFixed(0)}%`).join(", ");
+            srStatus.textContent = `Next token candidates: ${desc}`;
+          } else if (currentState === 3) {
+            cursorPos = sentence.length;
+            renderSentence();
+            canvasWrap.style.display = "block";
+            controls.style.display = "flex";
+            drawBars();
+            const probs = applyTemperature(candidates.map((c) => c.prob), temperature);
+            const desc = candidates.map((c, i) => `${c.token}: ${(probs[i] * 100).toFixed(0)}%`).join(", ");
+            srStatus.textContent = `Temperature ${temperature.toFixed(1)}. Distribution: ${desc}`;
+          }
+        };
+
+        tempSlider.addEventListener("input", () => {
+          temperature = parseFloat(tempSlider.value);
+          tempValue.textContent = temperature.toFixed(1);
+          tempSlider.setAttribute("aria-valuenow", temperature.toFixed(1));
+          drawBars();
+          const probs = applyTemperature(candidates.map((c) => c.prob), temperature);
+          const desc = candidates.map((c, i) => `${c.token}: ${(probs[i] * 100).toFixed(0)}%`).join(", ");
+          srStatus.textContent = `Temperature ${temperature.toFixed(1)}. Distribution: ${desc}`;
+        });
+
+        const onStep = (idx) => {
+          const totalSteps = 5;
+          if (idx >= totalSteps - 1) {
+            currentState = 0;
+            canvasWrap.style.display = "none";
+            controls.style.display = "none";
+            return;
+          }
+          if (idx <= 1) currentState = 1;
+          else if (idx === 2) currentState = 2;
+          else currentState = 3;
+          updateState();
+        };
+
+        const scrubUpdate = (stepIdx, progress) => {
+          if (currentState === 1) {
+            const totalWords = sentence.length;
+            const globalProgress = (stepIdx + progress) / 2;
+            cursorPos = Math.floor(globalProgress * (totalWords + 1));
+            renderSentence();
+          }
+        };
+
+        updateState();
+
+        return {
+          element,
+          onStep,
+          scrubUpdate,
+          cleanup: () => {},
+        };
+      };
+
       const buildPlateauView = (state, plateauId) => {
         recordVisit(state, plateauId);
         const plateau = getPlateau(plateauId);
@@ -3843,7 +4045,9 @@
           initEngagement(state, plateauId, totalInlineSeeds);
           engagementEl.textContent = `${(state.eg[plateauId] || {}).opened || 0} of ${totalInlineSeeds} seeds opened`;
 
-          const vizBuilders = {};
+          const vizBuilders = {
+            "next-word": buildVizNextWord,
+          };
           const vizBuilder = vizBuilders[plateauId];
           const viz = vizBuilder ? vizBuilder(state) : null;
 
