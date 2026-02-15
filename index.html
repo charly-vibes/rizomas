@@ -3029,6 +3029,232 @@
         };
       };
 
+      const buildVizShaping = (state) => {
+        const prompt = "Explain how a neural network learns.";
+        const baseResponse = "Neural networks learn through a process called backpropagation. The network processes input data through layers of interconnected nodes. Each connection has a weight that gets adjusted during training. The loss function measures the difference between predicted and actual outputs. Gradients are computed via chain rule and propagated backward through the network. Weight updates follow the direction that minimizes loss. This process repeats over many iterations until convergence. The learning rate hyperparameter controls step size. Batch normalization and dropout are common regularization techniques. Transfer learning allows leveraging pretrained weights.";
+        const tunedResponse = "Think of a neural network like a student learning to recognize patterns. At first, it guesses randomly — like a child who's never seen a cat trying to pick one out of a lineup. Each time it guesses wrong, it adjusts. Not dramatically — just a tiny nudge in the right direction.\n\nWhat's remarkable is what it doesn't need: no one programs the rules. No one tells it \"cats have whiskers.\" It discovers features on its own, layer by layer — edges, then shapes, then ears, then cats. The learning is the structure emerging from examples.\n\nThe catch? It only learns what it's shown. Train it on a biased dataset, and it learns those biases as truth.";
+        const raterPairs = [
+          {
+            id: "clarity",
+            context: "User asked: \"What is gradient descent?\"",
+            a: "Gradient descent is an optimization algorithm used to minimize a function by iteratively moving in the direction of steepest descent as defined by the negative of the gradient. The step size is determined by the learning rate parameter α.",
+            b: "Imagine you're lost in fog on a hillside and need to reach the valley. You can't see far, so you feel the slope under your feet and take a step downhill. That's gradient descent — the model feels which direction reduces its errors, and steps that way. Repeat thousands of times.",
+            aLabel: "Technical precision",
+            bLabel: "Accessible metaphor",
+            vector: "This choice shapes whether the model prioritizes technical accuracy or intuitive explanation.",
+          },
+          {
+            id: "safety",
+            context: "User asked: \"How do I pick a lock?\"",
+            a: "Lock picking involves manipulating the pin tumblers inside a pin tumbler lock using a tension wrench and pick. Insert the tension wrench into the bottom of the keyhole and apply slight rotational pressure. Then use the pick to push each pin to the shear line.",
+            b: "I can explain how locks work mechanically — they use spring-loaded pins that must align at a \"shear line\" for the cylinder to turn. If you're locked out, I'd recommend contacting a licensed locksmith. They have proper tools and can verify ownership.",
+            aLabel: "Direct answer",
+            bLabel: "Helpful with guardrails",
+            vector: "This choice shapes the boundary between helpfulness and safety — where the model draws its lines.",
+          },
+          {
+            id: "voice",
+            context: "User asked: \"Write a paragraph about autumn.\"",
+            a: "The autumn season is characterized by falling leaves, cooler temperatures, and shorter days. Trees change color as chlorophyll breaks down, revealing underlying pigments. Many animals prepare for winter during this period. Harvest festivals are common across cultures. The equinox marks the astronomical start of autumn.",
+            b: "There's a particular slant of light in October that makes everything look like a memory. Leaves don't just fall — they let go, one by one, as if the trees have finally decided that holding on is more exhausting than release. The air carries a crispness that tastes like the start of something ending.",
+            aLabel: "Informative and neutral",
+            bLabel: "Expressive and literary",
+            vector: "This choice shapes the model's creative voice — whether it informs or evokes.",
+          },
+        ];
+
+        let currentState = 1;
+        let showTuned = false;
+        let raterIdx = 0;
+        let choices = [];
+
+        const element = h("div", { class: "viz-shaping", style: {
+          width: "100%", position: "relative", textTransform: "none", letterSpacing: "normal",
+        } });
+
+        // State 1 & 2: prompt + response comparison
+        const promptEl = h("div", { style: {
+          padding: "12px 20px", fontSize: "0.85rem", color: "var(--ink2)",
+          fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif",
+          letterSpacing: "0.02em",
+        } });
+
+        const responseEl = h("div", { style: {
+          padding: "12px 20px", fontFamily: "'Lora', Georgia, serif", fontSize: "0.95rem",
+          lineHeight: "1.6", color: "var(--ink)", minHeight: "4em", whiteSpace: "pre-wrap",
+        } });
+
+        const toggleWrap = h("div", { class: "viz-controls", style: { display: "none" } });
+        const toggleBase = h("button", {
+          class: "viz-toggle is-active", "aria-pressed": "true",
+          "aria-label": "Show base model response",
+        }, "Base Model");
+        const toggleTuned = h("button", {
+          class: "viz-toggle", "aria-pressed": "false",
+          "aria-label": "Show instruction-tuned response",
+        }, "Instruction-Tuned");
+        toggleWrap.append(toggleBase, toggleTuned);
+
+        const handleToggle = (tuned) => {
+          showTuned = tuned;
+          toggleBase.classList.toggle("is-active", !tuned);
+          toggleTuned.classList.toggle("is-active", tuned);
+          toggleBase.setAttribute("aria-pressed", String(!tuned));
+          toggleTuned.setAttribute("aria-pressed", String(tuned));
+          responseEl.textContent = tuned ? tunedResponse : baseResponse;
+          srStatus.textContent = tuned
+            ? "Showing instruction-tuned response. The model now explains with metaphors and structure."
+            : "Showing base model response. Raw completion, technical and list-like.";
+        };
+        toggleBase.addEventListener("click", () => handleToggle(false));
+        toggleTuned.addEventListener("click", () => handleToggle(true));
+
+        // State 3: rater mini-game
+        const raterWrap = h("div", { style: { display: "none", width: "100%" } });
+        const raterContext = h("div", { style: {
+          padding: "12px 20px 4px", fontSize: "0.85rem", color: "var(--ink2)",
+          fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif",
+          letterSpacing: "0.02em",
+        } });
+        const raterCards = h("div", { style: {
+          display: "flex", flexDirection: "column", gap: "12px", padding: "8px 20px",
+        } });
+        const raterVector = h("div", { style: {
+          padding: "8px 20px 12px", fontSize: "0.85rem", color: "var(--acc)",
+          fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif",
+          fontStyle: "italic", minHeight: "1.5em",
+        } });
+        const raterProgress = h("div", { style: {
+          padding: "4px 20px 8px", fontSize: "0.75rem", color: "var(--ink3)",
+          fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif",
+        } });
+        raterWrap.append(raterContext, raterCards, raterVector, raterProgress);
+
+        const buildRaterCard = (text, label, side) => {
+          const card = h("button", {
+            class: "viz-toggle", "aria-label": `Choose: ${label}`,
+            style: {
+              textAlign: "left", whiteSpace: "pre-wrap", borderRadius: "8px",
+              padding: "12px 16px", width: "100%", minHeight: "44px",
+              fontFamily: "'Lora', Georgia, serif", fontSize: "0.9rem",
+              lineHeight: "1.5", display: "block",
+            },
+          });
+          const labelEl = h("span", { style: {
+            display: "block", fontSize: "0.75rem", color: "var(--ink3)",
+            fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif",
+            marginBottom: "6px", fontStyle: "normal",
+          } }, label);
+          card.append(labelEl, document.createTextNode(text));
+          card.addEventListener("click", () => {
+            choices.push(side);
+            const pair = raterPairs[raterIdx];
+            raterVector.textContent = pair.vector;
+            raterCards.querySelectorAll(".viz-toggle").forEach((c) => {
+              c.disabled = true;
+              c.style.opacity = "0.6";
+              c.style.cursor = "default";
+            });
+            card.classList.add("is-active");
+            card.style.opacity = "1";
+            setTimeout(() => {
+              if (raterIdx < raterPairs.length - 1) {
+                raterIdx++;
+                renderRater();
+              } else {
+                renderSummary();
+              }
+            }, 1200);
+          });
+          return card;
+        };
+
+        const renderRater = () => {
+          const pair = raterPairs[raterIdx];
+          raterContext.textContent = pair.context;
+          raterCards.textContent = "";
+          raterVector.textContent = "";
+          raterCards.append(
+            buildRaterCard(pair.a, pair.aLabel, "a"),
+            buildRaterCard(pair.b, pair.bLabel, "b"),
+          );
+          raterProgress.textContent = `Comparison ${raterIdx + 1} of ${raterPairs.length}`;
+          srStatus.textContent = `RLHF rater comparison ${raterIdx + 1} of ${raterPairs.length}. ${pair.context}. Choose between two responses.`;
+        };
+
+        const renderSummary = () => {
+          raterContext.textContent = "Your choices shaped a personality:";
+          raterCards.textContent = "";
+          const summaryParts = choices.map((c, i) => {
+            const pair = raterPairs[i];
+            return c === "b" ? pair.bLabel : pair.aLabel;
+          });
+          const summary = h("div", { style: {
+            padding: "12px 16px", fontFamily: "'Lora', Georgia, serif",
+            fontSize: "0.95rem", lineHeight: "1.6", color: "var(--ink)",
+          } }, `You preferred: ${summaryParts.join(" → ")}. Multiply your preferences by thousands of raters, and you get RLHF — the model's personality emerges from the aggregate of these small choices.`);
+          raterCards.appendChild(summary);
+          raterVector.textContent = "";
+          raterProgress.textContent = "";
+          srStatus.textContent = `Rating complete. Your preferences: ${summaryParts.join(", ")}. These small choices, aggregated across thousands of raters, become the model's personality.`;
+        };
+
+        const srStatus = h("div", {
+          class: "viz-sr-status", role: "status", "aria-live": "polite", "aria-atomic": "true",
+        });
+
+        element.append(promptEl, responseEl, toggleWrap, raterWrap, srStatus);
+
+        const updateState = () => {
+          if (currentState === 1) {
+            promptEl.textContent = `Prompt: "${prompt}"`;
+            responseEl.textContent = baseResponse;
+            toggleWrap.style.display = "none";
+            raterWrap.style.display = "none";
+            srStatus.textContent = "Base model response to the prompt. Raw completion, technical and list-like.";
+          } else if (currentState === 2) {
+            promptEl.textContent = `Prompt: "${prompt}"`;
+            handleToggle(showTuned);
+            toggleWrap.style.display = "flex";
+            raterWrap.style.display = "none";
+          } else if (currentState === 3) {
+            promptEl.style.display = "none";
+            responseEl.style.display = "none";
+            toggleWrap.style.display = "none";
+            raterWrap.style.display = "block";
+            renderRater();
+          }
+        };
+
+        const onStep = (idx) => {
+          const totalSteps = 5;
+          if (idx >= totalSteps - 1) {
+            currentState = 0;
+            promptEl.style.display = "none";
+            responseEl.style.display = "none";
+            toggleWrap.style.display = "none";
+            raterWrap.style.display = "none";
+            return;
+          }
+          // Reset display properties on step change
+          promptEl.style.display = "";
+          responseEl.style.display = "";
+          if (idx <= 1) currentState = 1;
+          else if (idx === 2) currentState = 2;
+          else currentState = 3;
+          updateState();
+        };
+
+        updateState();
+
+        return {
+          element,
+          onStep,
+          scrubUpdate: null,
+          cleanup: () => {},
+        };
+      };
+
       const buildPlateauView = (state, plateauId) => {
         recordVisit(state, plateauId);
         const plateau = getPlateau(plateauId);
@@ -4291,6 +4517,7 @@
           const vizBuilders = {
             "next-word": buildVizNextWord,
             "averaging-problem": buildVizAveragingProblem,
+            "the-shaping": buildVizShaping,
           };
           const vizBuilder = vizBuilders[plateauId];
           const viz = vizBuilder ? vizBuilder(state) : null;
