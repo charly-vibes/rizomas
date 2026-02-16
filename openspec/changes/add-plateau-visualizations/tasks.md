@@ -9,7 +9,7 @@
 - [ ] 2.3 **The Shaping visualization**: Implement per plateaus spec visual states 1–3. Author sample content: prompt, base-model completion, instruction-tuned response, 2–3 rater comparison pairs. Map to scrolly steps per design.md step-index mapping.
 
 ## 3. File-Size Gate
-- [ ] 3.1 After Tier 1 is complete, measure `index.html` line count. If >5000 lines, introduce a lightweight build step (partial concatenation) before proceeding to Tier 2. Document the decision.
+- [x] 3.1 After Tier 1 is complete, measure `index.html` line count. If >5000 lines, introduce a lightweight build step (partial concatenation) before proceeding to Tier 2. Document the decision. — **Result: 5127 lines, build step introduced. `src/` partials + `build.sh` concatenation. Tier 2 viz files go in `src/js/` with `2x_` prefix.**
 
 ## 4. Tier 2 — Remaining Plateaus (each requires a design pass first)
 - [ ] 4.1 **Near-Zero Cost Impact**: Design pass (wireframe-level DOM/canvas structure, sample data), then implement per plateaus spec visual states 1–5.
