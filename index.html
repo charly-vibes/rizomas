@@ -185,6 +185,20 @@
         cursor: pointer;
       }
 
+      .mini-map-icon {
+        display: none;
+        position: absolute;
+        inset: 0;
+        align-items: center;
+        justify-content: center;
+        pointer-events: none;
+      }
+
+      .mini-map-icon svg {
+        width: 20px;
+        height: 20px;
+      }
+
       .rhizome-overlay {
         position: fixed;
         inset: 0;
@@ -1035,6 +1049,14 @@
           bottom: 20px;
         }
 
+        .mini-map canvas {
+          display: none;
+        }
+
+        .mini-map-icon {
+          display: block;
+        }
+
         .scrolly-viz {
           height: 38vh;
         }
@@ -1716,7 +1738,9 @@
           type: "button",
           "aria-label": "Open navigation map",
         });
-        container.append(canvas, button);
+        const icon = h("div", { class: "mini-map-icon" });
+        icon.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><circle cx="5" cy="6" r="2"/><circle cx="19" cy="7" r="2"/><circle cx="7" cy="18" r="2"/><circle cx="18" cy="17" r="2"/><line x1="12" y1="9" x2="7" y2="7.2"/><line x1="12" y1="9" x2="17.2" y2="7.4"/><line x1="12" y1="15" x2="8.4" y2="16.8"/><line x1="12" y1="15" x2="16.6" y2="16.2"/></svg>';
+        container.append(canvas, icon, button);
 
         let visited = new Set(state.v);
         let activeId = currentId || null;
@@ -1798,7 +1822,8 @@
         };
 
         const startAnimation = () => {
-          if (prefersReducedMotion() || isMobile()) {
+          if (isMobile()) return;
+          if (prefersReducedMotion()) {
             render(1);
             return;
           }
@@ -1825,14 +1850,16 @@
         visObserver.observe(container);
 
         const resizeObserver = new ResizeObserver(() => {
-          if (prefersReducedMotion() || isMobile()) {
+          if (!isMobile() && prefersReducedMotion()) {
             render(1);
           }
         });
         resizeObserver.observe(container);
 
-        render(1);
-        startAnimation();
+        if (!isMobile()) {
+          render(1);
+          startAnimation();
+        }
 
         const updateContext = (newState, newCurrentId) => {
           const newVisited = new Set(newState.v);
@@ -1853,8 +1880,8 @@
           trailNodes = newTrail;
           traversedEdges = newState.te || deriveTraversedEdges(newState.tr);
 
-          if (prefersReducedMotion() || isMobile()) {
-            render(1);
+          if (!isMobile()) {
+            if (prefersReducedMotion()) render(1);
           }
         };
 
