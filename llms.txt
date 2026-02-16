@@ -1,0 +1,25 @@
+# How LLMs Actually Work
+
+> A rhizomatic, non-linear interactive essay exploring how Large Language Models work — from token prediction to societal impact. Readers navigate freely between 17 interconnected "plateaus," each examining a different facet of LLMs.
+
+The site is a single-page application with hash-based routing. There are no separate URLs for individual sections — all content lives in `index.html` and is navigated via `#/plateau-id` fragments. The experience is designed to be explored in any order; reading history shapes what the reader sees next.
+
+## Plateaus
+
+- [The Next Word](#/next-word): How models predict the next token, temperature, and context windows
+- [The Weight of Words](#/weight-of-words): Training via gradient descent, scaling laws, and emergent structure
+- [The Averaging Problem](#/averaging-problem): How training on everything produces an averaged voice, and how prompts steer it
+- [The Shaping](#/the-shaping): RLHF, instruction tuning, reward models, and how base models become assistants
+- [What Is Quality?](#/quality): Who decides what "good" means — raters, cultural bias, sycophancy, and competing alignment goals
+- [The Understanding Illusion](#/understanding-illusion): Whether models understand — stochastic parrots, Chinese Room, Othello-GPT, and emergent world models
+- [The Field Guide](#/practical-guide): Practical techniques — prompt scaffolding, trust calibration, failure modes, and iterative workflows
+- [The Tool-User](#/tool-user): Agentic AI, function calling, mixture of experts, and delegated memory
+- [The Algorithm as Muse](#/algorithm-as-muse): AI and creativity — co-creation, copyright, originality, and homogenization
+- [Echoes of the Past](#/echoes-of-the-past): AI in historical analysis — bias in training data, hallucinated history, and counter-storytelling
+- [Learning Machines, Learning Humans](#/learning-machines-learning-humans): AI in education — personalized learning, cognitive struggle, and the evolving role of teachers
+- [The Automation of Cognition](#/automation-of-cognition): White-collar automation, cognitive load, wealth distribution, and UBI
+- [The Black Box Oracle](#/black-box-oracle): Explainability, XAI, transparency trade-offs, and accountability in opaque systems
+- [Digital Footprints](#/digital-footprints): Energy consumption, carbon footprint, water usage, e-waste, and sustainable AI
+- [The Near-Zero Cost Impact](#/near-zero-cost-impact): Near-zero marginal cost, infobesity, deepfakes, and historical parallels
+- [The Artificial Brain](#/artificial-brain): Brain vs. neural network — efficiency, embodied cognition, consciousness, and qualia
+- [The Empathy Machine?](#/empathy-machine): AI companionship, anthropomorphism, parasocial relationships, and AI psychosis

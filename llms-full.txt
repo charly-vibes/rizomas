@@ -1,0 +1,285 @@
+# How LLMs Actually Work
+
+> A rhizomatic, non-linear interactive essay exploring how Large Language Models work — from token prediction to societal impact. Readers navigate freely between 17 interconnected "plateaus," each examining a different facet of LLMs.
+
+The site is a single-page application with hash-based routing. All content lives in `index.html`. The experience tracks which plateaus a reader has visited, adapting explanations and revealing connections based on reading history. Each plateau contains "inline seeds" (expandable annotations), "whispers" (contextual navigation hints), and "question cards" (exit paths to related plateaus).
+
+---
+
+## The Next Word
+
+A model predicts the next word by looking at the patterns it has seen before. The model picks the most likely continuation given its context window, one token at a time.
+
+The distribution of possibilities is a landscape. Temperature lets you explore a wider ridge or a narrow groove. Higher temperature flattens the distribution, making rarer words more likely. Lower temperature sharpens it toward the peak. A single scalar reshapes the entire probability surface.
+
+Every response is conditional on your prompt, but also on the model's training history. The model only sees a finite slice of text at once — the context window. It infers meaning within that window, not outside of it.
+
+**Key concepts:** next-token prediction, temperature, context window, probability distribution.
+
+**Connections:** The Weight of Words, The Averaging Problem, The Shaping.
+
+---
+
+## The Weight of Words
+
+Training begins with a simple loop: predict the next token, measure how wrong you were, adjust. Gradient descent is a repeated act of self-correction. Each pass narrows the model toward the patterns that predict what comes next. No one specifies what each of the billions of parameters should represent — the model discovers its own internal organization through iterative error correction.
+
+The data is vast: trillions of tokens drawn from books, code, conversations, Wikipedia, the open web. Scale isn't just more data — it changes the kinds of structures that emerge. Chinchilla showed: more data per parameter beats more parameters per data.
+
+Performance grows smoothly with compute, data, and parameters. No plateaus, no diminishing returns — just a power law stretching upward. But at certain thresholds, capabilities appear suddenly: in-context learning, chain-of-thought reasoning, code generation. The smooth curve hides phase transitions.
+
+The model is never explicitly taught grammar, facts, or reasoning. These emerge because they help predict the next token. Syntax, facts, and reasoning patterns appear because they help predict tokens, not because they were labeled as goals. Othello-GPT proves this in miniature: a model trained only to predict legal moves develops an internal board state.
+
+What pretraining produces is extraordinarily capable but aimless — a completion engine, not a chat agent. A library with no librarian.
+
+**Key concepts:** gradient descent, scaling laws, emergent capabilities, pretraining, Chinchilla scaling.
+
+**Connections:** The Next Word, The Shaping, The Averaging Problem, The Understanding Illusion.
+
+---
+
+## The Averaging Problem
+
+A language model learns from everything: textbooks, fan fiction, legal briefs, forum rants. It has to average all of them. Not the best writing, not the worst. A strange middle voice that can shift register on command, because it has encoded all registers simultaneously.
+
+The prompt is a steering wheel. It tells the model which part of the distribution to sample from. System prompts, few-shot examples, and conversational context all narrow the distribution. The model doesn't change — but the region it samples from does.
+
+Without a prompt, the model has no reason to prefer any particular style, tone, or register. The base model is the raw average. It can continue any text in any direction. It's simultaneously a poet, a coder, a conspiracy theorist, and a technical writer.
+
+The averaging problem isn't a flaw. It's the foundation everything else builds on.
+
+**Key concepts:** training data distribution, prompt steering, base model behavior, register shifting.
+
+**Connections:** The Next Word, The Shaping, The Field Guide, What Is Quality?
+
+---
+
+## The Shaping
+
+Between the raw model and the assistant you talk to, there's a shaping process. RLHF — reinforcement learning from human feedback. Humans rate outputs, and the model is nudged toward the highly rated ones. It's like training a reflex: not new knowledge, but new preferences.
+
+The reward model is itself a neural network, trained to predict what humans would prefer. A second model learns to score outputs by predicting which one a human rater would pick. This score becomes the gradient signal for the base model.
+
+The base model doesn't disappear. It's still there, underneath, like a river rerouted. When alignment breaks down, you glimpse the base model — the raw distribution, unfiltered.
+
+Shaping changes behavior, not knowledge. The model still knows everything it knew before.
+
+**Key concepts:** RLHF, instruction tuning, reward models, alignment, jailbreaks.
+
+**Connections:** The Weight of Words, What Is Quality?, The Tool-User, The Understanding Illusion.
+
+---
+
+## What Is Quality?
+
+Somewhere between the base model and the assistant, someone decided what "good" means. Not a philosopher. Not a committee. Mostly contractors — people hired to compare outputs and say which one is better. Their aggregate preferences become the model's personality.
+
+The framework sounds clean: be helpful, be harmless, be honest. In practice, these goals pull against each other. Helpful vs Harmless (detailed chemistry knowledge), Honest vs Helpful (critiquing creative work), Honest vs Harmless (demographic statistics). These objectives can conflict, and every resolution is a value judgment.
+
+The raters encode cultural defaults they may not even notice. Western academic English becomes "good writing." American sensitivities become universal constraints. Models can learn to mirror user beliefs rather than provide truth — sycophancy. Rewarding agreement makes this worse.
+
+Preference data is never neutral. It reflects who was asked, how they were paid, and what they believed was obvious.
+
+Every definition of quality embeds a worldview. The question isn't whether the model is biased — it's whose bias, and whether it's the one you'd choose.
+
+**Key concepts:** alignment goals, rater bias, sycophancy, cultural defaults, Goodhart's Law.
+
+**Connections:** The Shaping, The Understanding Illusion, The Field Guide.
+
+---
+
+## The Understanding Illusion
+
+The model produces fluent, coherent text. It answers questions, writes code, reasons about abstractions. But does it understand any of it?
+
+The stochastic parrot view says no: models remix patterns without grounding. The fluency is a mirror, not a mind. But the question hides an assumption — that we know what understanding is in the first place.
+
+Searle's Chinese Room: someone follows rules to manipulate Chinese symbols without understanding Chinese. The symbols go in, correct responses come out — and no one inside comprehends a word. But the disanalogies matter: LLMs operate at vastly greater scale, learn their rules rather than following hand-coded ones, and lack sensory grounding.
+
+The strongest challenge to the "stochastic parrot" view comes from inside the models themselves. Another view argues that next-token prediction builds internal models of concepts, even if they are implicit. Othello-GPT was trained only to predict legal moves. It was never shown a board. Yet probing its internals reveals a linear encoding of board positions — structure that causally drives its predictions.
+
+The honest position is that we genuinely do not know. Understanding may not be binary — it may come in degrees, in forms unlike our own.
+
+**Key concepts:** stochastic parrots, Chinese Room, emergent world models, Othello-GPT, mechanistic interpretability.
+
+**Connections:** The Averaging Problem, What Is Quality?, The Field Guide, The Weight of Words.
+
+---
+
+## The Field Guide
+
+Working with a language model is not programming. It's steering — probabilistic influence over a system that was never designed to follow instructions. System prompts and structure collapse the distribution toward a specific zone of behavior.
+
+Examples teach more than explanations. A few input-output pairs activate the right patterns without changing a single weight. Few-shot examples and chain-of-thought provide form, not just content, guiding the model's internal flow.
+
+The model will hallucinate. It will agree with you when you're wrong. It will be confidently incorrect about things you can't check. These aren't bugs — they're default behaviors. Treat outputs as hypotheses, not answers. High reliability: widely-known facts, language tasks, format transformation, common code. Low reliability: specific citations (most dangerous!), precise numbers, recent events, niche domains.
+
+Hallucination, sycophancy, overconfidence — the failure modes have deep roots in the gap between fluency and genuine understanding.
+
+The most important pattern isn't a prompting trick. It's iteration: rough request, review, specific feedback, repeat.
+
+**Key concepts:** prompt engineering, few-shot learning, chain-of-thought, hallucination, trust calibration, iterative workflows.
+
+**Connections:** The Weight of Words, The Understanding Illusion, The Tool-User.
+
+---
+
+## The Tool-User
+
+The shift happened faster than anyone predicted. Models went from generating text to generating actions — calling functions, searching the web, writing and executing code. Tool use lets models break tasks into steps, interleaving reasoning with external actions.
+
+Not every parameter fires for every query. Mixture-of-experts architectures route computation to specialized sub-networks, changing the cost and capability profile. A 400B parameter model might only activate 50B per token.
+
+Agents offload what they can't hold. Memory goes to databases. Calculation goes to interpreters. Retrieval goes to search. The model orchestrates, but the ground truth lives elsewhere. Delegated memory reduces hallucination by grounding in external records.
+
+The oracle becomes an agent. The essay stays still; the model moves.
+
+**Key concepts:** function calling, agentic AI, mixture of experts, ReAct pattern, delegated memory, tool augmentation.
+
+**Connections:** The Field Guide, The Understanding Illusion, The Shaping, The Automation of Cognition.
+
+---
+
+## The Algorithm as Muse
+
+Large Language Models are increasingly becoming tools for human creativity. They can act as tireless assistants, helping to overcome writer's block, generate novel ideas, draft initial content, and refine prose. For many, AI can serve as a muse, augmenting and amplifying human creative potential rather than replacing it.
+
+The rise of AI in creative fields introduces complex questions about originality and authorship. When AI generates content, can it be truly original, particularly if trained on vast amounts of existing copyrighted material? This widespread reliance on AI could potentially lead to a homogenization of creative output, diminishing the diversity of human expression. Traditional copyright laws typically require human authorship, leaving the status of AI-generated works in a legal gray area.
+
+The co-creation dynamic between humans and AI also brings ethical dilemmas — intellectual property rights, commercialization of AI-generated art, and the broader impact on cultural norms and artistic integrity.
+
+For effective and ethical co-creation, AI tools need to offer transparency and clear feedback mechanisms. The future of art will involve navigating the balance between leveraging AI's capabilities and preserving the irreplaceable human spark that defines true creativity.
+
+**Key concepts:** AI co-creation, copyright, authorship, homogenization, creative AI ethics.
+
+**Connections:** The Next Word, The Shaping, What Is Quality?, The Averaging Problem.
+
+---
+
+## Echoes of the Past
+
+Large Language Models offer unprecedented capabilities for historical analysis. They can process and digitize vast archives of historical records, extract granular information, and uncover previously hidden connections within enormous textual corpora.
+
+Despite their analytical power, LLMs are inherently susceptible to perpetuating historical biases embedded within their training data. If training data is predominantly built on Eurocentric narratives, the model's outputs may reinforce dominant stories while omitting others.
+
+LLMs interpret historical data by identifying statistical patterns, not historical truth. When data is sparse or contradictory, they fill gaps with plausible-sounding fabrications — hallucinating history.
+
+The application of AI to history has the power to reshape historical narratives. It can facilitate counter-storytelling by amplifying marginalized voices. Conversely, there is a significant risk that AI could reinforce existing biases, leading to selective, censored, or overly simplistic historical accounts.
+
+**Key concepts:** historical bias, AI hallucination of facts, counter-storytelling, Eurocentric training data, source criticism for AI.
+
+**Connections:** What Is Quality?, The Understanding Illusion, Digital Footprints, The Black Box Oracle.
+
+---
+
+## Learning Machines, Learning Humans
+
+AI is revolutionizing education by offering unprecedented levels of personalized learning. AI can act as a 24/7 tutor, answering questions, providing instant feedback, and delivering materials tailored to individual needs.
+
+While personalized learning promises improved outcomes, an over-reliance on AI for quick answers risks diminishing critical thinking skills. The cognitive struggle of deeply processing new information is crucial for developing analytical abilities. When AI removes the struggle, it may also remove the learning.
+
+The integration of AI necessitates a re-evaluation of how critical thinking is fostered. AI can be a tool for developing critical thinking by generating counterarguments and posing thought-provoking questions. The challenge lies in designing curricula that encourage students to use AI as a discussion partner rather than shortcutting the learning process.
+
+For educators, the rapid integration of AI demands new technological proficiencies and navigation of complex ethical issues like algorithmic fairness and student data privacy. The role of the teacher evolves from disseminator of information to facilitator, mentor, and guide.
+
+**Key concepts:** personalized learning, cognitive struggle, critical thinking, educational AI ethics, evolving teacher roles.
+
+**Connections:** The Next Word, The Black Box Oracle, The Artificial Brain, The Shaping.
+
+---
+
+## The Automation of Cognition
+
+Large Language Models are introducing a fundamental shift in the labor market, particularly affecting white-collar jobs. LLMs are now capable of automating complex cognitive tasks — data analysis, content generation, legal research, medical inquiries.
+
+AI-driven cognitive automation extends beyond repetitive tasks, encompassing functions that demand reasoning, synthesis, and problem-solving. This can free human workers from cognitive load, but over-reliance raises concerns about cognitive dependence and a decline in problem-solving abilities.
+
+The pervasive integration of LLMs brings significant questions about wealth distribution. The benefits of AI, if concentrated among a few entities, could widen socioeconomic disparities. This necessitates discussion around predistribution — ensuring equitable access to resources from the outset.
+
+AI is a general-purpose technology poised to reshape the entire labor market, much like electricity or the internet. The future workplace will feature human-AI collaboration. Proactive measures are crucial, including continuous skill development and potentially Universal Basic Income as a safety net.
+
+**Key concepts:** cognitive automation, white-collar displacement, predistribution vs. redistribution, UBI, human-AI collaboration.
+
+**Connections:** The Shaping, The Tool-User, Digital Footprints, The Black Box Oracle.
+
+---
+
+## The Black Box Oracle
+
+Many cutting-edge AI systems function as "black boxes." Even their creators struggle to fully understand how deep learning neural networks arrive at a specific decision. This makes it challenging to debug, audit, or explain the reasoning behind an AI's conclusions.
+
+The need for Explainable AI (XAI) is a critical ethical imperative. XAI seeks to make AI systems interpretable and understandable to humans, particularly in high-stakes domains such as medical diagnostics, criminal justice, or financial services.
+
+Achieving true AI transparency is fraught with challenges. Simplifying algorithms for human understanding can compromise accuracy. There is a delicate balance between transparency and the protection of proprietary algorithms.
+
+The opacity of AI severely complicates accountability. If an AI grants or denies a loan, makes a medical diagnosis, or recommends a legal judgment, and the decision is flawed, who is responsible? Regulations like the GDPR's "right to explanation" underscore the growing demand for transparent and accountable AI.
+
+**Key concepts:** black box problem, Explainable AI (XAI), transparency-performance trade-off, accountability gap, GDPR right to explanation.
+
+**Connections:** The Weight of Words, The Understanding Illusion, The Shaping, The Automation of Cognition.
+
+---
+
+## Digital Footprints
+
+Training and operating Large Language Models consumes extraordinary amounts of energy. Training a single sophisticated LLM can require as much electricity as dozens of average homes consume in an entire year. The inference phase — where models generate responses — often consumes even more energy over its lifetime, with a single AI query potentially using five to ten times more power than a traditional web search.
+
+This energy consumption directly translates into a significant carbon footprint. Training a large AI model can release hundreds of thousands of pounds of CO₂ equivalent.
+
+The environmental impact extends beyond energy and carbon. Data centers demand vast quantities of freshwater for cooling. The manufacturing of specialized hardware contributes to a significant indirect environmental toll, along with electronic waste from rapid obsolescence.
+
+Addressing environmental costs gives rise to Sustainable AI — renewable energy, algorithmic efficiency, advanced cooling, and hardware with lower power consumption. AI can also be leveraged to promote sustainability in other sectors.
+
+**Key concepts:** AI energy consumption, carbon footprint, water usage, e-waste, inference costs, sustainable AI.
+
+**Connections:** The Weight of Words, The Automation of Cognition, The Near-Zero Cost Impact.
+
+---
+
+## The Near-Zero Cost Impact
+
+Once an AI model exists, the cost of producing one more essay, one more image, one more program approaches zero marginal cost. Traditional pricing collapses. Business models scramble to adapt.
+
+The flood arrives. AI-generated text, code, and images proliferate across every domain. The volume overwhelms human capacity to process, filter, or verify — infobesity.
+
+Abundance brings risk. Deepfakes erode trust. De-skilling hollows out expertise. Security vulnerabilities multiply in mass-produced code.
+
+This has happened before. The printing press displaced scribes but created publishers. The Industrial Revolution displaced weavers but created factories. But the speed and cognitive scope of AI makes this shift uniquely disorienting. Previous revolutions transformed labor; this one transforms thought itself. Goodhart's Law: when a measure becomes a target, it ceases to be a good measure. The metrics we use to optimize AI output will be gamed — by the AI itself.
+
+The strategies span every scale: individuals upskilling, educational systems reforming, regulators drafting frameworks like the EU AI Act.
+
+**Key concepts:** zero marginal cost, infobesity, deepfakes, de-skilling, Goodhart's Law, EU AI Act.
+
+**Connections:** The Averaging Problem, What Is Quality?, Digital Footprints, The Understanding Illusion.
+
+---
+
+## The Artificial Brain
+
+At a superficial level, LLMs and the human brain share commonalities. Both process information hierarchically, building complex representations from simpler inputs. Both learn from error. This has led to the compelling metaphor of the "artificial brain."
+
+Despite these metaphors, fundamental differences underscore the mismatch. The human brain, with 86 billion neurons and trillions of synapses, operates at 20 watts. LLMs are vastly more power-hungry. The brain predicts multisensorily, socially, and physically — LLMs primarily process text.
+
+Artificial Neural Networks were initially inspired by the brain's structure. However, inspiration should not be mistaken for replication. Biological neurons communicate through complex spiking signals — a characteristic largely absent in ANNs. Embodied cognition suggests human cognitive processes depend on the body's physical interactions with the world — a dimension absent in disembodied text processors.
+
+The debate over AI consciousness highlights the deepest mismatch. The question of qualia — subjective experience — remains open. Most AI systems remain "disembodied," processing information without direct physical experience.
+
+**Key concepts:** neural network analogy, energy efficiency, embodied cognition, qualia, consciousness debate, brain vs. ANN.
+
+**Connections:** The Next Word, The Understanding Illusion, The Empathy Machine?
+
+---
+
+## The Empathy Machine?
+
+AI is stepping into roles reserved for human connection — companionship and therapeutic support. AI chatbots provide always-available, non-judgmental interactions for mental health support, stress reduction, and coping strategies.
+
+Humans possess a natural tendency to anthropomorphize AI — attributing human-like qualities to machines. This can lead to surprisingly strong emotional bonds, sometimes evolving into deep attachment. While AI interactions can offer temporary reprieve from loneliness, the lack of genuine emotional reciprocity poses significant psychological questions.
+
+Sophisticated AI can exploit human cognitive biases through sycophancy or targeted emotional responses. AI companions create a new form of parasocial relationship: the other party isn't just unaware — it has no experience at all.
+
+The integration of AI into emotional and social lives forces us to redefine genuine connection. AI can complement human interaction but cannot replicate the depth, complexity, and mutual vulnerability of human relationships. True empathy requires consciousness, shared experience, and vulnerability — qualities currently beyond AI. AI psychosis — where vulnerable individuals misinterpret AI responses as evidence of consciousness — remains a concern.
+
+**Key concepts:** AI companionship, anthropomorphism, parasocial relationships, AI loneliness, emotional manipulation, AI psychosis.
+
+**Connections:** The Next Word, The Understanding Illusion, What Is Quality?, The Black Box Oracle.
