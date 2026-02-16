@@ -4812,17 +4812,13 @@
 
       const setView = ({ view, cleanup }) => {
         activeCleanup();
-        const previous = app.firstElementChild;
-        if (previous) {
-          previous.classList.remove("is-visible");
-          previous.addEventListener(
-            "transitionend",
-            () => {
-              previous.remove();
-            },
-            { once: true }
-          );
-        }
+        const previous = Array.from(app.children);
+        previous.forEach((el) => {
+          el.classList.remove("is-visible");
+          const remove = () => el.remove();
+          el.addEventListener("transitionend", remove, { once: true });
+          setTimeout(remove, 300);
+        });
         app.appendChild(view);
         requestAnimationFrame(() => {
           view.classList.add("is-visible");
