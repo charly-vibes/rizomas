@@ -303,7 +303,7 @@ const buildPlateauView = (state, plateauId) => {
   const onSeedOpen = (seedId) => {
     if (recordSeedOpen(state, plateauId, seedId)) {
       const eg = state.eg[plateauId];
-      if (eg) engagementEl.textContent = `${eg.opened} of ${eg.total} seeds opened`;
+      if (eg) engagementEl.textContent = `${eg.opened} of ${eg.total} seeds explored`;
     }
   };
 
@@ -1256,7 +1256,7 @@ const buildPlateauView = (state, plateauId) => {
     const scrollyConfig = scrollyStepMap[plateauId];
     const totalInlineSeeds = scrollyConfig.steps.length - 1;
     initEngagement(state, plateauId, totalInlineSeeds);
-    engagementEl.textContent = `${(state.eg[plateauId] || {}).opened || 0} of ${totalInlineSeeds} seeds opened`;
+    engagementEl.textContent = `${(state.eg[plateauId] || {}).opened || 0} of ${totalInlineSeeds} seeds explored`;
 
     const vizBuilders = {
       "next-word": buildVizNextWord,
@@ -1455,7 +1455,7 @@ const buildPlateauView = (state, plateauId) => {
     };
     const seedList = seedMap[plateauId] || [];
     initEngagement(state, plateauId, seedList.length);
-    engagementEl.textContent = `${(state.eg[plateauId] || {}).opened || 0} of ${seedList.length} seeds opened`;
+    engagementEl.textContent = `${(state.eg[plateauId] || {}).opened || 0} of ${seedList.length} seeds explored`;
 
     const seeds = buildSeedCluster(seedList, { state, plateauId, onSeedOpen });
 

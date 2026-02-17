@@ -632,6 +632,18 @@
         cursor: pointer;
       }
 
+      .seed-button::after {
+        content: " \25B8";
+        font-size: 0.75em;
+        color: var(--ink3);
+        transition: transform 0.2s ease;
+        display: inline-block;
+      }
+
+      .seed-button[aria-expanded="true"]::after {
+        transform: rotate(90deg);
+      }
+
       .seed-button:hover {
         background: var(--seedh);
       }
@@ -639,18 +651,22 @@
       .seed-growth {
         max-height: 0;
         overflow: hidden;
-        transition: max-height 0.35s ease;
+        transition: max-height 0.4s ease, opacity 0.3s ease;
+        opacity: 0;
       }
 
       .seed-growth.is-open {
         max-height: 220px;
         overflow-y: auto;
+        opacity: 1;
       }
 
       .seed-growth-inner {
         margin-top: 12px;
-        padding-left: 14px;
-        border-left: 2px solid var(--ink4);
+        padding: 10px 14px;
+        border-left: 2px solid var(--acc);
+        background: rgba(237, 234, 223, 0.35);
+        border-radius: 0 8px 8px 0;
         color: var(--ink2);
       }
 
@@ -664,14 +680,21 @@
         background: var(--seed);
         color: inherit;
         font: inherit;
-        padding: 0 4px;
+        padding: 1px 4px;
         border-radius: 6px;
-        border-bottom: 1px dotted var(--ink2);
+        border-bottom: 2px dotted var(--ink2);
         cursor: pointer;
+        transition: background 0.15s ease, box-shadow 0.15s ease;
       }
 
       .inline-seed-button:hover {
         background: var(--seedh);
+        box-shadow: 0 1px 4px rgba(26, 26, 24, 0.1);
+      }
+
+      .inline-seed-button:focus-visible {
+        outline: 2px solid var(--ink);
+        outline-offset: 2px;
       }
 
       .inline-seed-popover {
@@ -681,7 +704,7 @@
         max-height: 240px;
         overflow-y: auto;
         background: var(--paper);
-        border: 1px solid var(--ink4);
+        border: 1px solid var(--ink3);
         border-radius: 12px;
         padding: 14px 16px;
         box-shadow: 0 12px 40px rgba(26, 26, 24, 0.14);
@@ -689,6 +712,7 @@
         transform: translateY(4px);
         transition: opacity 0.2s ease, transform 0.2s ease;
         pointer-events: none;
+        border-top: 2px solid var(--acc);
       }
 
       .inline-seed-popover.is-open {
@@ -2121,6 +2145,7 @@ const buildOverlay = (state) => {
     role: "dialog",
     "aria-modal": "true",
     "aria-hidden": "true",
+    "aria-label": "Navigate to another essay",
   });
   const backdrop = h("div", { class: "overlay-backdrop" });
   const panel = h("div", { class: "overlay-panel" });
@@ -2129,15 +2154,25 @@ const buildOverlay = (state) => {
     type: "button",
     "aria-label": "Close navigation map",
   }, "Close");
+  const heading = h("p", {
+    style: {
+      margin: "0 0 12px 0",
+      color: "var(--ink2)",
+      fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif",
+      fontSize: "0.75rem",
+      letterSpacing: "0.08em",
+      textTransform: "uppercase",
+    },
+  }, "Jump to an essay");
   const mapWrap = h("div", { class: "overlay-map" });
   const canvas = h("canvas", {
     role: "img",
-    "aria-label": "Full navigation map of all plateaus",
+    "aria-label": "Full navigation map of all plateaus \u2014 click a node to navigate",
   });
   const linkLayer = h("div", { class: "overlay-links" });
 
   mapWrap.append(canvas, linkLayer);
-  panel.append(closeButton, mapWrap);
+  panel.append(closeButton, heading, mapWrap);
   overlay.append(backdrop, panel);
 
   let visited = new Set(state.v);
@@ -2562,12 +2597,13 @@ const buildRetrievalMoment = (state, plateauId) => {
   const closeBtn = h("button", {
     class: "retrieval-close",
     type: "button",
-    "aria-label": "Dismiss retrieval moment",
+    "aria-label": "Dismiss this reflection prompt",
+    title: "Dismiss",
   }, "\u00d7");
   const card = h("div", {
     class: "retrieval-moment",
     role: "note",
-    "aria-label": "Retrieval moment",
+    "aria-label": "A reflection on what you've read so far",
   },
     h("p", { style: { margin: "0", flex: "1" } }, question),
     closeBtn
@@ -2583,7 +2619,8 @@ const buildEngagementState = (state, plateauId) => {
   const el = h("div", {
     class: "engagement-state",
     "aria-live": "polite",
-  }, `${eg.opened} of ${eg.total} seeds opened`);
+    title: "Seeds are the expandable elements above \u2014 click them to explore deeper layers of this essay",
+  }, `${eg.opened} of ${eg.total} seeds explored`);
   return el;
 };
 
@@ -5441,7 +5478,7 @@ const buildPlateauView = (state, plateauId) => {
   const onSeedOpen = (seedId) => {
     if (recordSeedOpen(state, plateauId, seedId)) {
       const eg = state.eg[plateauId];
-      if (eg) engagementEl.textContent = `${eg.opened} of ${eg.total} seeds opened`;
+      if (eg) engagementEl.textContent = `${eg.opened} of ${eg.total} seeds explored`;
     }
   };
 
@@ -6394,7 +6431,7 @@ const buildPlateauView = (state, plateauId) => {
     const scrollyConfig = scrollyStepMap[plateauId];
     const totalInlineSeeds = scrollyConfig.steps.length - 1;
     initEngagement(state, plateauId, totalInlineSeeds);
-    engagementEl.textContent = `${(state.eg[plateauId] || {}).opened || 0} of ${totalInlineSeeds} seeds opened`;
+    engagementEl.textContent = `${(state.eg[plateauId] || {}).opened || 0} of ${totalInlineSeeds} seeds explored`;
 
     const vizBuilders = {
       "next-word": buildVizNextWord,
@@ -6593,7 +6630,7 @@ const buildPlateauView = (state, plateauId) => {
     };
     const seedList = seedMap[plateauId] || [];
     initEngagement(state, plateauId, seedList.length);
-    engagementEl.textContent = `${(state.eg[plateauId] || {}).opened || 0} of ${seedList.length} seeds opened`;
+    engagementEl.textContent = `${(state.eg[plateauId] || {}).opened || 0} of ${seedList.length} seeds explored`;
 
     const seeds = buildSeedCluster(seedList, { state, plateauId, onSeedOpen });
 

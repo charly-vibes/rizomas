@@ -621,6 +621,18 @@
         cursor: pointer;
       }
 
+      .seed-button::after {
+        content: " \25B8";
+        font-size: 0.75em;
+        color: var(--ink3);
+        transition: transform 0.2s ease;
+        display: inline-block;
+      }
+
+      .seed-button[aria-expanded="true"]::after {
+        transform: rotate(90deg);
+      }
+
       .seed-button:hover {
         background: var(--seedh);
       }
@@ -628,18 +640,22 @@
       .seed-growth {
         max-height: 0;
         overflow: hidden;
-        transition: max-height 0.35s ease;
+        transition: max-height 0.4s ease, opacity 0.3s ease;
+        opacity: 0;
       }
 
       .seed-growth.is-open {
         max-height: 220px;
         overflow-y: auto;
+        opacity: 1;
       }
 
       .seed-growth-inner {
         margin-top: 12px;
-        padding-left: 14px;
-        border-left: 2px solid var(--ink4);
+        padding: 10px 14px;
+        border-left: 2px solid var(--acc);
+        background: rgba(237, 234, 223, 0.35);
+        border-radius: 0 8px 8px 0;
         color: var(--ink2);
       }
 
@@ -653,14 +669,21 @@
         background: var(--seed);
         color: inherit;
         font: inherit;
-        padding: 0 4px;
+        padding: 1px 4px;
         border-radius: 6px;
-        border-bottom: 1px dotted var(--ink2);
+        border-bottom: 2px dotted var(--ink2);
         cursor: pointer;
+        transition: background 0.15s ease, box-shadow 0.15s ease;
       }
 
       .inline-seed-button:hover {
         background: var(--seedh);
+        box-shadow: 0 1px 4px rgba(26, 26, 24, 0.1);
+      }
+
+      .inline-seed-button:focus-visible {
+        outline: 2px solid var(--ink);
+        outline-offset: 2px;
       }
 
       .inline-seed-popover {
@@ -670,7 +693,7 @@
         max-height: 240px;
         overflow-y: auto;
         background: var(--paper);
-        border: 1px solid var(--ink4);
+        border: 1px solid var(--ink3);
         border-radius: 12px;
         padding: 14px 16px;
         box-shadow: 0 12px 40px rgba(26, 26, 24, 0.14);
@@ -678,6 +701,7 @@
         transform: translateY(4px);
         transition: opacity 0.2s ease, transform 0.2s ease;
         pointer-events: none;
+        border-top: 2px solid var(--acc);
       }
 
       .inline-seed-popover.is-open {

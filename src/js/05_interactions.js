@@ -282,12 +282,13 @@ const buildRetrievalMoment = (state, plateauId) => {
   const closeBtn = h("button", {
     class: "retrieval-close",
     type: "button",
-    "aria-label": "Dismiss retrieval moment",
+    "aria-label": "Dismiss this reflection prompt",
+    title: "Dismiss",
   }, "\u00d7");
   const card = h("div", {
     class: "retrieval-moment",
     role: "note",
-    "aria-label": "Retrieval moment",
+    "aria-label": "A reflection on what you've read so far",
   },
     h("p", { style: { margin: "0", flex: "1" } }, question),
     closeBtn
@@ -303,7 +304,8 @@ const buildEngagementState = (state, plateauId) => {
   const el = h("div", {
     class: "engagement-state",
     "aria-live": "polite",
-  }, `${eg.opened} of ${eg.total} seeds opened`);
+    title: "Seeds are the expandable elements above \u2014 click them to explore deeper layers of this essay",
+  }, `${eg.opened} of ${eg.total} seeds explored`);
   return el;
 };
 

@@ -102,6 +102,7 @@ const buildOverlay = (state) => {
     role: "dialog",
     "aria-modal": "true",
     "aria-hidden": "true",
+    "aria-label": "Navigate to another essay",
   });
   const backdrop = h("div", { class: "overlay-backdrop" });
   const panel = h("div", { class: "overlay-panel" });
@@ -110,15 +111,25 @@ const buildOverlay = (state) => {
     type: "button",
     "aria-label": "Close navigation map",
   }, "Close");
+  const heading = h("p", {
+    style: {
+      margin: "0 0 12px 0",
+      color: "var(--ink2)",
+      fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif",
+      fontSize: "0.75rem",
+      letterSpacing: "0.08em",
+      textTransform: "uppercase",
+    },
+  }, "Jump to an essay");
   const mapWrap = h("div", { class: "overlay-map" });
   const canvas = h("canvas", {
     role: "img",
-    "aria-label": "Full navigation map of all plateaus",
+    "aria-label": "Full navigation map of all plateaus \u2014 click a node to navigate",
   });
   const linkLayer = h("div", { class: "overlay-links" });
 
   mapWrap.append(canvas, linkLayer);
-  panel.append(closeButton, mapWrap);
+  panel.append(closeButton, heading, mapWrap);
   overlay.append(backdrop, panel);
 
   let visited = new Set(state.v);
