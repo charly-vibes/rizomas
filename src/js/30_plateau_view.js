@@ -1263,6 +1263,7 @@ const buildPlateauView = (state, plateauId) => {
       "averaging-problem": buildVizAveragingProblem,
       "the-shaping": buildVizShaping,
       "near-zero-cost-impact": buildVizNearZeroCostImpact,
+      "digital-footprints": buildVizDigitalFootprints,
     };
     const vizBuilder = vizBuilders[plateauId];
     const viz = vizBuilder ? vizBuilder(state) : null;
