@@ -1265,6 +1265,7 @@ const buildPlateauView = (state, plateauId) => {
       "near-zero-cost-impact": buildVizNearZeroCostImpact,
       "digital-footprints": buildVizDigitalFootprints,
       "automation-of-cognition": buildVizAutomationOfCognition,
+      "algorithm-as-muse": buildVizAlgorithmAsMuse,
     };
     const vizBuilder = vizBuilders[plateauId];
     const viz = vizBuilder ? vizBuilder(state) : null;
