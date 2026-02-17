@@ -1262,6 +1262,7 @@ const buildPlateauView = (state, plateauId) => {
       "next-word": buildVizNextWord,
       "averaging-problem": buildVizAveragingProblem,
       "the-shaping": buildVizShaping,
+      "near-zero-cost-impact": buildVizNearZeroCostImpact,
     };
     const vizBuilder = vizBuilders[plateauId];
     const viz = vizBuilder ? vizBuilder(state) : null;

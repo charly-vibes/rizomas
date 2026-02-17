@@ -110,3 +110,37 @@ Content authoring is part of each Tier 1 task, not a separate ticket.
 
 ## Open Questions
 - Exact `onStepChange` callback integration: minimal engine addition (preferred) vs external MutationObserver — decide during scaffolding implementation.
+
+## Near-Zero Cost Impact — Design Pass
+
+### Visual System Overview
+- **Layout**: Single canvas (210px height) for the primary illustration with a DOM panel beneath for state-specific labels, counters, and summaries.
+- **Canvas**: Line-art aesthetic using `--ink`, `--ink2`, `--ink3`, `--acc`, `--seed` with HiDPI scaling.
+- **DOM panels**: Five state-specific blocks (cost curve, content flood, risk dashboard, timeline, strategy landscape) toggled via `display`.
+- **Accessibility**: An `aria-live="polite"` status region narrates state changes; all labels are DOM text.
+
+### State 1 — Cost Curve Collapse
+- **Canvas**: X/Y axes, dashed legacy curve (gradual decline), solid AI curve plunging toward zero; markers at “Physical goods” vs “AI outputs”.
+- **DOM panel**: Two stat chips: `Legacy marginal cost: ~$1.20/unit` and `AI marginal cost: ~$0.02/unit` plus a one-line summary.
+- **Sample data**: Curve control points `[(0,1.0),(0.35,0.6),(0.7,0.2),(1,0.02)]`.
+
+### State 2 — Content Flood
+- **Canvas**: Three stacked bars (text, images, code) rising from baseline to convey volume growth.
+- **DOM panel**: Animated counters with daily outputs: `Text: 250M/day`, `Images: 45M/day`, `Code: 9M/day`.
+- **Interaction**: Counters tick upward for ~1.6s unless `prefers-reduced-motion`.
+
+### State 3 — Risk Dashboard
+- **Canvas**: Horizontal risk bars with severity markers for `Misinformation`, `De-skilling`, `Security flaws`, `Economic shock`.
+- **DOM panel**: Matching labels with severity text (`High`, `Elevated`, etc.).
+- **Sample data**: Risk scores `[0.9, 0.75, 0.68, 0.82]`.
+
+### State 4 — Historical Timeline
+- **Canvas**: Horizontal timeline with markers for `1440 Printing Press`, `1760 Industrial Revolution`, `1995 Internet Era`, `2023 AI Models`.
+- **DOM panel**: Short callouts for each era, emphasizing acceleration of cognitive change.
+
+### State 5 — Strategy Landscape
+- **Canvas**: Contour-style terrain lines implying shifting ground.
+- **DOM panel**: Three-column strategy list:
+  - **Individuals**: “upskill”, “tool fluency”, “domain depth”
+  - **Society**: “education reform”, “labor transition”, “public literacy”
+  - **Policy**: “AI Act”, “safety audits”, “IP frameworks”
