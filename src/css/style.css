@@ -296,6 +296,8 @@
         gap: 0;
         margin-top: 48px;
         border-top: 1px solid var(--ink4);
+        width: 100vw;
+        margin-left: calc(-50vw + 50%);
       }
 
       .scrolly-viz {
@@ -450,6 +452,7 @@
         position: absolute;
         right: 22px;
         top: 18%;
+        max-width: 45%;
         display: flex;
         flex-direction: column;
         gap: 12px;
@@ -472,7 +475,7 @@
 
       .trace-pips {
         position: absolute;
-        right: 12px;
+        right: 8px;
         top: 18%;
         display: flex;
         flex-direction: column;
@@ -1005,6 +1008,8 @@
       @media (max-width: 840px) {
         .scrolly {
           grid-template-columns: 1fr;
+          width: auto;
+          margin-left: 0;
         }
 
         .scrolly-viz {

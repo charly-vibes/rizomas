@@ -1283,6 +1283,7 @@ const buildPlateauView = (state, plateauId) => {
       scrubUpdate: viz ? viz.scrubUpdate : undefined,
       onStepChange: viz ? viz.onStep : undefined,
       state,
+      plateauId,
     });
     main.append(scrolly.section, engagementEl);
     cleanup = () => {

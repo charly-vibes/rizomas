@@ -307,6 +307,8 @@
         gap: 0;
         margin-top: 48px;
         border-top: 1px solid var(--ink4);
+        width: 100vw;
+        margin-left: calc(-50vw + 50%);
       }
 
       .scrolly-viz {
@@ -461,6 +463,7 @@
         position: absolute;
         right: 22px;
         top: 18%;
+        max-width: 45%;
         display: flex;
         flex-direction: column;
         gap: 12px;
@@ -483,7 +486,7 @@
 
       .trace-pips {
         position: absolute;
-        right: 12px;
+        right: 8px;
         top: 18%;
         display: flex;
         flex-direction: column;
@@ -1016,6 +1019,8 @@
       @media (max-width: 840px) {
         .scrolly {
           grid-template-columns: 1fr;
+          width: auto;
+          margin-left: 0;
         }
 
         .scrolly-viz {
@@ -1920,7 +1925,7 @@ const buildMiniMap = (state, currentId) => {
   };
 };
 
-const buildScrolly = ({ steps, whispers, questionCards, scrubUpdate, vizContent, onStepChange, state }) => {
+const buildScrolly = ({ steps, whispers, questionCards, scrubUpdate, vizContent, onStepChange, state, plateauId }) => {
   const hasViz = !!vizContent;
   const section = h("section", { class: hasViz ? "scrolly" : "scrolly scrolly-no-viz" });
   let viz = null;
@@ -1932,7 +1937,12 @@ const buildScrolly = ({ steps, whispers, questionCards, scrubUpdate, vizContent,
     vizMain.appendChild(vizContent);
     const whispersLayer = h("div", { class: "whisper-layer" });
     const pips = h("div", { class: "trace-pips" });
-    constellation = h("div", { class: "constellation" }, "Constellation");
+    constellation = h("div", { class: "constellation" });
+    if (plateauId) {
+      const visited = new Set(state && state.v ? state.v : []);
+      const constellationContent = buildSimpleConstellation(plateauId, visited, whispers);
+      constellation.appendChild(constellationContent);
+    }
     viz.append(vizMain, whispersLayer, pips, constellation);
   }
 
@@ -6458,6 +6468,7 @@ const buildPlateauView = (state, plateauId) => {
       scrubUpdate: viz ? viz.scrubUpdate : undefined,
       onStepChange: viz ? viz.onStep : undefined,
       state,
+      plateauId,
     });
     main.append(scrolly.section, engagementEl);
     cleanup = () => {

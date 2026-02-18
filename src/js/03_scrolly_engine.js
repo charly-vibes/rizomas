@@ -165,7 +165,7 @@ const buildMiniMap = (state, currentId) => {
   };
 };
 
-const buildScrolly = ({ steps, whispers, questionCards, scrubUpdate, vizContent, onStepChange, state }) => {
+const buildScrolly = ({ steps, whispers, questionCards, scrubUpdate, vizContent, onStepChange, state, plateauId }) => {
   const hasViz = !!vizContent;
   const section = h("section", { class: hasViz ? "scrolly" : "scrolly scrolly-no-viz" });
   let viz = null;
@@ -177,7 +177,12 @@ const buildScrolly = ({ steps, whispers, questionCards, scrubUpdate, vizContent,
     vizMain.appendChild(vizContent);
     const whispersLayer = h("div", { class: "whisper-layer" });
     const pips = h("div", { class: "trace-pips" });
-    constellation = h("div", { class: "constellation" }, "Constellation");
+    constellation = h("div", { class: "constellation" });
+    if (plateauId) {
+      const visited = new Set(state && state.v ? state.v : []);
+      const constellationContent = buildSimpleConstellation(plateauId, visited, whispers);
+      constellation.appendChild(constellationContent);
+    }
     viz.append(vizMain, whispersLayer, pips, constellation);
   }
 
