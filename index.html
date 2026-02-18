@@ -6175,9 +6175,10 @@ const buildPlateauView = (state, plateauId) => {
         },
       ],
       whispers: [
-        { step: 1, text: "What does this loop produce, one token at a time?", to: "next-word" },
-        { step: 2, text: "When scale creates structure, can structure be shaped?", to: "the-shaping" },
-        { step: 3, text: "If capability is a surface, what does the average look like?", to: "averaging-problem" },
+        { step: 1, text: "How does prediction create 'understanding'?", to: "next-word" },
+        { step: 2, text: "What happens when training data is biased?", to: "quality" },
+        { step: 3, text: "How does pretraining influence the 'average' output?", to: "averaging-problem" },
+        { step: 4, text: "How is this raw engine 'shaped' into a useful assistant?", to: "the-shaping" },
       ],
     },
     "tool-user": {
@@ -6228,9 +6229,10 @@ const buildPlateauView = (state, plateauId) => {
         },
       ],
       whispers: [
-        { step: 1, text: "How do practical patterns change with agency?", to: "practical-guide" },
-        { step: 2, text: "Does routing imply a kind of understanding?", to: "understanding-illusion" },
-        { step: 3, text: "What was the model shaped to do before it got tools?", to: "the-shaping" },
+        { step: 1, text: "How do LLMs learn to delegate tasks?", to: "the-shaping" },
+        { step: 2, text: "How does AI interact with the real world?", to: "empathy-machine" },
+        { step: 3, text: "What are the ethical implications of AI action?", to: "black-box-oracle" },
+        { step: 4, text: "How does AI automate cognitive tasks?", to: "automation-of-cognition" },
       ],
     },
     "quality": {
@@ -6292,9 +6294,10 @@ const buildPlateauView = (state, plateauId) => {
         },
       ],
       whispers: [
-        { step: 1, text: "How was the model shaped before the raters arrived?", to: "the-shaping" },
-        { step: 2, text: "Does fluent agreement mask a deeper illusion?", to: "understanding-illusion" },
-        { step: 3, text: "What practical moves survive these biases?", to: "practical-guide" },
+        { step: 1, text: "How is the model 'shaped' by human feedback?", to: "the-shaping" },
+        { step: 2, text: "What are the hidden biases in training data?", to: "echoes-of-the-past" },
+        { step: 3, text: "How does AI understanding differ from human ethics?", to: "understanding-illusion" },
+        { step: 4, text: "Can an algorithm truly be 'neutral' or 'objective'?", to: "black-box-oracle" },
       ],
     },
     "understanding-illusion": {
@@ -6356,9 +6359,10 @@ const buildPlateauView = (state, plateauId) => {
         },
       ],
       whispers: [
-        { step: 1, text: "What does the parrot learn from trillions of tokens?", to: "averaging-problem" },
-        { step: 2, text: "Who decides if these models are good enough?", to: "quality" },
-        { step: 3, text: "What can you do with uncertain understanding?", to: "practical-guide" },
+        { step: 1, text: "How does the model 'predict' rather than 'understand'?", to: "next-word" },
+        { step: 2, text: "Where do biases in 'understanding' come from?", to: "quality" },
+        { step: 3, text: "How does pretraining enable 'world models'?", to: "weight-of-words" },
+        { step: 4, text: "Is human 'understanding' also a form of prediction?", to: "artificial-brain" },
       ],
     },
     "practical-guide": {
@@ -6420,9 +6424,10 @@ const buildPlateauView = (state, plateauId) => {
         },
       ],
       whispers: [
-        { step: 1, text: "Where does the vast distribution come from?", to: "weight-of-words" },
-        { step: 2, text: "Does the scaffolding create understanding or just fluency?", to: "understanding-illusion" },
-        { step: 3, text: "What happens when agents can act on the world?", to: "tool-user" },
+        { step: 1, text: "How do system prompts shape the model's 'personality'?", to: "the-shaping" },
+        { step: 2, text: "How does the model 'learn' from examples?", to: "next-word" },
+        { step: 3, text: "What makes an AI response 'quality'?", to: "quality" },
+        { step: 4, text: "How does model architecture process structured input?", to: "tool-user" },
       ],
     },
   };
@@ -6603,29 +6608,34 @@ const buildPlateauView = (state, plateauId) => {
     };
     const simpleWhisperMap = {
       "weight-of-words": [
-        { seed: "learning-loop", text: "What does this loop produce, one token at a time?", to: "next-word" },
-        { seed: "data-scale", text: "When scale creates structure, can structure be shaped?", to: "the-shaping" },
-        { seed: "scaling-laws", text: "If capability is a surface, what does the average look like?", to: "averaging-problem" },
+        { seed: "learning-loop", text: "How does prediction create 'understanding'?", to: "next-word" },
+        { seed: "data-scale", text: "What happens when training data is biased?", to: "quality" },
+        { seed: "scaling-laws", text: "How does pretraining influence the 'average' output?", to: "averaging-problem" },
+        { seed: "structure-byproduct", text: "How is this raw engine 'shaped' into a useful assistant?", to: "the-shaping" },
       ],
       quality: [
-        { seed: "who-decides", text: "How was the model shaped before the raters arrived?", to: "the-shaping" },
-        { seed: "sycophancy", text: "Does fluent agreement mask a deeper illusion?", to: "understanding-illusion" },
-        { seed: "cultural-bias", text: "What practical moves survive these biases?", to: "practical-guide" },
+        { seed: "who-decides", text: "How is the model 'shaped' by human feedback?", to: "the-shaping" },
+        { seed: "helpful-harmless", text: "What are the hidden biases in training data?", to: "echoes-of-the-past" },
+        { seed: "sycophancy", text: "How does AI understanding differ from human ethics?", to: "understanding-illusion" },
+        { seed: "cultural-bias", text: "Can an algorithm truly be 'neutral' or 'objective'?", to: "black-box-oracle" },
       ],
       "understanding-illusion": [
-        { seed: "stochastic-parrot", text: "What does the parrot learn from trillions of tokens?", to: "averaging-problem" },
-        { seed: "world-models", text: "Who decides if these models are good enough?", to: "quality" },
-        { seed: "othello-gpt", text: "What can you do with uncertain understanding?", to: "practical-guide" },
+        { seed: "stochastic-parrot", text: "How does the model 'predict' rather than 'understand'?", to: "next-word" },
+        { seed: "chinese-room", text: "Where do biases in 'understanding' come from?", to: "quality" },
+        { seed: "world-models", text: "How does pretraining enable 'world models'?", to: "weight-of-words" },
+        { seed: "othello-gpt", text: "Is human 'understanding' also a form of prediction?", to: "artificial-brain" },
       ],
       "practical-guide": [
-        { seed: "narrowing", text: "Where does the vast distribution come from?", to: "weight-of-words" },
-        { seed: "scaffolding", text: "Does the scaffolding create understanding or just fluency?", to: "understanding-illusion" },
-        { seed: "failure-modes", text: "What happens when agents can act on the world?", to: "tool-user" },
+        { seed: "narrowing", text: "How do system prompts shape the model's 'personality'?", to: "the-shaping" },
+        { seed: "scaffolding", text: "How does the model 'learn' from examples?", to: "next-word" },
+        { seed: "trust", text: "What makes an AI response 'quality'?", to: "quality" },
+        { seed: "failure-modes", text: "How does model architecture process structured input?", to: "tool-user" },
       ],
       "tool-user": [
-        { seed: "reason-act", text: "How do practical patterns change with agency?", to: "practical-guide" },
-        { seed: "experts", text: "Does routing imply a kind of understanding?", to: "understanding-illusion" },
-        { seed: "delegated-memory", text: "What was the model shaped to do before it got tools?", to: "the-shaping" },
+        { seed: "reason-act", text: "How do LLMs learn to delegate tasks?", to: "the-shaping" },
+        { seed: "experts", text: "How does AI interact with the real world?", to: "empathy-machine" },
+        { seed: "delegated-memory", text: "What are the ethical implications of AI action?", to: "black-box-oracle" },
+        { seed: "end-of-oracle", text: "How does AI automate cognitive tasks?", to: "automation-of-cognition" },
       ],
     };
     const seedList = seedMap[plateauId] || [];
