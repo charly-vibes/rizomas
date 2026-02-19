@@ -1259,9 +1259,6 @@ const buildPlateauView = (state, plateauId) => {
 
   if (isScrolly) {
     const scrollyConfig = scrollyStepMap[plateauId];
-    const totalInlineSeeds = scrollyConfig.steps.length - 1;
-    initEngagement(state, plateauId, totalInlineSeeds);
-    engagementEl.textContent = `${(state.eg[plateauId] || {}).opened || 0} of ${totalInlineSeeds} seeds explored`;
 
     const vizBuilders = {
       "next-word": buildVizNextWord,
@@ -1286,6 +1283,10 @@ const buildPlateauView = (state, plateauId) => {
       plateauId,
     });
     main.append(scrolly.section, engagementEl);
+
+    const totalInlineSeeds = scrolly.section.querySelectorAll(".inline-seed-button").length;
+    initEngagement(state, plateauId, totalInlineSeeds);
+    engagementEl.textContent = `${(state.eg[plateauId] || {}).opened || 0} of ${totalInlineSeeds} seeds explored`;
     cleanup = () => {
       scrolly.cleanup();
       if (viz && viz.cleanup) viz.cleanup();

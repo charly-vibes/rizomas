@@ -57,6 +57,11 @@ const buildInlineSeed = ({ id, label, detail, type, danglingTo, danglingText, st
     popover.setAttribute("aria-hidden", "true");
     document.removeEventListener("click", outsideClick, true);
     document.removeEventListener("keydown", escClose);
+    window.removeEventListener("scroll", onScroll, true);
+  };
+
+  const onScroll = () => {
+    positionPopover();
   };
 
   const outsideClick = (e) => {
@@ -88,6 +93,7 @@ const buildInlineSeed = ({ id, label, detail, type, danglingTo, danglingText, st
       requestAnimationFrame(() => {
         document.addEventListener("click", outsideClick, true);
         document.addEventListener("keydown", escClose);
+        window.addEventListener("scroll", onScroll, true);
       });
       if (onOpen && id) onOpen(id);
     }
