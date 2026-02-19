@@ -568,6 +568,19 @@
         transform: translateY(-1px);
       }
 
+      .question-card.is-visited {
+        border-style: dashed;
+        opacity: 0.7;
+      }
+
+      .question-card.is-visited::after {
+        content: "✓ visited";
+        font-size: 0.7rem;
+        color: var(--ink3);
+        letter-spacing: 0.04em;
+        align-self: flex-end;
+      }
+
       .question-card span {
         font-style: italic;
         color: var(--ink);
@@ -2004,10 +2017,11 @@ const buildScrolly = ({ steps, whispers, questionCards, scrubUpdate, vizContent,
   }
 
   const cards = h("div", { class: "question-cards" });
+  const visited = state ? new Set(state.v) : new Set();
   questionCards.forEach((card) => {
     const el = h(
       "a",
-      { class: "question-card", href: `#/${card.to}` },
+      { class: `question-card${visited.has(card.to) ? " is-visited" : ""}`, href: `#/${card.to}` },
       h("span", null, card.question),
       h("strong", null, card.title)
     );
@@ -6782,7 +6796,7 @@ const buildPlateauView = (state, plateauId) => {
     (questionCardMap[plateauId] || []).forEach((card) => {
       const el = h(
         "a",
-        { class: "question-card", href: `#/${card.to}` },
+        { class: `question-card${visited.has(card.to) ? " is-visited" : ""}`, href: `#/${card.to}` },
         h("span", null, card.question),
         h("strong", null, card.title)
       );

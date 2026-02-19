@@ -211,10 +211,11 @@ const buildScrolly = ({ steps, whispers, questionCards, scrubUpdate, vizContent,
   }
 
   const cards = h("div", { class: "question-cards" });
+  const visited = state ? new Set(state.v) : new Set();
   questionCards.forEach((card) => {
     const el = h(
       "a",
-      { class: "question-card", href: `#/${card.to}` },
+      { class: `question-card${visited.has(card.to) ? " is-visited" : ""}`, href: `#/${card.to}` },
       h("span", null, card.question),
       h("strong", null, card.title)
     );

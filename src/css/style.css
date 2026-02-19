@@ -557,6 +557,19 @@
         transform: translateY(-1px);
       }
 
+      .question-card.is-visited {
+        border-style: dashed;
+        opacity: 0.7;
+      }
+
+      .question-card.is-visited::after {
+        content: "✓ visited";
+        font-size: 0.7rem;
+        color: var(--ink3);
+        letter-spacing: 0.04em;
+        align-self: flex-end;
+      }
+
       .question-card span {
         font-style: italic;
         color: var(--ink);
