@@ -125,10 +125,24 @@ const buildLandingView = (state) => {
   );
 
   const { wrap: mapWrap, cleanup } = buildLandingMap(visitedSet, state.te);
+
+  const fallbackNav = h("nav", {
+    class: "visually-hidden",
+    "aria-label": "All essays",
+  });
+  const fallbackList = h("ul");
+  GRAPH.nodes.forEach((node) => {
+    fallbackList.appendChild(
+      h("li", null, h("a", { href: `#/${node.id}` }, node.title))
+    );
+  });
+  fallbackNav.appendChild(fallbackList);
+
   const mapSection = h(
     "div",
     { class: "landing-map" },
     mapWrap,
+    fallbackNav,
     h("p", { class: "map-note" }, "Click or tab to any node to begin.")
   );
 
