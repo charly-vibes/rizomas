@@ -68,6 +68,7 @@ const buildNavigationChrome = (state, currentId) => {
     miniMap,
     overlay,
     updateOverlay,
+    closeOverlay,
     cleanup: () => {
       miniMap.cleanup();
       overlay.cleanup();
@@ -199,6 +200,7 @@ const renderRoute = (liminalQuestion) => {
 
   const doRender = () => {
     if (persistentNavChrome) {
+      persistentNavChrome.closeOverlay();
       persistentNavChrome.miniMap.updateContext(state, currentId);
       persistentNavChrome.updateOverlay(state);
     } else {
