@@ -432,6 +432,11 @@
         grid-template-columns: 1fr;
       }
 
+      .scrolly-no-viz .scrolly-step {
+        min-height: auto;
+        padding: 1.5em 0;
+      }
+
       .scrolly-steps {
         padding: 0 36px;
       }
