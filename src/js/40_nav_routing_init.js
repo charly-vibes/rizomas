@@ -7,6 +7,7 @@ const setView = ({ view, cleanup }) => {
     el.addEventListener("transitionend", remove, { once: true });
     setTimeout(remove, 300);
   });
+  window.scrollTo(0, 0);
   app.appendChild(view);
   requestAnimationFrame(() => {
     view.classList.add("is-visible");
