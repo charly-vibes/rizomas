@@ -1,15 +1,18 @@
 
+let seedPopoverId = 0;
 const buildInlineSeed = ({ id, label, detail, type, danglingTo, danglingText, state, plateauId, onOpen }) => {
+  const popoverDomId = `seed-popover-${seedPopoverId++}`;
   const attrs = {
     class: "inline-seed-button",
     type: "button",
     "aria-expanded": "false",
+    "aria-controls": popoverDomId,
   };
   if (type) attrs["data-seed-type"] = type;
   const button = h("button", attrs, label);
 
   const contentChildren = typeof detail === "function" ? detail(state) : detail;
-  const contentEl = h("div", { class: "inline-seed-popover-content" });
+  const contentEl = h("div", { class: "inline-seed-popover-content", "aria-live": "polite" });
   if (typeof contentChildren === "string") {
     contentEl.appendChild(document.createTextNode(contentChildren));
   } else if (contentChildren instanceof Node) {
@@ -30,7 +33,7 @@ const buildInlineSeed = ({ id, label, detail, type, danglingTo, danglingText, st
 
   const popover = h(
     "div",
-    { class: "inline-seed-popover", "aria-hidden": "true" },
+    { class: "inline-seed-popover", id: popoverDomId, role: "region", "aria-hidden": "true" },
     contentEl
   );
   const wrapper = h("span", { class: "inline-seed" }, button);
