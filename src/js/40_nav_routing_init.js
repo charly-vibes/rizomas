@@ -199,6 +199,10 @@ const renderRoute = (liminalQuestion) => {
   }
 
   const doRender = () => {
+    if (currentId) {
+      recordVisit(state, currentId);
+    }
+
     if (persistentNavChrome) {
       persistentNavChrome.closeOverlay();
       persistentNavChrome.miniMap.updateContext(state, currentId);

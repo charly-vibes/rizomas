@@ -1,6 +1,5 @@
 
 const buildPlateauView = (state, plateauId) => {
-  recordVisit(state, plateauId);
   const plateau = getPlateau(plateauId);
   const scrollyId = new Set(["next-word", "averaging-problem", "the-shaping", "near-zero-cost-impact", "algorithm-as-muse", "echoes-of-the-past", "learning-machines-learning-humans", "automation-of-cognition", "black-box-oracle", "digital-footprints", "artificial-brain", "empathy-machine", "understanding-illusion", "practical-guide", "weight-of-words", "tool-user", "quality"]);
   const isScrolly = scrollyId.has(plateauId);
