@@ -38,6 +38,7 @@ const LOCALE = {
     temperatureAriaLabel: "Temperature: controls creativity of word choice",
     dismissReflection: "Dismiss this reflection prompt",
     reflectionAriaLabel: "A reflection on what you\u2019ve read so far",
+    langSwitcherLabel: "Switch language",
     vizSentence: ["The", "model", "looks", "at", "everything", "before", "and", "predicts", "the", "next"],
     vizCandidates: [
       { token: "word", prob: 0.41 },
@@ -48,8 +49,6 @@ const LOCALE = {
       { token: "one", prob: 0.03 },
     ],
   },
-
-  langSwitcher: [],
 
   nodes: {
     "next-word": { title: "The Next Word", label: "Next Word", shortQ: "What does it do when it talks?" },

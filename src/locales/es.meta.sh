@@ -1,0 +1,7 @@
+LOCALE_LANG="es"
+LOCALE_DIR="ltr"
+LOCALE_LABEL="Español"
+LOCALE_TITLE="Cómo Funcionan los LLMs"
+LOCALE_NAV_LABEL="Todos los ensayos"
+LOCALE_SUBTITLE="Diecisiete ensayos sobre predicción, memoria y la extraña lógica de las máquinas."
+LOCALE_JS_REQUIRED="Este sitio requiere JavaScript para sus funciones interactivas."

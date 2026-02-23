@@ -1,6 +1,12 @@
-# Build index.html from src/ partials
+# Build all locale versions detected from src/locales/*.meta.sh
 build:
-    ./build.sh
+    #!/bin/sh
+    for meta in src/locales/*.meta.sh; do
+      lang="${meta#src/locales/}"
+      lang="${lang%.meta.sh}"
+      [ -f "src/locales/${lang}.js" ] || continue
+      ./build.sh "$lang"
+    done
 
 # Start local development server
 serve PORT="8000": build

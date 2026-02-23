@@ -1,3 +1,14 @@
+<!doctype html>
+<html lang="__LANG__" dir="__DIR__">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>__TITLE__</title>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&display=swap"
+    />
+    <style>
       :root {
         --paper: #fafaf8;
         --ink: #1a1a18;
@@ -1198,3 +1209,16 @@
           animation-duration: 0s !important;
         }
       }
+    </style>
+  </head>
+  <body>
+    <div id="app"></div>
+    <noscript>
+      <nav aria-label="__NOSCRIPT_NAV_LABEL__">
+        <h1>__TITLE__</h1>
+        <p>__NOSCRIPT_SUBTITLE__</p>
+        <p>__NOSCRIPT_JS_REQUIRED__</p>
+      </nav>
+    </noscript>
+    <script>
+const LANGS=[{"lang":"en","label":"English","url":"../"},{"lang":"es","label":"Español","url":"./"}];

@@ -276,4 +276,17 @@ window.addEventListener("hashchange", () => {
   liminalPending = null;
   renderRoute(question);
 });
+
+if (LANGS.length > 1) {
+  const nav = h("nav", { class: "lang-switcher", "aria-label": LOCALE.ui.langSwitcherLabel });
+  LANGS.forEach(({ lang, label, url }) => {
+    if (url === "./") {
+      nav.appendChild(h("span", { class: "lang-current", "aria-current": "true", lang }, label));
+    } else {
+      nav.appendChild(h("a", { class: "lang-option", href: url, hreflang: lang }, label));
+    }
+  });
+  document.body.appendChild(nav);
+}
+
 renderRoute();
