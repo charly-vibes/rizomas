@@ -1,13 +1,6 @@
 const buildVizNextWord = (state) => {
-  const sentence = ["The", "model", "looks", "at", "everything", "before", "and", "predicts", "the", "next"];
-  const candidates = [
-    { token: "word", prob: 0.41 },
-    { token: "token", prob: 0.28 },
-    { token: "step", prob: 0.14 },
-    { token: "thing", prob: 0.09 },
-    { token: "move", prob: 0.05 },
-    { token: "one", prob: 0.03 },
-  ];
+  const sentence = LOCALE.ui.vizSentence;
+  const candidates = LOCALE.ui.vizCandidates;
   const reduced = prefersReducedMotion;
 
   let currentState = 1;
@@ -34,7 +27,7 @@ const buildVizNextWord = (state) => {
     padding: "20px 20px 12px", minHeight: "3.2em", color: "var(--ink)",
   } });
 
-  const canvas = h("canvas", { role: "img", "aria-label": "Probability bars for candidate next tokens" });
+  const canvas = h("canvas", { role: "img", "aria-label": LOCALE.ui.probBarsAriaLabel });
   const canvasWrap = h("div", { style: {
     width: "100%", height: "160px", padding: "0 20px 8px", display: "none",
   } });

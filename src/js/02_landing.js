@@ -2,7 +2,7 @@
 const buildLandingMap = (visitedSet, traversedEdges) => {
   const canvas = h("canvas", {
     role: "img",
-    "aria-label": "Navigation map of LLM plateaus",
+    "aria-label": LOCALE.landing.mapAriaLabel,
   });
   const overlay = h("div", { class: "map-overlay" });
   const wrap = h("div", { class: "map-wrap" }, canvas, overlay);
@@ -12,12 +12,12 @@ const buildLandingMap = (visitedSet, traversedEdges) => {
   let hoveredId = null;
 
   GRAPH.nodes.forEach((node) => {
-    const fullQ = ENTRY_QUESTIONS[node.id] || node.title;
+    const fullQ = LOCALE.entryQuestions[node.id] || node.title;
     const link = h("a", {
       class: "map-link",
       href: `#/${node.id}`,
       title: fullQ,
-      "aria-label": `${fullQ} — ${node.title}, ${visitedSet.has(node.id) ? "visited" : "not visited"}`,
+      "aria-label": `${fullQ} — ${node.title}, ${visitedSet.has(node.id) ? LOCALE.ui.visited : LOCALE.ui.notVisited}`,
     });
     overlay.appendChild(link);
     linkMap.set(node.id, link);
@@ -50,10 +50,10 @@ const buildLandingMap = (visitedSet, traversedEdges) => {
       const pos = getNodePx(node, lastSize.width, lastSize.height);
       link.style.left = `${pos.x}px`;
       link.style.top = `${pos.y}px`;
-      const fullQ = ENTRY_QUESTIONS[node.id] || node.title;
+      const fullQ = LOCALE.entryQuestions[node.id] || node.title;
       link.setAttribute(
         "aria-label",
-        `${fullQ} — ${node.title}, ${visitedSet.has(node.id) ? "visited" : "not visited"}`
+        `${fullQ} — ${node.title}, ${visitedSet.has(node.id) ? LOCALE.ui.visited : LOCALE.ui.notVisited}`
       );
     });
   };
@@ -114,13 +114,13 @@ const buildLandingView = (state) => {
   const header = h(
     "div",
     { class: "landing-header" },
-    h("h1", null, "How LLMs Actually Work"),
-    h("p", { class: "subtitle" }, "Seventeen essays on prediction, memory, and the strange logic of machines."),
+    h("h1", null, LOCALE.landing.h1),
+    h("p", { class: "subtitle" }, LOCALE.landing.subtitle),
     h(
       "p",
       null,
-      "This is a network you can enter anywhere.",
-      " Follow a node to see how the ideas braid together."
+      LOCALE.landing.introLines[0],
+      LOCALE.landing.introLines[1]
     )
   );
 
@@ -128,7 +128,7 @@ const buildLandingView = (state) => {
 
   const fallbackNav = h("nav", {
     class: "visually-hidden",
-    "aria-label": "All essays",
+    "aria-label": LOCALE.landing.allEssaysAriaLabel,
   });
   const fallbackList = h("ul");
   GRAPH.nodes.forEach((node) => {
@@ -143,7 +143,7 @@ const buildLandingView = (state) => {
     { class: "landing-map" },
     mapWrap,
     fallbackNav,
-    h("p", { class: "map-note" }, "Click or tab to any node to begin.")
+    h("p", { class: "map-note" }, LOCALE.landing.mapNote)
   );
 
   const main = h("main", { class: "landing view" }, header, mapSection);

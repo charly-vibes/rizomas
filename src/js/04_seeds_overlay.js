@@ -13,15 +13,8 @@ const buildInlineSeed = ({ id, label, detail, type, danglingTo, danglingText, st
 
   const contentChildren = typeof detail === "function" ? detail(state) : detail;
   const contentEl = h("div", { class: "inline-seed-popover-content", "aria-live": "polite" });
-  if (typeof contentChildren === "string") {
-    contentEl.appendChild(document.createTextNode(contentChildren));
-  } else if (contentChildren instanceof Node) {
-    contentEl.appendChild(contentChildren);
-  } else if (Array.isArray(contentChildren)) {
-    contentChildren.forEach((c) => {
-      if (typeof c === "string") contentEl.appendChild(document.createTextNode(c));
-      else if (c instanceof Node) contentEl.appendChild(c);
-    });
+  if (contentChildren != null) {
+    contentEl.appendChild(renderContent(contentChildren, { state, plateauId, onSeedOpen: onOpen }));
   }
 
   if (type === "dangling" && danglingTo && danglingText) {
@@ -111,14 +104,14 @@ const buildOverlay = (state) => {
     role: "dialog",
     "aria-modal": "true",
     "aria-hidden": "true",
-    "aria-label": "Navigate to another essay",
+    "aria-label": LOCALE.ui.navigateToEssay,
   });
   const backdrop = h("div", { class: "overlay-backdrop" });
   const panel = h("div", { class: "overlay-panel" });
   const closeButton = h("button", {
     class: "overlay-close",
     type: "button",
-    "aria-label": "Close navigation map",
+    "aria-label": LOCALE.ui.closeNav,
   }, "Close");
   const heading = h("p", {
     style: {
@@ -129,11 +122,11 @@ const buildOverlay = (state) => {
       letterSpacing: "0.08em",
       textTransform: "uppercase",
     },
-  }, "Jump to an essay");
+  }, LOCALE.ui.jumpToEssay);
   const mapWrap = h("div", { class: "overlay-map" });
   const canvas = h("canvas", {
     role: "img",
-    "aria-label": "Full navigation map of all plateaus \u2014 click a node to navigate",
+    "aria-label": LOCALE.ui.fullNavAriaLabel,
   });
   const linkLayer = h("div", { class: "overlay-links" });
 
@@ -188,7 +181,7 @@ const buildOverlay = (state) => {
       link.style.top = `${pos.y}px`;
       link.setAttribute(
         "aria-label",
-        `${node.title}, ${visited.has(node.id) ? "visited" : "not visited"}`
+        `${node.title}, ${visited.has(node.id) ? LOCALE.ui.visited : LOCALE.ui.notVisited}`
       );
     });
   };
@@ -278,4 +271,52 @@ const trapFocus = (container, event) => {
     event.preventDefault();
     first.focus();
   }
+};
+
+const renderContent = (content, ctx) => {
+  const renderItem = (item) => {
+    if (item === null || item === undefined) return null;
+    if (typeof item === "string") return document.createTextNode(item);
+    if (item instanceof Node) return item;
+    if (Array.isArray(item)) {
+      const [tag, ...children] = item;
+      const el = h(tag, null);
+      children.forEach((child) => {
+        const node = renderItem(child);
+        if (node) el.appendChild(node);
+      });
+      return el;
+    }
+    if (item.seed) {
+      return buildInlineSeed({
+        id: item.id,
+        label: item.label,
+        detail: item.detail,
+        type: item.type,
+        danglingTo: item.danglingTo,
+        danglingText: item.danglingText,
+        state: ctx.state,
+        plateauId: ctx.plateauId,
+        onOpen: ctx.onSeedOpen,
+      });
+    }
+    return null;
+  };
+
+  const frag = document.createDocumentFragment();
+  if (typeof content === "string") {
+    frag.appendChild(document.createTextNode(content));
+    return frag;
+  }
+  if (content instanceof Node) {
+    frag.appendChild(content);
+    return frag;
+  }
+  if (Array.isArray(content)) {
+    content.forEach((item) => {
+      const node = renderItem(item);
+      if (node) frag.appendChild(node);
+    });
+  }
+  return frag;
 };

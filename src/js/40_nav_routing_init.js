@@ -152,23 +152,23 @@ const setupBgTemp = (isLanding) => {
 };
 
 const GHOSTFADE_MAP = {
-  "next-word": { requires: ["weight-of-words"], keywords: ["patterns it has seen", "training history"] },
-  "averaging-problem": { requires: ["weight-of-words"], keywords: ["training data", "distribution"] },
-  "the-shaping": { requires: ["quality"], keywords: ["preference", "rater"] },
-  "weight-of-words": { requires: ["next-word"], keywords: ["predict tokens", "next token"] },
-  quality: { requires: ["the-shaping"], keywords: ["RLHF", "alignment"] },
-  "understanding-illusion": { requires: ["weight-of-words"], keywords: ["pattern", "prediction"] },
-  "practical-guide": { requires: ["next-word", "averaging-problem"], keywords: ["distribution", "probability"] },
-  "tool-user": { requires: ["the-shaping", "practical-guide"], keywords: ["reasoning", "agent"] },
-  "algorithm-as-muse": { requires: ["next-word", "averaging-problem"], keywords: ["trained on vast amounts", "copyrighted material"] },
-  "echoes-of-the-past": { requires: ["quality", "averaging-problem"], keywords: ["bias", "training data"] },
-  "learning-machines-learning-humans": { requires: ["understanding-illusion"], keywords: ["critical thinking", "cognitive"] },
-  "automation-of-cognition": { requires: ["tool-user"], keywords: ["automat", "cognitive tasks"] },
-  "black-box-oracle": { requires: ["understanding-illusion", "the-shaping"], keywords: ["opacity", "interpretable", "explainable"] },
-  "digital-footprints": { requires: ["averaging-problem"], keywords: ["training", "data center"] },
-  "artificial-brain": { requires: ["understanding-illusion"], keywords: ["neural network", "comprehension"] },
-  "empathy-machine": { requires: ["understanding-illusion"], keywords: ["understand", "genuine"] },
-  "near-zero-cost-impact": { requires: ["averaging-problem", "quality"], keywords: ["average", "quality", "distribution"] },
+  "next-word": { requires: ["weight-of-words"] },
+  "averaging-problem": { requires: ["weight-of-words"] },
+  "the-shaping": { requires: ["quality"] },
+  "weight-of-words": { requires: ["next-word"] },
+  quality: { requires: ["the-shaping"] },
+  "understanding-illusion": { requires: ["weight-of-words"] },
+  "practical-guide": { requires: ["next-word", "averaging-problem"] },
+  "tool-user": { requires: ["the-shaping", "practical-guide"] },
+  "algorithm-as-muse": { requires: ["next-word", "averaging-problem"] },
+  "echoes-of-the-past": { requires: ["quality", "averaging-problem"] },
+  "learning-machines-learning-humans": { requires: ["understanding-illusion"] },
+  "automation-of-cognition": { requires: ["tool-user"] },
+  "black-box-oracle": { requires: ["understanding-illusion", "the-shaping"] },
+  "digital-footprints": { requires: ["averaging-problem"] },
+  "artificial-brain": { requires: ["understanding-illusion"] },
+  "empathy-machine": { requires: ["understanding-illusion"] },
+  "near-zero-cost-impact": { requires: ["averaging-problem", "quality"] },
 };
 
 const applyGhostfading = (container, plateauId, visited) => {
@@ -176,10 +176,12 @@ const applyGhostfading = (container, plateauId, visited) => {
   if (!config) return;
   const hasVisited = config.requires.some((req) => visited.has(req));
   if (!hasVisited) return;
+  const keywords = LOCALE.ghostfadeKeywords[plateauId];
+  if (!keywords) return;
   const paragraphs = container.querySelectorAll("p");
   paragraphs.forEach((p) => {
     const text = p.textContent.toLowerCase();
-    if (config.keywords.some((kw) => text.includes(kw.toLowerCase()))) {
+    if (keywords.some((kw) => text.includes(kw.toLowerCase()))) {
       p.classList.add("ghostfaded");
     }
   });
@@ -239,22 +241,7 @@ const renderRoute = (liminalQuestion) => {
       requestAnimationFrame(() => {
         applyGhostfading(plateau.view, currentId, new Set(state.v));
 
-        const DWELL_ANNOTATIONS = {
-          "next-word": {
-            "step-0": "The simplest possible action, repeated billions of times.",
-            "step-1": "Temperature is the only knob most users ever touch.",
-            "step-2": "The context window is the model's entire reality.",
-          },
-          "averaging-problem": {
-            "step-0": "The average is never anyone's voice. It's a new voice.",
-            "step-2": "The base model is the most capable and the least useful.",
-          },
-          "the-shaping": {
-            "step-0": "This is where the model learns to have opinions.",
-            "step-1": "The reward model is a model of a model of human preference.",
-          },
-        };
-        const dwellData = DWELL_ANNOTATIONS[currentId];
+        const dwellData = LOCALE.dwellAnnotations[currentId];
         if (dwellData) {
           const steps = plateau.view.querySelectorAll(".scrolly-step");
           steps.forEach((step, i) => {
@@ -284,7 +271,7 @@ window.addEventListener("hashchange", () => {
   const targetId = hash && getPlateau(hash) ? hash : null;
   let question = null;
   if (targetId) {
-    question = liminalPending || ENTRY_QUESTIONS[targetId] || null;
+    question = liminalPending || LOCALE.entryQuestions[targetId] || null;
   }
   liminalPending = null;
   renderRoute(question);

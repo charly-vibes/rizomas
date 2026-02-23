@@ -1,0 +1,6 @@
+LOCALE_LANG="en"
+LOCALE_DIR="ltr"
+LOCALE_TITLE="How LLMs Actually Work"
+LOCALE_NAV_LABEL="All essays"
+LOCALE_SUBTITLE="Seventeen essays on prediction, memory, and the strange logic of machines."
+LOCALE_JS_REQUIRED="This site requires JavaScript for its interactive features."

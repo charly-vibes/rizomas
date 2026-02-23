@@ -45,7 +45,7 @@ const buildSeedCluster = (seeds, { state, plateauId, onSeedOpen } = {}) => {
 };
 
 const buildScatterToText = () => {
-  const words = ["syntax", "semantics", "reasoning", "facts", "grammar", "analogy", "context", "prediction", "structure", "meaning", "inference", "pattern"];
+  const words = LOCALE.scatterWords;
   const container = h("div", { class: "scatter-container" });
   const wordEls = [];
 
@@ -181,100 +181,10 @@ const buildCYOAFork = ({ prompt, options }) => {
   return group;
 };
 
-const RETRIEVAL_QUESTIONS = {
-  "next-word": (visited) => {
-    if (visited.has("weight-of-words")) return "Earlier, you explored how trillions of words become structure. What gets lost when all that structure collapses into a single next token?";
-    if (visited.has("the-shaping")) return "You saw how RLHF reshapes behavior. How does that shaping interact with the raw prediction you're reading about now?";
-    if (visited.has("averaging-problem")) return "You explored the averaging problem. How does that average show up in what the model predicts next?";
-    return null;
-  },
-  "weight-of-words": (visited) => {
-    if (visited.has("next-word")) return "You saw how models predict the next token. What kind of structure would you need to learn before that prediction works?";
-    if (visited.has("the-shaping")) return "You explored how models get shaped after training. What does the model need to learn first, before any shaping begins?";
-    return null;
-  },
-  "the-shaping": (visited) => {
-    if (visited.has("weight-of-words")) return "You saw how structure emerges from raw data. What happens when humans start redirecting those learned patterns?";
-    if (visited.has("quality")) return "You thought about who defines quality. Now ask: how do those definitions get baked into the model's behavior?";
-    return null;
-  },
-  quality: (visited) => {
-    if (visited.has("the-shaping")) return "You followed the shaping process. Now step back: who chose the direction of that shaping, and by what standard?";
-    if (visited.has("understanding-illusion")) return "You questioned whether models understand. Does that change how you think about rating their outputs?";
-    return null;
-  },
-  "understanding-illusion": (visited) => {
-    if (visited.has("next-word")) return "You saw the prediction mechanism. Does knowing how it works change whether you'd call it understanding?";
-    if (visited.has("weight-of-words")) return "You explored the internal structure that emerges from training. Does having structure mean having understanding?";
-    return null;
-  },
-  "averaging-problem": (visited) => {
-    if (visited.has("next-word")) return "You watched a model predict the next word. What happens when that prediction is averaged across a million different writing styles?";
-    if (visited.has("quality")) return "You considered what quality means. How does the averaging problem complicate the idea of a 'good' output?";
-    return null;
-  },
-  "practical-guide": (visited) => {
-    if (visited.has("understanding-illusion")) return "You questioned whether models truly understand. How does that uncertainty change how you should use them?";
-    if (visited.has("the-shaping")) return "You saw how models get shaped. How does knowing that inform the way you write prompts?";
-    return null;
-  },
-  "tool-user": (visited) => {
-    if (visited.has("practical-guide")) return "You learned techniques for working with models. What changes when the model can also work with tools?";
-    if (visited.has("next-word")) return "You saw how models predict tokens. What happens when one of those tokens is a function call?";
-    return null;
-  },
-  "near-zero-cost-impact": (visited) => {
-    if (visited.has("averaging-problem")) return "You explored what happens when a model averages everything. What happens when that average is reproduced at near-zero cost, billions of times over?";
-    if (visited.has("quality")) return "You asked who defines quality. When production cost is zero and volume is infinite, does quality still matter\u2014or does it drown?";
-    if (visited.has("digital-footprints")) return "You considered the environmental cost of AI. What's the full ledger when production itself is nearly free but the infrastructure isn't?";
-    return null;
-  },
-  "algorithm-as-muse": (visited) => {
-    if (visited.has("averaging-problem")) return "You saw how models average everything they've read. What does that average look like when it tries to create art?";
-    if (visited.has("the-shaping")) return "You explored how models are shaped by human feedback. Who's shaping the muse\u2014and whose taste does it reflect?";
-    return null;
-  },
-  "echoes-of-the-past": (visited) => {
-    if (visited.has("quality")) return "You thought about who decides what's 'good.' The same question haunts history: whose version of the past does the model learn?";
-    if (visited.has("weight-of-words")) return "You saw how models learn from trillions of words. What happens when those words carry centuries of bias?";
-    return null;
-  },
-  "learning-machines-learning-humans": (visited) => {
-    if (visited.has("next-word")) return "You watched a model predict the next word. What happens when a student starts relying on that prediction instead of thinking?";
-    if (visited.has("understanding-illusion")) return "You questioned whether models understand. Does that uncertainty change how you'd trust one as a teacher?";
-    return null;
-  },
-  "automation-of-cognition": (visited) => {
-    if (visited.has("the-shaping")) return "You saw how models are shaped for usefulness. What happens when that usefulness displaces the workers it was shaped to help?";
-    if (visited.has("tool-user")) return "You explored what happens when models use tools. What happens when those tools replace the people who used to wield them?";
-    return null;
-  },
-  "black-box-oracle": (visited) => {
-    if (visited.has("the-shaping")) return "You saw how human feedback shapes model behavior. But who audits the shaping when the model makes life-altering decisions?";
-    if (visited.has("understanding-illusion")) return "You questioned whether models understand. How do you hold accountable a system you can't explain and that may not understand itself?";
-    return null;
-  },
-  "digital-footprints": (visited) => {
-    if (visited.has("near-zero-cost-impact")) return "You saw what happens when production cost approaches zero. But the energy cost doesn't\u2014every query has a carbon shadow.";
-    if (visited.has("weight-of-words")) return "You explored how models learn from trillions of words. What's the environmental cost of processing that much language?";
-    return null;
-  },
-  "artificial-brain": (visited) => {
-    if (visited.has("next-word")) return "You watched a model predict tokens. The brain predicts too\u2014but with 86 billion neurons running on 20 watts. What's different?";
-    if (visited.has("understanding-illusion")) return "You questioned whether models understand. If understanding requires a body, what does that mean for a machine?";
-    return null;
-  },
-  "empathy-machine": (visited) => {
-    if (visited.has("understanding-illusion")) return "You questioned whether models understand. If they don't, can they truly empathize\u2014or only simulate empathy?";
-    if (visited.has("next-word")) return "You saw how models predict the next word. When the next word is 'I understand how you feel,' is that prediction or connection?";
-    return null;
-  },
-};
-
 const buildRetrievalMoment = (state, plateauId) => {
   if (state.v.length < 3) return null;
   const visited = new Set(state.v);
-  const getter = RETRIEVAL_QUESTIONS[plateauId];
+  const getter = LOCALE.retrievalQuestions[plateauId];
   if (!getter) return null;
   const question = getter(visited);
   if (!question) return null;
@@ -282,13 +192,13 @@ const buildRetrievalMoment = (state, plateauId) => {
   const closeBtn = h("button", {
     class: "retrieval-close",
     type: "button",
-    "aria-label": "Dismiss this reflection prompt",
+    "aria-label": LOCALE.ui.dismissReflection,
     title: "Dismiss",
   }, "\u00d7");
   const card = h("div", {
     class: "retrieval-moment",
     role: "note",
-    "aria-label": "A reflection on what you've read so far",
+    "aria-label": LOCALE.ui.reflectionAriaLabel,
   },
     h("p", { style: { margin: "0", flex: "1" } }, question),
     closeBtn
@@ -305,11 +215,11 @@ const buildEngagementState = (state, plateauId) => {
     class: "engagement-state",
     "aria-live": "polite",
     title: "Seeds are the expandable elements above \u2014 click them to explore deeper layers of this essay",
-  }, `${eg.opened} of ${eg.total} seeds explored`);
+  }, LOCALE.ui.seedsExplored(eg.opened, eg.total));
   return el;
 };
 
-const MARGINALIA = {
+const _UNUSED_MARGINALIA = {
   "weight-of-words": [
     { forParagraph: 0, text: "The loop never actually converges. It just gets close enough." },
     { forParagraph: 2, text: "Chinchilla showed: more data per parameter beats more parameters per data.", condition: (v) => v.has("averaging-problem") },

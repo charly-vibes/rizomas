@@ -4,7 +4,7 @@ const buildMiniMap = (state, currentId) => {
   const button = h("button", {
     class: "mini-map-button",
     type: "button",
-    "aria-label": "Open navigation map",
+    "aria-label": LOCALE.ui.openNav,
   });
   const icon = h("div", { class: "mini-map-icon" });
   icon.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><circle cx="5" cy="6" r="2"/><circle cx="19" cy="7" r="2"/><circle cx="7" cy="18" r="2"/><circle cx="18" cy="17" r="2"/><line x1="12" y1="9" x2="7" y2="7.2"/><line x1="12" y1="9" x2="17.2" y2="7.4"/><line x1="12" y1="15" x2="8.4" y2="16.8"/><line x1="12" y1="15" x2="16.6" y2="16.2"/></svg>';

@@ -1,3 +1,5 @@
+GRAPH.nodes.forEach(n => Object.assign(n, LOCALE.nodes[n.id]));
+
 const initEngagement = (state, plateauId, totalSeeds) => {
   if (!state.eg[plateauId]) state.eg[plateauId] = { opened: 0, total: 0 };
   state.eg[plateauId].total = totalSeeds;
@@ -216,25 +218,6 @@ const drawGraph = ({
   });
 };
 
-const ENTRY_QUESTIONS = {
-  "next-word": "What is an LLM actually doing when it \"talks\" to you?",
-  "averaging-problem": "If you learn from a million essays, do you write like the best one or the average one?",
-  "the-shaping": "What happened between \"raw autocomplete\" and \"helpful assistant\"?",
-  "weight-of-words": "How does a model learn from trillions of words?",
-  quality: "When we say a model's output is \"good,\" who decides?",
-  "understanding-illusion": "Does the model \"understand\" what it's saying?",
-  "practical-guide": "So what do I actually do with all this?",
-  "tool-user": "What happens when the model can use tools?",
-  "algorithm-as-muse": "When AI helps create art, who is the artist?",
-  "echoes-of-the-past": "What happens when AI reads history through its own biases?",
-  "learning-machines-learning-humans": "What happens to learning when AI has all the answers?",
-  "automation-of-cognition": "What happens when machines can do the thinking?",
-  "black-box-oracle": "How do you trust a decision you can't explain?",
-  "digital-footprints": "What does AI cost the planet?",
-  "artificial-brain": "Is an artificial neural network really anything like a brain?",
-  "empathy-machine": "Can a machine that simulates empathy actually help \u2014 or harm?",
-  "near-zero-cost-impact": "What happens when the cost of producing everything approaches zero?",
-};
 
 const prefersReducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -242,7 +225,7 @@ const buildSimpleConstellation = (currentId, visited, whisperQuestions) => {
   const size = 320;
   const canvas = h("canvas", {
     role: "img",
-    "aria-label": "Constellation map of connected plateaus",
+    "aria-label": LOCALE.ui.constellationAriaLabel,
   });
   const wrap = h("div", { class: "simple-constellation" }, canvas);
 
