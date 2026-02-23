@@ -6,7 +6,7 @@ const buildVizDigitalFootprints = (state) => {
     width: "100%", position: "relative", textTransform: "none", letterSpacing: "normal",
   } });
 
-  const canvas = h("canvas", { role: "img", "aria-label": "Digital footprints environmental impact visualization" });
+  const canvas = h("canvas", { role: "img", "aria-label": LOCALE.viz.digitalFootprints.ariaLabel });
   const canvasWrap = h("div", { style: {
     width: "100%", height: "210px", padding: "0 20px 8px", position: "relative",
   } });
@@ -20,6 +20,8 @@ const buildVizDigitalFootprints = (state) => {
     fontSize: "0.92rem",
     lineHeight: "1.6",
   } });
+
+  const vdf = LOCALE.viz.digitalFootprints;
 
   // State 1 — Energy Meter
   const panelEnergy = buildPanel();
@@ -40,14 +42,10 @@ const buildVizDigitalFootprints = (state) => {
     h("div", { style: { fontSize: "0.7rem", textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--ink3)" } }, label),
     h("div", { style: { fontWeight: "600", color: "var(--ink)", marginTop: "2px" } }, value)
   );
-  energyGrid.append(
-    buildChip("AI query", "~0.01 kWh"),
-    buildChip("Web search", "~0.001 kWh"),
-    buildChip("Model training", "~1,300 MWh"),
-  );
+  vdf.energy.chips.forEach((c) => energyGrid.appendChild(buildChip(c.label, c.value)));
   panelEnergy.append(
     energyGrid,
-    h("div", { style: { color: "var(--ink2)" } }, "A single AI query uses roughly 10× the energy of a web search. Training scales to hundreds of homes for a year.")
+    h("div", { style: { color: "var(--ink2)" } }, vdf.energy.caption)
   );
 
   // State 2 — Carbon Emissions
@@ -60,14 +58,10 @@ const buildVizDigitalFootprints = (state) => {
     fontSize: "0.82rem",
     marginBottom: "8px",
   } });
-  carbonGrid.append(
-    buildChip("Training emissions", "~552 t CO₂"),
-    buildChip("Equiv. flights", "~5 transatlantic"),
-    buildChip("Equiv. households", "~60 years"),
-  );
+  vdf.carbon.chips.forEach((c) => carbonGrid.appendChild(buildChip(c.label, c.value)));
   panelCarbon.append(
     carbonGrid,
-    h("div", { style: { color: "var(--ink2)" } }, "As compute doubles, emissions follow. Carbon cost compounds with each generation of models.")
+    h("div", { style: { color: "var(--ink2)" } }, vdf.carbon.caption)
   );
 
   // State 3 — Resource Map
@@ -80,14 +74,10 @@ const buildVizDigitalFootprints = (state) => {
     fontSize: "0.82rem",
     marginBottom: "8px",
   } });
-  resourceGrid.append(
-    buildChip("Water cooling", "~700K liters/day"),
-    buildChip("GPU lifespan", "~3–5 years"),
-    buildChip("E-waste growth", "~15%/year"),
-  );
+  vdf.resources.chips.forEach((c) => resourceGrid.appendChild(buildChip(c.label, c.value)));
   panelResources.append(
     resourceGrid,
-    h("div", { style: { color: "var(--ink2)" } }, "Data centers consume water like small towns. Rapid GPU obsolescence feeds a growing e-waste stream.")
+    h("div", { style: { color: "var(--ink2)" } }, vdf.resources.caption)
   );
 
   // State 4 — Sustainability Dashboard
@@ -113,15 +103,11 @@ const buildVizDigitalFootprints = (state) => {
       items.map((item) => h("div", null, item))
     )
   );
-  sustainGrid.append(
-    buildStrategy("Energy", ["renewable sources", "grid optimization", "heat reuse"]),
-    buildStrategy("Efficiency", ["model pruning", "sparse architectures", "distillation"]),
-    buildStrategy("Cooling", ["liquid cooling", "free-air systems", "waste heat capture"]),
-  );
+  vdf.sustain.strategies.forEach((s) => sustainGrid.appendChild(buildStrategy(s.title, s.items)));
   panelSustain.append(
     sustainGrid,
     h("div", { style: { marginTop: "8px", color: "var(--ink2)", textTransform: "none", letterSpacing: "normal" } },
-      "Sustainability is not optional. It requires action at every layer of the stack.")
+      vdf.sustain.caption)
   );
 
   const srStatus = h("div", {
@@ -170,11 +156,7 @@ const buildVizDigitalFootprints = (state) => {
     const { ink2, ink3, ink4, acc } = getColors();
     const pad = { left: 90, right: 16, top: 20, bottom: 50 };
     const plotW = w - pad.left - pad.right;
-    const items = [
-      { label: "AI query", value: 10, unit: "Wh" },
-      { label: "Web search", value: 1, unit: "Wh" },
-      { label: "Model training", value: 1300000, unit: "kWh", scale: true },
-    ];
+    const items = vdf.energy.canvasItems;
     const barH = 20;
     const gap = 28;
 
@@ -206,19 +188,19 @@ const buildVizDigitalFootprints = (state) => {
     ctx.textBaseline = "middle";
     ctx.fillText(items[2].label, pad.left - 8, trainY + barH / 2);
     ctx.textAlign = "left";
-    ctx.fillText("1,300 MWh", pad.left + 8, trainY + barH / 2);
+    ctx.fillText(vdf.energy.trainingValue, pad.left + 8, trainY + barH / 2);
 
     // 10× label
     ctx.fillStyle = acc;
     ctx.font = "bold 12px system-ui, -apple-system, 'Segoe UI', sans-serif";
     ctx.textAlign = "center";
-    ctx.fillText("10×", pad.left + plotW / 2, pad.top + gap - 6);
+    ctx.fillText(vdf.energy.multiplierLabel, pad.left + plotW / 2, pad.top + gap - 6);
 
     // Scale note
     ctx.fillStyle = ink3;
     ctx.font = "10px system-ui, -apple-system, 'Segoe UI', sans-serif";
     ctx.textAlign = "center";
-    ctx.fillText("≈ 100 homes for a year", w / 2, trainY + barH + 16);
+    ctx.fillText(vdf.energy.scaleNote, w / 2, trainY + barH + 16);
   };
 
   // State 2 canvas: Carbon emission accumulation bars
@@ -228,11 +210,8 @@ const buildVizDigitalFootprints = (state) => {
     const barW = 42;
     const gap = 32;
     const maxH = ch - 60;
-    const items = [
-      { label: "Training", value: 552, color: acc },
-      { label: "Inference/yr", value: 180, color: ink2 },
-      { label: "Hardware", value: 85, color: seed },
-    ];
+    const carbonColors = [acc, ink2, seed];
+    const items = vdf.carbon.canvasItems.map((item, i) => ({ ...item, color: carbonColors[i] }));
     const maxVal = 600;
     items.forEach((item, i) => {
       const x = 40 + i * (barW + gap);
@@ -251,18 +230,14 @@ const buildVizDigitalFootprints = (state) => {
     ctx.fillStyle = ink3;
     ctx.font = "10px system-ui, -apple-system, 'Segoe UI', sans-serif";
     ctx.textAlign = "center";
-    ctx.fillText("CO₂ equivalent (tonnes)", w / 2, 14);
+    ctx.fillText(vdf.carbon.axis, w / 2, 14);
   };
 
   // State 3 canvas: Resource usage horizontal bars
   const drawResourceMap = (ctx, w, ch) => {
     const { ink2, ink3, ink4, acc, seed } = getColors();
-    const items = [
-      { label: "Water use", value: 0.85, color: acc },
-      { label: "GPU lifecycle", value: 0.65, color: seed },
-      { label: "E-waste", value: 0.72, color: ink2 },
-      { label: "Rare minerals", value: 0.58, color: ink3 },
-    ];
+    const resourceColors = [acc, seed, ink2, ink3];
+    const items = vdf.resources.canvasItems.map((item, i) => ({ ...item, color: resourceColors[i] }));
     const left = 90;
     const top = 22;
     const barW = w - left - 30;
@@ -286,7 +261,7 @@ const buildVizDigitalFootprints = (state) => {
     ctx.fillStyle = ink3;
     ctx.font = "10px system-ui, -apple-system, 'Segoe UI', sans-serif";
     ctx.textAlign = "center";
-    ctx.fillText("Relative environmental impact", w / 2, ch - 10);
+    ctx.fillText(vdf.resources.axis, w / 2, ch - 10);
   };
 
   // State 4 canvas: Sustainability strategy contour lines
@@ -350,13 +325,13 @@ const buildVizDigitalFootprints = (state) => {
     setPanelVisibility();
     drawCanvas();
     if (currentState === 1) {
-      srStatus.textContent = "Energy meter compares AI query consumption to web searches and model training costs.";
+      srStatus.textContent = vdf.energy.sr;
     } else if (currentState === 2) {
-      srStatus.textContent = "Carbon emissions from training, inference, and hardware manufacturing shown in tonnes of CO2.";
+      srStatus.textContent = vdf.carbon.sr;
     } else if (currentState === 3) {
-      srStatus.textContent = "Resource map showing water consumption, GPU lifecycle, e-waste, and rare mineral impacts.";
+      srStatus.textContent = vdf.resources.sr;
     } else if (currentState === 4) {
-      srStatus.textContent = "Sustainability dashboard comparing green AI strategies: renewable energy, efficiency, and cooling.";
+      srStatus.textContent = vdf.sustain.sr;
     }
   };
 

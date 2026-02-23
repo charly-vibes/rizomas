@@ -6,7 +6,7 @@ const buildVizAutomationOfCognition = (state) => {
     width: "100%", position: "relative", textTransform: "none", letterSpacing: "normal",
   } });
 
-  const canvas = h("canvas", { role: "img", "aria-label": "Automation of cognition visualization" });
+  const canvas = h("canvas", { role: "img", "aria-label": LOCALE.viz.automationCognition.ariaLabel });
   const canvasWrap = h("div", { style: {
     width: "100%", height: "210px", padding: "0 20px 8px", position: "relative",
   } });
@@ -31,6 +31,8 @@ const buildVizAutomationOfCognition = (state) => {
     h("div", { style: { fontWeight: "600", color: "var(--ink)", marginTop: "2px" } }, value)
   );
 
+  const vac = LOCALE.viz.automationCognition;
+
   // State 1 — Task Migration Flow
   const panelMigration = buildPanel();
   const migrationGrid = h("div", { style: {
@@ -41,14 +43,10 @@ const buildVizAutomationOfCognition = (state) => {
     fontSize: "0.82rem",
     marginBottom: "8px",
   } });
-  migrationGrid.append(
-    buildChip("Data analysis", "High exposure"),
-    buildChip("Content generation", "High exposure"),
-    buildChip("Legal research", "Moderate"),
-  );
+  vac.migration.chips.forEach((c) => migrationGrid.appendChild(buildChip(c.label, c.value)));
   panelMigration.append(
     migrationGrid,
-    h("div", { style: { color: "var(--ink2)" } }, "White-collar cognitive tasks are migrating to AI systems. The shift targets reasoning and synthesis, not just routine.")
+    h("div", { style: { color: "var(--ink2)" } }, vac.migration.caption)
   );
 
   // State 2 — Productivity vs Displacement
@@ -61,14 +59,10 @@ const buildVizAutomationOfCognition = (state) => {
     fontSize: "0.82rem",
     marginBottom: "8px",
   } });
-  productivityGrid.append(
-    buildChip("Productivity gain", "+40% avg."),
-    buildChip("Displacement risk", "~30% of roles"),
-    buildChip("Cognitive dependence", "Rising"),
-  );
+  vac.productivity.chips.forEach((c) => productivityGrid.appendChild(buildChip(c.label, c.value)));
   panelProductivity.append(
     productivityGrid,
-    h("div", { style: { color: "var(--ink2)" } }, "Productivity rises as cognitive load shifts to machines—but over-reliance risks atrophying human problem-solving.")
+    h("div", { style: { color: "var(--ink2)" } }, vac.productivity.caption)
   );
 
   // State 3 — Wealth Distribution
@@ -81,14 +75,10 @@ const buildVizAutomationOfCognition = (state) => {
     fontSize: "0.82rem",
     marginBottom: "8px",
   } });
-  wealthGrid.append(
-    buildChip("Predistribution", "Equity at source"),
-    buildChip("Redistribution", "Correction after"),
-    buildChip("Concentration risk", "Accelerating"),
-  );
+  vac.wealth.chips.forEach((c) => wealthGrid.appendChild(buildChip(c.label, c.value)));
   panelWealth.append(
     wealthGrid,
-    h("div", { style: { color: "var(--ink2)" } }, "AI benefits concentrate unless policy intervenes. The question is whether to prevent inequality or correct it.")
+    h("div", { style: { color: "var(--ink2)" } }, vac.wealth.caption)
   );
 
   // State 4 — Future of Work Landscape
@@ -114,15 +104,11 @@ const buildVizAutomationOfCognition = (state) => {
       items.map((item) => h("div", null, item))
     )
   );
-  futureGrid.append(
-    buildStrategy("Human strengths", ["creativity", "empathy", "strategy"]),
-    buildStrategy("AI strengths", ["speed", "scale", "consistency"]),
-    buildStrategy("Safety nets", ["UBI", "retraining", "transition funds"]),
-  );
+  vac.future.strategies.forEach((s) => futureGrid.appendChild(buildStrategy(s.title, s.items)));
   panelFuture.append(
     futureGrid,
     h("div", { style: { marginTop: "8px", color: "var(--ink2)", textTransform: "none", letterSpacing: "normal" } },
-      "The future workplace is a collaboration zone. UBI bridges the gap while humans find new footing.")
+      vac.future.caption)
   );
 
   const srStatus = h("div", {
@@ -169,13 +155,7 @@ const buildVizAutomationOfCognition = (state) => {
   // State 1 canvas: Task migration flow — arrows from human roles to AI
   const drawTaskMigration = (ctx, w, ch) => {
     const { ink2, ink3, ink4, acc } = getColors();
-    const roles = [
-      { label: "Data analysis", exposure: 0.9 },
-      { label: "Content gen.", exposure: 0.85 },
-      { label: "Legal research", exposure: 0.65 },
-      { label: "Medical inquiry", exposure: 0.55 },
-      { label: "Strategy", exposure: 0.2 },
-    ];
+    const roles = vac.migration.canvasRoles;
     const leftX = 18;
     const midX = w * 0.48;
     const rightX = w - 18;
@@ -186,9 +166,9 @@ const buildVizAutomationOfCognition = (state) => {
     ctx.fillStyle = ink3;
     ctx.font = "bold 10px system-ui, -apple-system, 'Segoe UI', sans-serif";
     ctx.textAlign = "left";
-    ctx.fillText("HUMAN", leftX, 12);
+    ctx.fillText(vac.migration.canvasHuman, leftX, 12);
     ctx.textAlign = "right";
-    ctx.fillText("AI", rightX, 12);
+    ctx.fillText(vac.migration.canvasAI, rightX, 12);
 
     roles.forEach((role, i) => {
       const y = top + i * gap + gap / 2;
@@ -228,12 +208,7 @@ const buildVizAutomationOfCognition = (state) => {
   // State 2 canvas: Productivity vs displacement dual bars
   const drawProductivityDisplacement = (ctx, w, ch) => {
     const { ink2, ink3, ink4, acc, seed } = getColors();
-    const items = [
-      { label: "Reasoning", prod: 0.7, disp: 0.6 },
-      { label: "Synthesis", prod: 0.8, disp: 0.5 },
-      { label: "Routine", prod: 0.95, disp: 0.85 },
-      { label: "Creative", prod: 0.4, disp: 0.15 },
-    ];
+    const items = vac.productivity.canvasItems;
     const left = 70;
     const barW = (w - left - 20) / 2 - 4;
     const barH = 16;
@@ -246,11 +221,11 @@ const buildVizAutomationOfCognition = (state) => {
     ctx.fillStyle = ink2;
     ctx.font = "10px system-ui, -apple-system, 'Segoe UI', sans-serif";
     ctx.textAlign = "left";
-    ctx.fillText("Productivity", left + 14, 16);
+    ctx.fillText(vac.productivity.legendProd, left + 14, 16);
     ctx.fillStyle = seed;
     ctx.fillRect(left + 90, 8, 10, 10);
     ctx.fillStyle = ink2;
-    ctx.fillText("Displacement", left + 104, 16);
+    ctx.fillText(vac.productivity.legendDisp, left + 104, 16);
 
     items.forEach((item, i) => {
       const y = top + i * gap;
@@ -330,15 +305,15 @@ const buildVizAutomationOfCognition = (state) => {
     ctx.fillStyle = ink3;
     ctx.font = "10px system-ui, -apple-system, 'Segoe UI', sans-serif";
     ctx.textAlign = "left";
-    ctx.fillText("Pre-AI", pad.left + 8, pad.top + 14);
+    ctx.fillText(vac.wealth.preAILabel, pad.left + 8, pad.top + 14);
     ctx.fillStyle = acc;
-    ctx.fillText("Post-AI", pad.left + plotW * 0.65, pad.top + 14);
+    ctx.fillText(vac.wealth.postAILabel, pad.left + plotW * 0.65, pad.top + 14);
 
     // Axis labels
     ctx.fillStyle = ink3;
     ctx.font = "10px system-ui, -apple-system, 'Segoe UI', sans-serif";
     ctx.textAlign = "center";
-    ctx.fillText("Population → Wealth", pad.left + plotW / 2, ch - 6);
+    ctx.fillText(vac.wealth.axisLabel, pad.left + plotW / 2, ch - 6);
   };
 
   // State 4 canvas: Future-of-work collaboration zones
@@ -346,11 +321,9 @@ const buildVizAutomationOfCognition = (state) => {
     const { ink2, ink3, ink4, acc, seed } = getColors();
 
     // Three zones
-    const zones = [
-      { label: "Human domain", x: 0.05, w: 0.25, color: seed },
-      { label: "Collaboration", x: 0.35, w: 0.3, color: acc },
-      { label: "AI domain", x: 0.7, w: 0.25, color: ink3 },
-    ];
+    const zoneColors = [seed, acc, ink3];
+    const zonePositions = [{ x: 0.05, w: 0.25 }, { x: 0.35, w: 0.3 }, { x: 0.7, w: 0.25 }];
+    const zones = vac.future.zones.map((z, i) => ({ ...z, ...zonePositions[i], color: zoneColors[i] }));
     const top = 28;
     const zoneH = ch - 60;
 
@@ -386,7 +359,7 @@ const buildVizAutomationOfCognition = (state) => {
     ctx.fillStyle = acc;
     ctx.font = "10px system-ui, -apple-system, 'Segoe UI', sans-serif";
     ctx.textAlign = "center";
-    ctx.fillText("UBI safety net", w / 2, netY + 14);
+    ctx.fillText(vac.future.ubiLabel, w / 2, netY + 14);
 
     // Dots representing workers in each zone
     ctx.globalAlpha = 0.6;
@@ -426,13 +399,13 @@ const buildVizAutomationOfCognition = (state) => {
     setPanelVisibility();
     drawCanvas();
     if (currentState === 1) {
-      srStatus.textContent = "Task migration flow shows cognitive tasks shifting from human workers to AI, with white-collar professions highlighted.";
+      srStatus.textContent = vac.migration.sr;
     } else if (currentState === 2) {
-      srStatus.textContent = "Productivity versus displacement chart compares AI gains in reasoning, synthesis, and routine tasks against job displacement risk.";
+      srStatus.textContent = vac.productivity.sr;
     } else if (currentState === 3) {
-      srStatus.textContent = "Wealth distribution curves shift as AI benefits concentrate, contrasting pre-AI and post-AI distributions.";
+      srStatus.textContent = vac.wealth.sr;
     } else if (currentState === 4) {
-      srStatus.textContent = "Future-of-work landscape shows human, collaboration, and AI domains with UBI as a safety net bridging the transition.";
+      srStatus.textContent = vac.future.sr;
     }
   };
 

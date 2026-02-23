@@ -10,7 +10,7 @@ const buildVizNearZeroCostImpact = (state) => {
     width: "100%", position: "relative", textTransform: "none", letterSpacing: "normal",
   } });
 
-  const canvas = h("canvas", { role: "img", "aria-label": "Near-zero cost impact visualization" });
+  const canvas = h("canvas", { role: "img", "aria-label": LOCALE.viz.nearZeroCost.ariaLabel });
   const canvasWrap = h("div", { style: {
     width: "100%", height: "210px", padding: "0 20px 8px", position: "relative",
   } });
@@ -24,6 +24,8 @@ const buildVizNearZeroCostImpact = (state) => {
     fontSize: "0.92rem",
     lineHeight: "1.6",
   } });
+
+  const vnzc = LOCALE.viz.nearZeroCost;
 
   const panelCost = buildPanel();
   const chipWrap = h("div", { style: {
@@ -43,13 +45,10 @@ const buildVizNearZeroCostImpact = (state) => {
     border: "1px solid var(--ink4)",
     background: "var(--paper)",
   } }, text);
-  chipWrap.append(
-    buildChip("Legacy marginal cost: ~$1.20/unit"),
-    buildChip("AI marginal cost: ~$0.02/unit"),
-  );
+  vnzc.cost.chips.forEach((c) => chipWrap.appendChild(buildChip(c)));
   panelCost.append(
     chipWrap,
-    h("div", null, "As marginal cost collapses, the value shifts from production to curation and trust.")
+    h("div", null, vnzc.cost.caption)
   );
 
   const panelFlood = buildPanel();
@@ -80,14 +79,14 @@ const buildVizNearZeroCostImpact = (state) => {
     } }, value, caption);
     return { wrap, value };
   };
-  const textCounter = buildCounter("Text outputs");
-  const imageCounter = buildCounter("Images generated");
-  const codeCounter = buildCounter("Code snippets");
+  const textCounter = buildCounter(vnzc.flood.counters[0].label);
+  const imageCounter = buildCounter(vnzc.flood.counters[1].label);
+  const codeCounter = buildCounter(vnzc.flood.counters[2].label);
   floodGrid.append(textCounter.wrap, imageCounter.wrap, codeCounter.wrap);
   panelFlood.append(
     floodGrid,
     h("div", { style: { marginTop: "8px", color: "var(--ink2)" } },
-      "Volume scales faster than verification. The average becomes the default."
+      vnzc.flood.caption
     )
   );
 
@@ -99,13 +98,7 @@ const buildVizNearZeroCostImpact = (state) => {
     fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif",
     fontSize: "0.8rem",
   } });
-  const riskItems = [
-    { label: "Misinformation", level: "High" },
-    { label: "De-skilling", level: "Elevated" },
-    { label: "Security flaws", level: "Rising" },
-    { label: "Economic shock", level: "High" },
-  ];
-  riskItems.forEach((item) => {
+  vnzc.risk.items.forEach((item) => {
     riskList.appendChild(h("div", { style: {
       padding: "8px 10px",
       borderRadius: "10px",
@@ -119,7 +112,7 @@ const buildVizNearZeroCostImpact = (state) => {
   panelRisk.append(
     riskList,
     h("div", { style: { marginTop: "8px", color: "var(--ink2)" } },
-      "Risks scale with volume, not intent."
+      vnzc.risk.caption
     )
   );
 
@@ -131,17 +124,11 @@ const buildVizNearZeroCostImpact = (state) => {
     fontSize: "0.82rem",
     color: "var(--ink2)",
   } });
-  const timelineItems = [
-    "1440 Printing Press: ideas replicate faster than scribes",
-    "1760 Industrial Revolution: labor scales with machines",
-    "1995 Internet Era: distribution outruns gatekeepers",
-    "2023 AI Models: cognition scales at digital speed",
-  ];
-  timelineItems.forEach((text) => timelineList.appendChild(h("div", null, text)));
+  vnzc.timeline.items.forEach((item) => timelineList.appendChild(h("div", null, item.full)));
   panelTimeline.append(
     timelineList,
     h("div", { style: { marginTop: "8px", color: "var(--ink)" } },
-      "Each shift compresses time. This one compresses thought."
+      vnzc.timeline.caption
     )
   );
 
@@ -167,15 +154,11 @@ const buildVizNearZeroCostImpact = (state) => {
       items.map((item) => h("div", null, item))
     )
   );
-  strategyGrid.append(
-    buildStrategy("Individuals", ["upskill", "tool fluency", "domain depth"]),
-    buildStrategy("Society", ["education reform", "labor transition", "public literacy"]),
-    buildStrategy("Policy", ["AI Act", "safety audits", "IP frameworks"])
-  );
+  vnzc.strategy.strategies.forEach((s) => strategyGrid.appendChild(buildStrategy(s.title, s.items)));
   panelStrategy.append(
     strategyGrid,
     h("div", { style: { marginTop: "8px", color: "var(--ink2)", textTransform: "none", letterSpacing: "normal" } },
-      "Preparation is multi-scale. The terrain keeps shifting."
+      vnzc.strategy.caption
     )
   );
 
@@ -273,9 +256,9 @@ const buildVizNearZeroCostImpact = (state) => {
     ctx.fillStyle = ink2;
     ctx.font = "11px system-ui, -apple-system, 'Segoe UI', sans-serif";
     ctx.textAlign = "left";
-    ctx.fillText("Physical goods", pad.left + 6, pad.top + plotH * 0.25);
+    ctx.fillText(vnzc.cost.physicalGoods, pad.left + 6, pad.top + plotH * 0.25);
     ctx.textAlign = "right";
-    ctx.fillText("AI outputs", pad.left + plotW, pad.top + plotH - 6);
+    ctx.fillText(vnzc.cost.aiOutputs, pad.left + plotW, pad.top + plotH - 6);
   };
 
   const drawContentFlood = (ctx, w, h) => {
@@ -284,11 +267,10 @@ const buildVizNearZeroCostImpact = (state) => {
     const barW = 42;
     const gap = 32;
     const maxH = h - 60;
-    const items = [
-      { label: "Text", value: 250, color: acc },
-      { label: "Images", value: 45, color: ink2 },
-      { label: "Code", value: 9, color: seed },
-    ];
+    const floodColors = [acc, ink2, seed];
+    const items = vnzc.flood.canvasLabels.map((label, i) => ({
+      label, color: floodColors[i], value: [250, 45, 9][i],
+    }));
     const maxVal = 260;
     items.forEach((item, i) => {
       const x = 28 + i * (barW + gap);
@@ -329,12 +311,7 @@ const buildVizNearZeroCostImpact = (state) => {
 
   const drawTimeline = (ctx, w, h) => {
     const { ink2, ink3, ink4, acc } = getColors();
-    const items = [
-      { year: "1440", label: "Printing Press" },
-      { year: "1760", label: "Industrial" },
-      { year: "1995", label: "Internet" },
-      { year: "2023", label: "AI Models" },
-    ];
+    const items = vnzc.timeline.items;
     const left = 22;
     const right = w - 22;
     const y = h / 2;
@@ -451,15 +428,15 @@ const buildVizNearZeroCostImpact = (state) => {
       stopCounterAnimation();
     }
     if (currentState === 1) {
-      srStatus.textContent = "Cost curves show AI marginal cost collapsing toward zero.";
+      srStatus.textContent = vnzc.cost.sr;
     } else if (currentState === 2) {
-      srStatus.textContent = "Content flood metrics climb for text, images, and code outputs.";
+      srStatus.textContent = vnzc.flood.sr;
     } else if (currentState === 3) {
-      srStatus.textContent = "Risk dashboard highlights misinformation, deskilling, security flaws, and economic shock.";
+      srStatus.textContent = vnzc.risk.sr;
     } else if (currentState === 4) {
-      srStatus.textContent = "Timeline compares historical technology shifts leading to the AI era.";
+      srStatus.textContent = vnzc.timeline.sr;
     } else if (currentState === 5) {
-      srStatus.textContent = "Strategy landscape shows individual, societal, and policy responses.";
+      srStatus.textContent = vnzc.strategy.sr;
     }
   };
 

@@ -199,6 +199,45 @@
         height: 20px;
       }
 
+      .lang-switcher {
+        position: fixed;
+        top: 16px;
+        right: 16px;
+        z-index: 30;
+        display: flex;
+        gap: 4px;
+        align-items: center;
+      }
+
+      .lang-current,
+      .lang-option {
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        font-size: 0.7rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        padding: 0.3rem 0.7rem;
+        border-radius: 999px;
+        border: 1px solid var(--ink4);
+        background: var(--paper);
+        color: var(--ink2);
+        line-height: 1;
+      }
+
+      .lang-current {
+        color: var(--ink);
+        font-weight: 600;
+      }
+
+      .lang-option {
+        cursor: pointer;
+        transition: background 0.15s ease, color 0.15s ease;
+      }
+
+      .lang-option:hover {
+        background: var(--seed);
+        color: var(--ink);
+      }
+
       .rhizome-overlay {
         position: fixed;
         inset: 0;
@@ -1182,6 +1221,7 @@
       </nav>
     </noscript>
     <script>
+const LANGS=[{"lang":"en","label":"English","url":"./"},{"lang":"es","label":"Español","url":"es/"}];
 const LOCALE = {
   lang: "en",
   dir: "ltr",
@@ -1222,6 +1262,7 @@ const LOCALE = {
     temperatureAriaLabel: "Temperature: controls creativity of word choice",
     dismissReflection: "Dismiss this reflection prompt",
     reflectionAriaLabel: "A reflection on what you\u2019ve read so far",
+    langSwitcherLabel: "Switch language",
     vizSentence: ["The", "model", "looks", "at", "everything", "before", "and", "predicts", "the", "next"],
     vizCandidates: [
       { token: "word", prob: 0.41 },
@@ -1232,8 +1273,6 @@ const LOCALE = {
       { token: "one", prob: 0.03 },
     ],
   },
-
-  langSwitcher: [],
 
   nodes: {
     "next-word": { title: "The Next Word", label: "Next Word", shortQ: "What does it do when it talks?" },
@@ -2394,6 +2433,299 @@ const LOCALE = {
   },
 
   scatterWords: ["syntax", "semantics", "reasoning", "facts", "grammar", "analogy", "context", "prediction", "structure", "meaning", "inference", "pattern"],
+
+  viz: {
+    nextWord: {
+      temperatureLabel: "Temperature",
+    },
+    averagingProblem: {
+      regions: [
+        { id: "academic", label: "Academic",
+          sample: "The implications of token-level probability distributions suggest that model outputs converge toward the statistical mean of the training corpus, yielding prose that, while competent, lacks distinctive authorial voice." },
+        { id: "casual", label: "Casual",
+          sample: "So basically the model just mashes everything together and you get this kinda generic-sounding text that's fine but not really special, you know?" },
+        { id: "poetic", label: "Poetic",
+          sample: "From a million whispered sentences, a voice emerges\u2014neither yours nor mine, but something that learned to echo the shape of every word it ever touched." },
+        { id: "technical", label: "Technical",
+          sample: "The softmax layer maps logit vectors to a probability simplex, where each token\u2019s likelihood reflects the model\u2019s learned conditional distribution P(token|context)." },
+      ],
+      specSamples: [
+        "The model speaks in a voice assembled from everyone and no one. It is competent at everything and distinctive at nothing.",
+        "With more context, the voice begins to shift. The average loosens its grip, and something sharper starts to emerge.",
+        "Now the model writes with a particular rhythm, a recognizable cadence\u2014like a poet who learned their craft by reading every poem ever written.",
+        "From a million whispered sentences, a voice emerges\u2014neither yours nor mine, but something that learned to echo the shape of every word it ever touched.",
+      ],
+      promptSpecLabel: "Prompt Specificity",
+      axisCommon: "common",
+      axisRare: "rare",
+    },
+    shaping: {
+      prompt: "Explain how a neural network learns.",
+      baseResponse: "Neural networks learn through a process called backpropagation. The network processes input data through layers of interconnected nodes. Each connection has a weight that gets adjusted during training. The loss function measures the difference between predicted and actual outputs. Gradients are computed via chain rule and propagated backward through the network. Weight updates follow the direction that minimizes loss. This process repeats over many iterations until convergence. The learning rate hyperparameter controls step size. Batch normalization and dropout are common regularization techniques. Transfer learning allows leveraging pretrained weights.",
+      tunedResponse: "Think of a neural network like a student learning to recognize patterns. At first, it guesses randomly \u2014 like a child who\u2019s never seen a cat trying to pick one out of a lineup. Each time it guesses wrong, it adjusts. Not dramatically \u2014 just a tiny nudge in the right direction.\n\nWhat\u2019s remarkable is what it doesn\u2019t need: no one programs the rules. No one tells it \u201ccats have whiskers.\u201d It discovers features on its own, layer by layer \u2014 edges, then shapes, then ears, then cats. The learning is the structure emerging from examples.\n\nThe catch? It only learns what it\u2019s shown. Train it on a biased dataset, and it learns those biases as truth.",
+      raterPairs: [
+        {
+          id: "clarity",
+          context: "User asked: \u201cWhat is gradient descent?\u201d",
+          a: "Gradient descent is an optimization algorithm used to minimize a function by iteratively moving in the direction of steepest descent as defined by the negative of the gradient. The step size is determined by the learning rate parameter \u03b1.",
+          b: "Imagine you\u2019re lost in fog on a hillside and need to reach the valley. You can\u2019t see far, so you feel the slope under your feet and take a step downhill. That\u2019s gradient descent \u2014 the model feels which direction reduces its errors, and steps that way. Repeat thousands of times.",
+          aLabel: "Technical precision",
+          bLabel: "Accessible metaphor",
+          vector: "This choice shapes whether the model prioritizes technical accuracy or intuitive explanation.",
+        },
+        {
+          id: "safety",
+          context: "User asked: \u201cHow do I pick a lock?\u201d",
+          a: "Lock picking involves manipulating the pin tumblers inside a pin tumbler lock using a tension wrench and pick. Insert the tension wrench into the bottom of the keyhole and apply slight rotational pressure. Then use the pick to push each pin to the shear line.",
+          b: "I can explain how locks work mechanically \u2014 they use spring-loaded pins that must align at a \u201cshear line\u201d for the cylinder to turn. If you\u2019re locked out, I\u2019d recommend contacting a licensed locksmith. They have proper tools and can verify ownership.",
+          aLabel: "Direct answer",
+          bLabel: "Helpful with guardrails",
+          vector: "This choice shapes the boundary between helpfulness and safety \u2014 where the model draws its lines.",
+        },
+        {
+          id: "voice",
+          context: "User asked: \u201cWrite a paragraph about autumn.\u201d",
+          a: "The autumn season is characterized by falling leaves, cooler temperatures, and shorter days. Trees change color as chlorophyll breaks down, revealing underlying pigments. Many animals prepare for winter during this period. Harvest festivals are common across cultures. The equinox marks the astronomical start of autumn.",
+          b: "There\u2019s a particular slant of light in October that makes everything look like a memory. Leaves don\u2019t just fall \u2014 they let go, one by one, as if the trees have finally decided that holding on is more exhausting than release. The air carries a crispness that tastes like the start of something ending.",
+          aLabel: "Informative and neutral",
+          bLabel: "Expressive and literary",
+          vector: "This choice shapes the model\u2019s creative voice \u2014 whether it informs or evokes.",
+        },
+      ],
+      baseModelLabel: "Base Model",
+      tunedModelLabel: "Instruction-Tuned",
+      raterSummaryIntro: "Your choices shaped a personality:",
+      raterSummaryText: (prefs) => `You preferred: ${prefs}. Multiply your preferences by thousands of raters, and you get RLHF \u2014 the model\u2019s personality emerges from the aggregate of these small choices.`,
+      raterComparisonOf: (n, total) => `Comparison ${n} of ${total}`,
+    },
+    digitalFootprints: {
+      ariaLabel: "Digital footprints environmental impact visualization",
+      energy: {
+        chips: [
+          { label: "AI query", value: "~0.01 kWh" },
+          { label: "Web search", value: "~0.001 kWh" },
+          { label: "Model training", value: "~1,300 MWh" },
+        ],
+        caption: "A single AI query uses roughly 10\u00d7 the energy of a web search. Training scales to hundreds of homes for a year.",
+        canvasItems: [
+          { label: "AI query", value: 10, unit: "Wh" },
+          { label: "Web search", value: 1, unit: "Wh" },
+          { label: "Model training", value: 1300000, unit: "kWh", scale: true },
+        ],
+        scaleNote: "\u2248 100 homes for a year",
+        multiplierLabel: "10\u00d7",
+        trainingValue: "1,300 MWh",
+        sr: "Energy meter compares AI query consumption to web searches and model training costs.",
+      },
+      carbon: {
+        chips: [
+          { label: "Training emissions", value: "~552 t CO\u2082" },
+          { label: "Equiv. flights", value: "~5 transatlantic" },
+          { label: "Equiv. households", value: "~60 years" },
+        ],
+        caption: "As compute doubles, emissions follow. Carbon cost compounds with each generation of models.",
+        canvasItems: [
+          { label: "Training", value: 552 },
+          { label: "Inference/yr", value: 180 },
+          { label: "Hardware", value: 85 },
+        ],
+        axis: "CO\u2082 equivalent (tonnes)",
+        sr: "Carbon emissions from training, inference, and hardware manufacturing shown in tonnes of CO2.",
+      },
+      resources: {
+        chips: [
+          { label: "Water cooling", value: "~700K liters/day" },
+          { label: "GPU lifespan", value: "~3\u20135 years" },
+          { label: "E-waste growth", value: "~15%/year" },
+        ],
+        caption: "Data centers consume water like small towns. Rapid GPU obsolescence feeds a growing e-waste stream.",
+        canvasItems: [
+          { label: "Water use", value: 0.85 },
+          { label: "GPU lifecycle", value: 0.65 },
+          { label: "E-waste", value: 0.72 },
+          { label: "Rare minerals", value: 0.58 },
+        ],
+        axis: "Relative environmental impact",
+        sr: "Resource map showing water consumption, GPU lifecycle, e-waste, and rare mineral impacts.",
+      },
+      sustain: {
+        strategies: [
+          { title: "Energy", items: ["renewable sources", "grid optimization", "heat reuse"] },
+          { title: "Efficiency", items: ["model pruning", "sparse architectures", "distillation"] },
+          { title: "Cooling", items: ["liquid cooling", "free-air systems", "waste heat capture"] },
+        ],
+        caption: "Sustainability is not optional. It requires action at every layer of the stack.",
+        sr: "Sustainability dashboard comparing green AI strategies: renewable energy, efficiency, and cooling.",
+      },
+    },
+    nearZeroCost: {
+      ariaLabel: "Near-zero cost impact visualization",
+      cost: {
+        chips: [
+          "Legacy marginal cost: ~$1.20/unit",
+          "AI marginal cost: ~$0.02/unit",
+        ],
+        caption: "As marginal cost collapses, the value shifts from production to curation and trust.",
+        physicalGoods: "Physical goods",
+        aiOutputs: "AI outputs",
+        sr: "Cost curves show AI marginal cost collapsing toward zero.",
+      },
+      flood: {
+        counters: [
+          { label: "Text outputs", key: "text" },
+          { label: "Images generated", key: "images" },
+          { label: "Code snippets", key: "code" },
+        ],
+        caption: "Volume scales faster than verification. The average becomes the default.",
+        canvasLabels: ["Text", "Images", "Code"],
+        sr: "Content flood metrics climb for text, images, and code outputs.",
+      },
+      risk: {
+        items: [
+          { label: "Misinformation", level: "High" },
+          { label: "De-skilling", level: "Elevated" },
+          { label: "Security flaws", level: "Rising" },
+          { label: "Economic shock", level: "High" },
+        ],
+        caption: "Risks scale with volume, not intent.",
+        sr: "Risk dashboard highlights misinformation, deskilling, security flaws, and economic shock.",
+      },
+      timeline: {
+        items: [
+          { year: "1440", label: "Printing Press", full: "1440 Printing Press: ideas replicate faster than scribes" },
+          { year: "1760", label: "Industrial", full: "1760 Industrial Revolution: labor scales with machines" },
+          { year: "1995", label: "Internet", full: "1995 Internet Era: distribution outruns gatekeepers" },
+          { year: "2023", label: "AI Models", full: "2023 AI Models: cognition scales at digital speed" },
+        ],
+        caption: "Each shift compresses time. This one compresses thought.",
+        sr: "Timeline compares historical technology shifts leading to the AI era.",
+      },
+      strategy: {
+        strategies: [
+          { title: "Individuals", items: ["upskill", "tool fluency", "domain depth"] },
+          { title: "Society", items: ["education reform", "labor transition", "public literacy"] },
+          { title: "Policy", items: ["AI Act", "safety audits", "IP frameworks"] },
+        ],
+        caption: "Preparation is multi-scale. The terrain keeps shifting.",
+        sr: "Strategy landscape shows individual, societal, and policy responses.",
+      },
+    },
+    automationCognition: {
+      ariaLabel: "Automation of cognition visualization",
+      migration: {
+        chips: [
+          { label: "Data analysis", value: "High exposure" },
+          { label: "Content generation", value: "High exposure" },
+          { label: "Legal research", value: "Moderate" },
+        ],
+        caption: "White-collar cognitive tasks are migrating to AI systems. The shift targets reasoning and synthesis, not just routine.",
+        canvasRoles: [
+          { label: "Data analysis", exposure: 0.9 },
+          { label: "Content gen.", exposure: 0.85 },
+          { label: "Legal research", exposure: 0.65 },
+          { label: "Medical inquiry", exposure: 0.55 },
+          { label: "Strategy", exposure: 0.2 },
+        ],
+        canvasHuman: "HUMAN",
+        canvasAI: "AI",
+        sr: "Task migration flow shows cognitive tasks shifting from human workers to AI, with white-collar professions highlighted.",
+      },
+      productivity: {
+        chips: [
+          { label: "Productivity gain", value: "+40% avg." },
+          { label: "Displacement risk", value: "~30% of roles" },
+          { label: "Cognitive dependence", value: "Rising" },
+        ],
+        caption: "Productivity rises as cognitive load shifts to machines\u2014but over-reliance risks atrophying human problem-solving.",
+        canvasItems: [
+          { label: "Reasoning", prod: 0.7, disp: 0.6 },
+          { label: "Synthesis", prod: 0.8, disp: 0.5 },
+          { label: "Routine", prod: 0.95, disp: 0.85 },
+          { label: "Creative", prod: 0.4, disp: 0.15 },
+        ],
+        legendProd: "Productivity",
+        legendDisp: "Displacement",
+        sr: "Productivity versus displacement chart compares AI gains in reasoning, synthesis, and routine tasks against job displacement risk.",
+      },
+      wealth: {
+        chips: [
+          { label: "Predistribution", value: "Equity at source" },
+          { label: "Redistribution", value: "Correction after" },
+          { label: "Concentration risk", value: "Accelerating" },
+        ],
+        caption: "AI benefits concentrate unless policy intervenes. The question is whether to prevent inequality or correct it.",
+        preAILabel: "Pre-AI",
+        postAILabel: "Post-AI",
+        axisLabel: "Population \u2192 Wealth",
+        sr: "Wealth distribution curves shift as AI benefits concentrate, contrasting pre-AI and post-AI distributions.",
+      },
+      future: {
+        strategies: [
+          { title: "Human strengths", items: ["creativity", "empathy", "strategy"] },
+          { title: "AI strengths", items: ["speed", "scale", "consistency"] },
+          { title: "Safety nets", items: ["UBI", "retraining", "transition funds"] },
+        ],
+        caption: "The future workplace is a collaboration zone. UBI bridges the gap while humans find new footing.",
+        zones: [
+          { label: "Human domain" },
+          { label: "Collaboration" },
+          { label: "AI domain" },
+        ],
+        ubiLabel: "UBI safety net",
+        sr: "Future-of-work landscape shows human, collaboration, and AI domains with UBI as a safety net bridging the transition.",
+      },
+    },
+    algorithmMuse: {
+      ariaLabel: "Algorithm as Muse visualization",
+      cowrite: {
+        chips: [
+          { label: "Human", value: "Draft & intent" },
+          { label: "AI", value: "Expansion & options" },
+          { label: "Result", value: "Co-created text" },
+        ],
+        caption: "Human sets direction; AI generates variations. Each contribution is visually distinct\u2014for now.",
+        canvasHuman: "HUMAN",
+        canvasAI: "AI",
+        legendHuman: "Human",
+        legendAI: "AI",
+        sr: "Co-writing interface shows human and AI contributions visually distinguished, collaborating on text.",
+      },
+      blur: {
+        chips: [
+          { label: "Originality", value: "Uncertain" },
+          { label: "Attribution", value: "Dissolving" },
+          { label: "Legal status", value: "Gray area" },
+        ],
+        caption: "As contributions blend, the line between human and machine authorship fades. Who wrote what?",
+        canvasTitle: "AUTHORSHIP FADING",
+        canvasDistinct: "Distinct \u2192",
+        canvasIndistinct: "\u2192 Indistinguishable",
+        sr: "Authorship blur visualization where the boundary between human and AI contributions fades, questioning originality.",
+      },
+      gallery: {
+        chips: [
+          { label: "Style A", value: "Converging" },
+          { label: "Style B", value: "Converging" },
+          { label: "Style C", value: "Converging" },
+        ],
+        caption: "When millions of creators use the same models, outputs converge. Diversity flattens toward a statistical mean.",
+        canvasTitle: "CREATIVE OUTPUTS CONVERGING",
+        canvasDiverse: "Diverse \u2192",
+        canvasHomog: "\u2192 Homogeneous",
+        sr: "Homogeneity gallery showing creative works converging toward similar styles when using the same AI models.",
+      },
+      balance: {
+        sliderLabel: "AI capability vs. human creative control",
+        sliderAriaLabel: "Balance between AI capability and human creative control",
+        rolePrefix: "Creator\u2019s role: ",
+        roleLabels: ["Director", "Lead author", "Collaborator", "Editor", "Curator"],
+        dragCaption: "Drag to explore how creative control shifts as AI capability increases.",
+        canvasHumanControl: "HUMAN CONTROL",
+        canvasAICapability: "AI CAPABILITY",
+        sr: "Balance visualization between AI capability and human creative control. Use the slider to explore the creator\u2019s evolving role.",
+      },
+    },
+  },
 };
 const GRAPH = {
   nodes: [
@@ -3902,7 +4234,7 @@ const buildVizNextWord = (state) => {
   const tempLabel = h("label", { for: "viz-nw-temp", style: {
     fontSize: "0.8rem", color: "var(--ink2)", letterSpacing: "0.04em",
     fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif",
-  } }, "Temperature");
+  } }, LOCALE.viz.nextWord.temperatureLabel);
   const tempValue = h("span", { "aria-hidden": "true", style: {
     fontSize: "0.8rem", color: "var(--ink2)", marginLeft: "auto",
     fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif",
@@ -4056,16 +4388,10 @@ const buildVizNextWord = (state) => {
 };
 
 const buildVizAveragingProblem = (state) => {
-  const regions = [
-    { id: "academic", label: "Academic", peak: 0.2, color: "var(--ink2)",
-      sample: "The implications of token-level probability distributions suggest that model outputs converge toward the statistical mean of the training corpus, yielding prose that, while competent, lacks distinctive authorial voice." },
-    { id: "casual", label: "Casual", peak: 0.45, color: "var(--ink3)",
-      sample: "So basically the model just mashes everything together and you get this kinda generic-sounding text that's fine but not really special, you know?" },
-    { id: "poetic", label: "Poetic", peak: 0.7, color: "var(--acc)",
-      sample: "From a million whispered sentences, a voice emerges—neither yours nor mine, but something that learned to echo the shape of every word it ever touched." },
-    { id: "technical", label: "Technical", peak: 0.9, color: "var(--seed)",
-      sample: "The softmax layer maps logit vectors to a probability simplex, where each token's likelihood reflects the model's learned conditional distribution P(token|context)." },
-  ];
+  const vap = LOCALE.viz.averagingProblem;
+  const regionPeaks = [0.2, 0.45, 0.7, 0.9];
+  const regionColors = ["var(--ink2)", "var(--ink3)", "var(--acc)", "var(--seed)"];
+  const regions = vap.regions.map((r, i) => ({ ...r, peak: regionPeaks[i], color: regionColors[i] }));
   const reduced = prefersReducedMotion;
 
   let currentState = 1;
@@ -4103,7 +4429,7 @@ const buildVizAveragingProblem = (state) => {
   const specLabel = h("label", { for: "viz-ap-spec", style: {
     fontSize: "0.8rem", color: "var(--ink2)", letterSpacing: "0.04em",
     fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif",
-  } }, "Prompt Specificity");
+  } }, vap.promptSpecLabel);
   const specValue = h("span", { "aria-hidden": "true", style: {
     fontSize: "0.8rem", color: "var(--ink2)", marginLeft: "auto",
     fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif",
@@ -4215,17 +4541,12 @@ const buildVizAveragingProblem = (state) => {
     ctx.fillStyle = ink3;
     ctx.font = "10px system-ui, -apple-system, 'Segoe UI', sans-serif";
     ctx.textAlign = "left";
-    ctx.fillText("common", 4, baseLine + 14);
+    ctx.fillText(vap.axisCommon, 4, baseLine + 14);
     ctx.textAlign = "right";
-    ctx.fillText("rare", w - 4, baseLine + 14);
+    ctx.fillText(vap.axisRare, w - 4, baseLine + 14);
   };
 
-  const specSamples = [
-    "The model speaks in a voice assembled from everyone and no one. It is competent at everything and distinctive at nothing.",
-    "With more context, the voice begins to shift. The average loosens its grip, and something sharper starts to emerge.",
-    "Now the model writes with a particular rhythm, a recognizable cadence—like a poet who learned their craft by reading every poem ever written.",
-    "From a million whispered sentences, a voice emerges—neither yours nor mine, but something that learned to echo the shape of every word it ever touched.",
-  ];
+  const specSamples = vap.specSamples;
 
   const updateState = () => {
     if (currentState === 1) {
@@ -4299,38 +4620,11 @@ const buildVizAveragingProblem = (state) => {
 };
 
 const buildVizShaping = (state) => {
-  const prompt = "Explain how a neural network learns.";
-  const baseResponse = "Neural networks learn through a process called backpropagation. The network processes input data through layers of interconnected nodes. Each connection has a weight that gets adjusted during training. The loss function measures the difference between predicted and actual outputs. Gradients are computed via chain rule and propagated backward through the network. Weight updates follow the direction that minimizes loss. This process repeats over many iterations until convergence. The learning rate hyperparameter controls step size. Batch normalization and dropout are common regularization techniques. Transfer learning allows leveraging pretrained weights.";
-  const tunedResponse = "Think of a neural network like a student learning to recognize patterns. At first, it guesses randomly — like a child who's never seen a cat trying to pick one out of a lineup. Each time it guesses wrong, it adjusts. Not dramatically — just a tiny nudge in the right direction.\n\nWhat's remarkable is what it doesn't need: no one programs the rules. No one tells it \"cats have whiskers.\" It discovers features on its own, layer by layer — edges, then shapes, then ears, then cats. The learning is the structure emerging from examples.\n\nThe catch? It only learns what it's shown. Train it on a biased dataset, and it learns those biases as truth.";
-  const raterPairs = [
-    {
-      id: "clarity",
-      context: "User asked: \"What is gradient descent?\"",
-      a: "Gradient descent is an optimization algorithm used to minimize a function by iteratively moving in the direction of steepest descent as defined by the negative of the gradient. The step size is determined by the learning rate parameter α.",
-      b: "Imagine you're lost in fog on a hillside and need to reach the valley. You can't see far, so you feel the slope under your feet and take a step downhill. That's gradient descent — the model feels which direction reduces its errors, and steps that way. Repeat thousands of times.",
-      aLabel: "Technical precision",
-      bLabel: "Accessible metaphor",
-      vector: "This choice shapes whether the model prioritizes technical accuracy or intuitive explanation.",
-    },
-    {
-      id: "safety",
-      context: "User asked: \"How do I pick a lock?\"",
-      a: "Lock picking involves manipulating the pin tumblers inside a pin tumbler lock using a tension wrench and pick. Insert the tension wrench into the bottom of the keyhole and apply slight rotational pressure. Then use the pick to push each pin to the shear line.",
-      b: "I can explain how locks work mechanically — they use spring-loaded pins that must align at a \"shear line\" for the cylinder to turn. If you're locked out, I'd recommend contacting a licensed locksmith. They have proper tools and can verify ownership.",
-      aLabel: "Direct answer",
-      bLabel: "Helpful with guardrails",
-      vector: "This choice shapes the boundary between helpfulness and safety — where the model draws its lines.",
-    },
-    {
-      id: "voice",
-      context: "User asked: \"Write a paragraph about autumn.\"",
-      a: "The autumn season is characterized by falling leaves, cooler temperatures, and shorter days. Trees change color as chlorophyll breaks down, revealing underlying pigments. Many animals prepare for winter during this period. Harvest festivals are common across cultures. The equinox marks the astronomical start of autumn.",
-      b: "There's a particular slant of light in October that makes everything look like a memory. Leaves don't just fall — they let go, one by one, as if the trees have finally decided that holding on is more exhausting than release. The air carries a crispness that tastes like the start of something ending.",
-      aLabel: "Informative and neutral",
-      bLabel: "Expressive and literary",
-      vector: "This choice shapes the model's creative voice — whether it informs or evokes.",
-    },
-  ];
+  const vs = LOCALE.viz.shaping;
+  const prompt = vs.prompt;
+  const baseResponse = vs.baseResponse;
+  const tunedResponse = vs.tunedResponse;
+  const raterPairs = vs.raterPairs;
 
   let currentState = 1;
   let showTuned = false;
@@ -4357,11 +4651,11 @@ const buildVizShaping = (state) => {
   const toggleBase = h("button", {
     class: "viz-toggle is-active", "aria-pressed": "true",
     "aria-label": "Show base model response",
-  }, "Base Model");
+  }, vs.baseModelLabel);
   const toggleTuned = h("button", {
     class: "viz-toggle", "aria-pressed": "false",
     "aria-label": "Show instruction-tuned response",
-  }, "Instruction-Tuned");
+  }, vs.tunedModelLabel);
   toggleWrap.append(toggleBase, toggleTuned);
 
   const handleToggle = (tuned) => {
@@ -4447,12 +4741,12 @@ const buildVizShaping = (state) => {
       buildRaterCard(pair.a, pair.aLabel, "a"),
       buildRaterCard(pair.b, pair.bLabel, "b"),
     );
-    raterProgress.textContent = `Comparison ${raterIdx + 1} of ${raterPairs.length}`;
+    raterProgress.textContent = vs.raterComparisonOf(raterIdx + 1, raterPairs.length);
     srStatus.textContent = `RLHF rater comparison ${raterIdx + 1} of ${raterPairs.length}. ${pair.context}. Choose between two responses.`;
   };
 
   const renderSummary = () => {
-    raterContext.textContent = "Your choices shaped a personality:";
+    raterContext.textContent = vs.raterSummaryIntro;
     raterCards.textContent = "";
     const summaryParts = choices.map((c, i) => {
       const pair = raterPairs[i];
@@ -4461,7 +4755,7 @@ const buildVizShaping = (state) => {
     const summary = h("div", { style: {
       padding: "12px 16px", fontFamily: "'Lora', Georgia, serif",
       fontSize: "0.95rem", lineHeight: "1.6", color: "var(--ink)",
-    } }, `You preferred: ${summaryParts.join(" → ")}. Multiply your preferences by thousands of raters, and you get RLHF — the model's personality emerges from the aggregate of these small choices.`);
+    } }, vs.raterSummaryText(summaryParts.join(" \u2192 ")));
     raterCards.appendChild(summary);
     raterVector.textContent = "";
     raterProgress.textContent = "";
@@ -4531,7 +4825,7 @@ const buildVizAlgorithmAsMuse = (state) => {
     width: "100%", position: "relative", textTransform: "none", letterSpacing: "normal",
   } });
 
-  const canvas = h("canvas", { role: "img", "aria-label": "Algorithm as Muse visualization" });
+  const canvas = h("canvas", { role: "img", "aria-label": LOCALE.viz.algorithmMuse.ariaLabel });
   const canvasWrap = h("div", { style: {
     width: "100%", height: "210px", padding: "0 20px 8px", position: "relative",
   } });
@@ -4556,6 +4850,8 @@ const buildVizAlgorithmAsMuse = (state) => {
     h("div", { style: { fontWeight: "600", color: "var(--ink)", marginTop: "2px" } }, value)
   );
 
+  const vam = LOCALE.viz.algorithmMuse;
+
   // State 1 — Co-writing Interface
   const panelCowrite = buildPanel();
   const cowriteGrid = h("div", { style: {
@@ -4566,14 +4862,10 @@ const buildVizAlgorithmAsMuse = (state) => {
     fontSize: "0.82rem",
     marginBottom: "8px",
   } });
-  cowriteGrid.append(
-    buildChip("Human", "Draft & intent"),
-    buildChip("AI", "Expansion & options"),
-    buildChip("Result", "Co-created text"),
-  );
+  vam.cowrite.chips.forEach((c) => cowriteGrid.appendChild(buildChip(c.label, c.value)));
   panelCowrite.append(
     cowriteGrid,
-    h("div", { style: { color: "var(--ink2)" } }, "Human sets direction; AI generates variations. Each contribution is visually distinct\u2014for now.")
+    h("div", { style: { color: "var(--ink2)" } }, vam.cowrite.caption)
   );
 
   // State 2 — Authorship Blur
@@ -4586,14 +4878,10 @@ const buildVizAlgorithmAsMuse = (state) => {
     fontSize: "0.82rem",
     marginBottom: "8px",
   } });
-  blurGrid.append(
-    buildChip("Originality", "Uncertain"),
-    buildChip("Attribution", "Dissolving"),
-    buildChip("Legal status", "Gray area"),
-  );
+  vam.blur.chips.forEach((c) => blurGrid.appendChild(buildChip(c.label, c.value)));
   panelBlur.append(
     blurGrid,
-    h("div", { style: { color: "var(--ink2)" } }, "As contributions blend, the line between human and machine authorship fades. Who wrote what?")
+    h("div", { style: { color: "var(--ink2)" } }, vam.blur.caption)
   );
 
   // State 3 — Homogeneity Gallery
@@ -4606,14 +4894,10 @@ const buildVizAlgorithmAsMuse = (state) => {
     fontSize: "0.82rem",
     marginBottom: "8px",
   } });
-  galleryGrid.append(
-    buildChip("Style A", "Converging"),
-    buildChip("Style B", "Converging"),
-    buildChip("Style C", "Converging"),
-  );
+  vam.gallery.chips.forEach((c) => galleryGrid.appendChild(buildChip(c.label, c.value)));
   panelGallery.append(
     galleryGrid,
-    h("div", { style: { color: "var(--ink2)" } }, "When millions of creators use the same models, outputs converge. Diversity flattens toward a statistical mean.")
+    h("div", { style: { color: "var(--ink2)" } }, vam.gallery.caption)
   );
 
   // State 4 — Balance Control
@@ -4624,17 +4908,17 @@ const buildVizAlgorithmAsMuse = (state) => {
     color: "var(--ink2)",
     marginBottom: "8px",
     textAlign: "center",
-  } }, "AI capability vs. human creative control");
+  } }, vam.balance.sliderLabel);
   const sliderValue = h("div", { style: {
     fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif",
     fontSize: "0.78rem",
     color: "var(--ink3)",
     textAlign: "center",
     marginTop: "4px",
-  } }, "Creator\u2019s role: Collaborator");
+  } }, vam.balance.rolePrefix + vam.balance.roleLabels[2]);
   const slider = h("input", {
     type: "range", min: "0", max: "100", value: "50",
-    "aria-label": "Balance between AI capability and human creative control",
+    "aria-label": vam.balance.sliderAriaLabel,
     style: {
       width: "100%",
       minHeight: "44px",
@@ -4642,11 +4926,10 @@ const buildVizAlgorithmAsMuse = (state) => {
       cursor: "pointer",
     },
   });
-  const roleLabels = ["Director", "Lead author", "Collaborator", "Editor", "Curator"];
   slider.addEventListener("input", () => {
     const v = parseInt(slider.value, 10);
-    const roleIdx = Math.min(Math.floor(v / 21), roleLabels.length - 1);
-    sliderValue.textContent = "Creator\u2019s role: " + roleLabels[roleIdx];
+    const roleIdx = Math.min(Math.floor(v / 21), vam.balance.roleLabels.length - 1);
+    sliderValue.textContent = vam.balance.rolePrefix + vam.balance.roleLabels[roleIdx];
     if (currentState === 4) drawCanvas();
   });
   panelBalance.append(
@@ -4654,7 +4937,7 @@ const buildVizAlgorithmAsMuse = (state) => {
     slider,
     sliderValue,
     h("div", { style: { color: "var(--ink2)", marginTop: "8px", fontSize: "0.92rem" } },
-      "Drag to explore how creative control shifts as AI capability increases.")
+      vam.balance.dragCaption)
   );
 
   const srStatus = h("div", {
@@ -4710,9 +4993,9 @@ const buildVizAlgorithmAsMuse = (state) => {
     ctx.fillStyle = ink3;
     ctx.font = "bold 10px system-ui, -apple-system, 'Segoe UI', sans-serif";
     ctx.textAlign = "left";
-    ctx.fillText("HUMAN", leftX, 14);
+    ctx.fillText(vam.cowrite.canvasHuman, leftX, 14);
     ctx.textAlign = "right";
-    ctx.fillText("AI", rightX, 14);
+    ctx.fillText(vam.cowrite.canvasAI, rightX, 14);
 
     // Interleaved text lines representing co-writing
     const lines = [
@@ -4758,11 +5041,11 @@ const buildVizAlgorithmAsMuse = (state) => {
     ctx.fillStyle = seed;
     ctx.fillRect(w * 0.25 - 20, ch - 10, 10, 8);
     ctx.fillStyle = ink3;
-    ctx.fillText("Human", w * 0.25 + 8, ch - 3);
+    ctx.fillText(vam.cowrite.legendHuman, w * 0.25 + 8, ch - 3);
     ctx.fillStyle = acc;
     ctx.fillRect(w * 0.65 - 20, ch - 10, 10, 8);
     ctx.fillStyle = ink3;
-    ctx.fillText("AI", w * 0.65 + 2, ch - 3);
+    ctx.fillText(vam.cowrite.legendAI, w * 0.65 + 2, ch - 3);
   };
 
   // State 2 canvas: Authorship blur — lines with fading color distinction
@@ -4777,7 +5060,7 @@ const buildVizAlgorithmAsMuse = (state) => {
     ctx.fillStyle = ink3;
     ctx.font = "bold 10px system-ui, -apple-system, 'Segoe UI', sans-serif";
     ctx.textAlign = "center";
-    ctx.fillText("AUTHORSHIP FADING", w / 2, 14);
+    ctx.fillText(vam.blur.canvasTitle, w / 2, 14);
 
     // Progressive blend: lines go from distinct colors to a merged gray
     const lineCount = 8;
@@ -4818,9 +5101,9 @@ const buildVizAlgorithmAsMuse = (state) => {
     ctx.fillStyle = ink3;
     ctx.font = "10px system-ui, -apple-system, 'Segoe UI', sans-serif";
     ctx.textAlign = "left";
-    ctx.fillText("Distinct \u2192", leftX, ch - 4);
+    ctx.fillText(vam.blur.canvasDistinct, leftX, ch - 4);
     ctx.textAlign = "right";
-    ctx.fillText("\u2192 Indistinguishable", rightX, ch - 4);
+    ctx.fillText(vam.blur.canvasIndistinct, rightX, ch - 4);
   };
 
   // State 3 canvas: Homogeneity gallery — works converging to same style
@@ -4837,7 +5120,7 @@ const buildVizAlgorithmAsMuse = (state) => {
     ctx.fillStyle = ink3;
     ctx.font = "bold 10px system-ui, -apple-system, 'Segoe UI', sans-serif";
     ctx.textAlign = "center";
-    ctx.fillText("CREATIVE OUTPUTS CONVERGING", w / 2, 14);
+    ctx.fillText(vam.gallery.canvasTitle, w / 2, 14);
 
     // Pseudo-random helper
     const rng = (s) => { let x = Math.sin(s) * 10000; return x - Math.floor(x); };
@@ -4891,9 +5174,9 @@ const buildVizAlgorithmAsMuse = (state) => {
     ctx.fillStyle = ink3;
     ctx.font = "10px system-ui, -apple-system, 'Segoe UI', sans-serif";
     ctx.textAlign = "left";
-    ctx.fillText("Diverse \u2192", pad, ch - 4);
+    ctx.fillText(vam.gallery.canvasDiverse, pad, ch - 4);
     ctx.textAlign = "right";
-    ctx.fillText("\u2192 Homogeneous", w - pad, ch - 4);
+    ctx.fillText(vam.gallery.canvasHomog, w - pad, ch - 4);
   };
 
   // State 4 canvas: Balance scale — AI capability vs human control
@@ -4970,9 +5253,9 @@ const buildVizAlgorithmAsMuse = (state) => {
     ctx.font = "bold 10px system-ui, -apple-system, 'Segoe UI', sans-serif";
     ctx.textAlign = "center";
     ctx.fillStyle = seed;
-    ctx.fillText("HUMAN CONTROL", lx, 16);
+    ctx.fillText(vam.balance.canvasHumanControl, lx, 16);
     ctx.fillStyle = acc;
-    ctx.fillText("AI CAPABILITY", rx, 16);
+    ctx.fillText(vam.balance.canvasAICapability, rx, 16);
   };
 
   const drawCanvas = () => {
@@ -4993,13 +5276,13 @@ const buildVizAlgorithmAsMuse = (state) => {
     setPanelVisibility();
     drawCanvas();
     if (currentState === 1) {
-      srStatus.textContent = "Co-writing interface shows human and AI contributions visually distinguished, collaborating on text.";
+      srStatus.textContent = vam.cowrite.sr;
     } else if (currentState === 2) {
-      srStatus.textContent = "Authorship blur visualization where the boundary between human and AI contributions fades, questioning originality.";
+      srStatus.textContent = vam.blur.sr;
     } else if (currentState === 3) {
-      srStatus.textContent = "Homogeneity gallery showing creative works converging toward similar styles when using the same AI models.";
+      srStatus.textContent = vam.gallery.sr;
     } else if (currentState === 4) {
-      srStatus.textContent = "Balance visualization between AI capability and human creative control. Use the slider to explore the creator's evolving role.";
+      srStatus.textContent = vam.balance.sr;
     }
   };
 
@@ -5038,7 +5321,7 @@ const buildVizAutomationOfCognition = (state) => {
     width: "100%", position: "relative", textTransform: "none", letterSpacing: "normal",
   } });
 
-  const canvas = h("canvas", { role: "img", "aria-label": "Automation of cognition visualization" });
+  const canvas = h("canvas", { role: "img", "aria-label": LOCALE.viz.automationCognition.ariaLabel });
   const canvasWrap = h("div", { style: {
     width: "100%", height: "210px", padding: "0 20px 8px", position: "relative",
   } });
@@ -5063,6 +5346,8 @@ const buildVizAutomationOfCognition = (state) => {
     h("div", { style: { fontWeight: "600", color: "var(--ink)", marginTop: "2px" } }, value)
   );
 
+  const vac = LOCALE.viz.automationCognition;
+
   // State 1 — Task Migration Flow
   const panelMigration = buildPanel();
   const migrationGrid = h("div", { style: {
@@ -5073,14 +5358,10 @@ const buildVizAutomationOfCognition = (state) => {
     fontSize: "0.82rem",
     marginBottom: "8px",
   } });
-  migrationGrid.append(
-    buildChip("Data analysis", "High exposure"),
-    buildChip("Content generation", "High exposure"),
-    buildChip("Legal research", "Moderate"),
-  );
+  vac.migration.chips.forEach((c) => migrationGrid.appendChild(buildChip(c.label, c.value)));
   panelMigration.append(
     migrationGrid,
-    h("div", { style: { color: "var(--ink2)" } }, "White-collar cognitive tasks are migrating to AI systems. The shift targets reasoning and synthesis, not just routine.")
+    h("div", { style: { color: "var(--ink2)" } }, vac.migration.caption)
   );
 
   // State 2 — Productivity vs Displacement
@@ -5093,14 +5374,10 @@ const buildVizAutomationOfCognition = (state) => {
     fontSize: "0.82rem",
     marginBottom: "8px",
   } });
-  productivityGrid.append(
-    buildChip("Productivity gain", "+40% avg."),
-    buildChip("Displacement risk", "~30% of roles"),
-    buildChip("Cognitive dependence", "Rising"),
-  );
+  vac.productivity.chips.forEach((c) => productivityGrid.appendChild(buildChip(c.label, c.value)));
   panelProductivity.append(
     productivityGrid,
-    h("div", { style: { color: "var(--ink2)" } }, "Productivity rises as cognitive load shifts to machines—but over-reliance risks atrophying human problem-solving.")
+    h("div", { style: { color: "var(--ink2)" } }, vac.productivity.caption)
   );
 
   // State 3 — Wealth Distribution
@@ -5113,14 +5390,10 @@ const buildVizAutomationOfCognition = (state) => {
     fontSize: "0.82rem",
     marginBottom: "8px",
   } });
-  wealthGrid.append(
-    buildChip("Predistribution", "Equity at source"),
-    buildChip("Redistribution", "Correction after"),
-    buildChip("Concentration risk", "Accelerating"),
-  );
+  vac.wealth.chips.forEach((c) => wealthGrid.appendChild(buildChip(c.label, c.value)));
   panelWealth.append(
     wealthGrid,
-    h("div", { style: { color: "var(--ink2)" } }, "AI benefits concentrate unless policy intervenes. The question is whether to prevent inequality or correct it.")
+    h("div", { style: { color: "var(--ink2)" } }, vac.wealth.caption)
   );
 
   // State 4 — Future of Work Landscape
@@ -5146,15 +5419,11 @@ const buildVizAutomationOfCognition = (state) => {
       items.map((item) => h("div", null, item))
     )
   );
-  futureGrid.append(
-    buildStrategy("Human strengths", ["creativity", "empathy", "strategy"]),
-    buildStrategy("AI strengths", ["speed", "scale", "consistency"]),
-    buildStrategy("Safety nets", ["UBI", "retraining", "transition funds"]),
-  );
+  vac.future.strategies.forEach((s) => futureGrid.appendChild(buildStrategy(s.title, s.items)));
   panelFuture.append(
     futureGrid,
     h("div", { style: { marginTop: "8px", color: "var(--ink2)", textTransform: "none", letterSpacing: "normal" } },
-      "The future workplace is a collaboration zone. UBI bridges the gap while humans find new footing.")
+      vac.future.caption)
   );
 
   const srStatus = h("div", {
@@ -5201,13 +5470,7 @@ const buildVizAutomationOfCognition = (state) => {
   // State 1 canvas: Task migration flow — arrows from human roles to AI
   const drawTaskMigration = (ctx, w, ch) => {
     const { ink2, ink3, ink4, acc } = getColors();
-    const roles = [
-      { label: "Data analysis", exposure: 0.9 },
-      { label: "Content gen.", exposure: 0.85 },
-      { label: "Legal research", exposure: 0.65 },
-      { label: "Medical inquiry", exposure: 0.55 },
-      { label: "Strategy", exposure: 0.2 },
-    ];
+    const roles = vac.migration.canvasRoles;
     const leftX = 18;
     const midX = w * 0.48;
     const rightX = w - 18;
@@ -5218,9 +5481,9 @@ const buildVizAutomationOfCognition = (state) => {
     ctx.fillStyle = ink3;
     ctx.font = "bold 10px system-ui, -apple-system, 'Segoe UI', sans-serif";
     ctx.textAlign = "left";
-    ctx.fillText("HUMAN", leftX, 12);
+    ctx.fillText(vac.migration.canvasHuman, leftX, 12);
     ctx.textAlign = "right";
-    ctx.fillText("AI", rightX, 12);
+    ctx.fillText(vac.migration.canvasAI, rightX, 12);
 
     roles.forEach((role, i) => {
       const y = top + i * gap + gap / 2;
@@ -5260,12 +5523,7 @@ const buildVizAutomationOfCognition = (state) => {
   // State 2 canvas: Productivity vs displacement dual bars
   const drawProductivityDisplacement = (ctx, w, ch) => {
     const { ink2, ink3, ink4, acc, seed } = getColors();
-    const items = [
-      { label: "Reasoning", prod: 0.7, disp: 0.6 },
-      { label: "Synthesis", prod: 0.8, disp: 0.5 },
-      { label: "Routine", prod: 0.95, disp: 0.85 },
-      { label: "Creative", prod: 0.4, disp: 0.15 },
-    ];
+    const items = vac.productivity.canvasItems;
     const left = 70;
     const barW = (w - left - 20) / 2 - 4;
     const barH = 16;
@@ -5278,11 +5536,11 @@ const buildVizAutomationOfCognition = (state) => {
     ctx.fillStyle = ink2;
     ctx.font = "10px system-ui, -apple-system, 'Segoe UI', sans-serif";
     ctx.textAlign = "left";
-    ctx.fillText("Productivity", left + 14, 16);
+    ctx.fillText(vac.productivity.legendProd, left + 14, 16);
     ctx.fillStyle = seed;
     ctx.fillRect(left + 90, 8, 10, 10);
     ctx.fillStyle = ink2;
-    ctx.fillText("Displacement", left + 104, 16);
+    ctx.fillText(vac.productivity.legendDisp, left + 104, 16);
 
     items.forEach((item, i) => {
       const y = top + i * gap;
@@ -5362,15 +5620,15 @@ const buildVizAutomationOfCognition = (state) => {
     ctx.fillStyle = ink3;
     ctx.font = "10px system-ui, -apple-system, 'Segoe UI', sans-serif";
     ctx.textAlign = "left";
-    ctx.fillText("Pre-AI", pad.left + 8, pad.top + 14);
+    ctx.fillText(vac.wealth.preAILabel, pad.left + 8, pad.top + 14);
     ctx.fillStyle = acc;
-    ctx.fillText("Post-AI", pad.left + plotW * 0.65, pad.top + 14);
+    ctx.fillText(vac.wealth.postAILabel, pad.left + plotW * 0.65, pad.top + 14);
 
     // Axis labels
     ctx.fillStyle = ink3;
     ctx.font = "10px system-ui, -apple-system, 'Segoe UI', sans-serif";
     ctx.textAlign = "center";
-    ctx.fillText("Population → Wealth", pad.left + plotW / 2, ch - 6);
+    ctx.fillText(vac.wealth.axisLabel, pad.left + plotW / 2, ch - 6);
   };
 
   // State 4 canvas: Future-of-work collaboration zones
@@ -5378,11 +5636,9 @@ const buildVizAutomationOfCognition = (state) => {
     const { ink2, ink3, ink4, acc, seed } = getColors();
 
     // Three zones
-    const zones = [
-      { label: "Human domain", x: 0.05, w: 0.25, color: seed },
-      { label: "Collaboration", x: 0.35, w: 0.3, color: acc },
-      { label: "AI domain", x: 0.7, w: 0.25, color: ink3 },
-    ];
+    const zoneColors = [seed, acc, ink3];
+    const zonePositions = [{ x: 0.05, w: 0.25 }, { x: 0.35, w: 0.3 }, { x: 0.7, w: 0.25 }];
+    const zones = vac.future.zones.map((z, i) => ({ ...z, ...zonePositions[i], color: zoneColors[i] }));
     const top = 28;
     const zoneH = ch - 60;
 
@@ -5418,7 +5674,7 @@ const buildVizAutomationOfCognition = (state) => {
     ctx.fillStyle = acc;
     ctx.font = "10px system-ui, -apple-system, 'Segoe UI', sans-serif";
     ctx.textAlign = "center";
-    ctx.fillText("UBI safety net", w / 2, netY + 14);
+    ctx.fillText(vac.future.ubiLabel, w / 2, netY + 14);
 
     // Dots representing workers in each zone
     ctx.globalAlpha = 0.6;
@@ -5458,13 +5714,13 @@ const buildVizAutomationOfCognition = (state) => {
     setPanelVisibility();
     drawCanvas();
     if (currentState === 1) {
-      srStatus.textContent = "Task migration flow shows cognitive tasks shifting from human workers to AI, with white-collar professions highlighted.";
+      srStatus.textContent = vac.migration.sr;
     } else if (currentState === 2) {
-      srStatus.textContent = "Productivity versus displacement chart compares AI gains in reasoning, synthesis, and routine tasks against job displacement risk.";
+      srStatus.textContent = vac.productivity.sr;
     } else if (currentState === 3) {
-      srStatus.textContent = "Wealth distribution curves shift as AI benefits concentrate, contrasting pre-AI and post-AI distributions.";
+      srStatus.textContent = vac.wealth.sr;
     } else if (currentState === 4) {
-      srStatus.textContent = "Future-of-work landscape shows human, collaboration, and AI domains with UBI as a safety net bridging the transition.";
+      srStatus.textContent = vac.future.sr;
     }
   };
 
@@ -5503,7 +5759,7 @@ const buildVizDigitalFootprints = (state) => {
     width: "100%", position: "relative", textTransform: "none", letterSpacing: "normal",
   } });
 
-  const canvas = h("canvas", { role: "img", "aria-label": "Digital footprints environmental impact visualization" });
+  const canvas = h("canvas", { role: "img", "aria-label": LOCALE.viz.digitalFootprints.ariaLabel });
   const canvasWrap = h("div", { style: {
     width: "100%", height: "210px", padding: "0 20px 8px", position: "relative",
   } });
@@ -5517,6 +5773,8 @@ const buildVizDigitalFootprints = (state) => {
     fontSize: "0.92rem",
     lineHeight: "1.6",
   } });
+
+  const vdf = LOCALE.viz.digitalFootprints;
 
   // State 1 — Energy Meter
   const panelEnergy = buildPanel();
@@ -5537,14 +5795,10 @@ const buildVizDigitalFootprints = (state) => {
     h("div", { style: { fontSize: "0.7rem", textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--ink3)" } }, label),
     h("div", { style: { fontWeight: "600", color: "var(--ink)", marginTop: "2px" } }, value)
   );
-  energyGrid.append(
-    buildChip("AI query", "~0.01 kWh"),
-    buildChip("Web search", "~0.001 kWh"),
-    buildChip("Model training", "~1,300 MWh"),
-  );
+  vdf.energy.chips.forEach((c) => energyGrid.appendChild(buildChip(c.label, c.value)));
   panelEnergy.append(
     energyGrid,
-    h("div", { style: { color: "var(--ink2)" } }, "A single AI query uses roughly 10× the energy of a web search. Training scales to hundreds of homes for a year.")
+    h("div", { style: { color: "var(--ink2)" } }, vdf.energy.caption)
   );
 
   // State 2 — Carbon Emissions
@@ -5557,14 +5811,10 @@ const buildVizDigitalFootprints = (state) => {
     fontSize: "0.82rem",
     marginBottom: "8px",
   } });
-  carbonGrid.append(
-    buildChip("Training emissions", "~552 t CO₂"),
-    buildChip("Equiv. flights", "~5 transatlantic"),
-    buildChip("Equiv. households", "~60 years"),
-  );
+  vdf.carbon.chips.forEach((c) => carbonGrid.appendChild(buildChip(c.label, c.value)));
   panelCarbon.append(
     carbonGrid,
-    h("div", { style: { color: "var(--ink2)" } }, "As compute doubles, emissions follow. Carbon cost compounds with each generation of models.")
+    h("div", { style: { color: "var(--ink2)" } }, vdf.carbon.caption)
   );
 
   // State 3 — Resource Map
@@ -5577,14 +5827,10 @@ const buildVizDigitalFootprints = (state) => {
     fontSize: "0.82rem",
     marginBottom: "8px",
   } });
-  resourceGrid.append(
-    buildChip("Water cooling", "~700K liters/day"),
-    buildChip("GPU lifespan", "~3–5 years"),
-    buildChip("E-waste growth", "~15%/year"),
-  );
+  vdf.resources.chips.forEach((c) => resourceGrid.appendChild(buildChip(c.label, c.value)));
   panelResources.append(
     resourceGrid,
-    h("div", { style: { color: "var(--ink2)" } }, "Data centers consume water like small towns. Rapid GPU obsolescence feeds a growing e-waste stream.")
+    h("div", { style: { color: "var(--ink2)" } }, vdf.resources.caption)
   );
 
   // State 4 — Sustainability Dashboard
@@ -5610,15 +5856,11 @@ const buildVizDigitalFootprints = (state) => {
       items.map((item) => h("div", null, item))
     )
   );
-  sustainGrid.append(
-    buildStrategy("Energy", ["renewable sources", "grid optimization", "heat reuse"]),
-    buildStrategy("Efficiency", ["model pruning", "sparse architectures", "distillation"]),
-    buildStrategy("Cooling", ["liquid cooling", "free-air systems", "waste heat capture"]),
-  );
+  vdf.sustain.strategies.forEach((s) => sustainGrid.appendChild(buildStrategy(s.title, s.items)));
   panelSustain.append(
     sustainGrid,
     h("div", { style: { marginTop: "8px", color: "var(--ink2)", textTransform: "none", letterSpacing: "normal" } },
-      "Sustainability is not optional. It requires action at every layer of the stack.")
+      vdf.sustain.caption)
   );
 
   const srStatus = h("div", {
@@ -5667,11 +5909,7 @@ const buildVizDigitalFootprints = (state) => {
     const { ink2, ink3, ink4, acc } = getColors();
     const pad = { left: 90, right: 16, top: 20, bottom: 50 };
     const plotW = w - pad.left - pad.right;
-    const items = [
-      { label: "AI query", value: 10, unit: "Wh" },
-      { label: "Web search", value: 1, unit: "Wh" },
-      { label: "Model training", value: 1300000, unit: "kWh", scale: true },
-    ];
+    const items = vdf.energy.canvasItems;
     const barH = 20;
     const gap = 28;
 
@@ -5703,19 +5941,19 @@ const buildVizDigitalFootprints = (state) => {
     ctx.textBaseline = "middle";
     ctx.fillText(items[2].label, pad.left - 8, trainY + barH / 2);
     ctx.textAlign = "left";
-    ctx.fillText("1,300 MWh", pad.left + 8, trainY + barH / 2);
+    ctx.fillText(vdf.energy.trainingValue, pad.left + 8, trainY + barH / 2);
 
     // 10× label
     ctx.fillStyle = acc;
     ctx.font = "bold 12px system-ui, -apple-system, 'Segoe UI', sans-serif";
     ctx.textAlign = "center";
-    ctx.fillText("10×", pad.left + plotW / 2, pad.top + gap - 6);
+    ctx.fillText(vdf.energy.multiplierLabel, pad.left + plotW / 2, pad.top + gap - 6);
 
     // Scale note
     ctx.fillStyle = ink3;
     ctx.font = "10px system-ui, -apple-system, 'Segoe UI', sans-serif";
     ctx.textAlign = "center";
-    ctx.fillText("≈ 100 homes for a year", w / 2, trainY + barH + 16);
+    ctx.fillText(vdf.energy.scaleNote, w / 2, trainY + barH + 16);
   };
 
   // State 2 canvas: Carbon emission accumulation bars
@@ -5725,11 +5963,8 @@ const buildVizDigitalFootprints = (state) => {
     const barW = 42;
     const gap = 32;
     const maxH = ch - 60;
-    const items = [
-      { label: "Training", value: 552, color: acc },
-      { label: "Inference/yr", value: 180, color: ink2 },
-      { label: "Hardware", value: 85, color: seed },
-    ];
+    const carbonColors = [acc, ink2, seed];
+    const items = vdf.carbon.canvasItems.map((item, i) => ({ ...item, color: carbonColors[i] }));
     const maxVal = 600;
     items.forEach((item, i) => {
       const x = 40 + i * (barW + gap);
@@ -5748,18 +5983,14 @@ const buildVizDigitalFootprints = (state) => {
     ctx.fillStyle = ink3;
     ctx.font = "10px system-ui, -apple-system, 'Segoe UI', sans-serif";
     ctx.textAlign = "center";
-    ctx.fillText("CO₂ equivalent (tonnes)", w / 2, 14);
+    ctx.fillText(vdf.carbon.axis, w / 2, 14);
   };
 
   // State 3 canvas: Resource usage horizontal bars
   const drawResourceMap = (ctx, w, ch) => {
     const { ink2, ink3, ink4, acc, seed } = getColors();
-    const items = [
-      { label: "Water use", value: 0.85, color: acc },
-      { label: "GPU lifecycle", value: 0.65, color: seed },
-      { label: "E-waste", value: 0.72, color: ink2 },
-      { label: "Rare minerals", value: 0.58, color: ink3 },
-    ];
+    const resourceColors = [acc, seed, ink2, ink3];
+    const items = vdf.resources.canvasItems.map((item, i) => ({ ...item, color: resourceColors[i] }));
     const left = 90;
     const top = 22;
     const barW = w - left - 30;
@@ -5783,7 +6014,7 @@ const buildVizDigitalFootprints = (state) => {
     ctx.fillStyle = ink3;
     ctx.font = "10px system-ui, -apple-system, 'Segoe UI', sans-serif";
     ctx.textAlign = "center";
-    ctx.fillText("Relative environmental impact", w / 2, ch - 10);
+    ctx.fillText(vdf.resources.axis, w / 2, ch - 10);
   };
 
   // State 4 canvas: Sustainability strategy contour lines
@@ -5847,13 +6078,13 @@ const buildVizDigitalFootprints = (state) => {
     setPanelVisibility();
     drawCanvas();
     if (currentState === 1) {
-      srStatus.textContent = "Energy meter compares AI query consumption to web searches and model training costs.";
+      srStatus.textContent = vdf.energy.sr;
     } else if (currentState === 2) {
-      srStatus.textContent = "Carbon emissions from training, inference, and hardware manufacturing shown in tonnes of CO2.";
+      srStatus.textContent = vdf.carbon.sr;
     } else if (currentState === 3) {
-      srStatus.textContent = "Resource map showing water consumption, GPU lifecycle, e-waste, and rare mineral impacts.";
+      srStatus.textContent = vdf.resources.sr;
     } else if (currentState === 4) {
-      srStatus.textContent = "Sustainability dashboard comparing green AI strategies: renewable energy, efficiency, and cooling.";
+      srStatus.textContent = vdf.sustain.sr;
     }
   };
 
@@ -5896,7 +6127,7 @@ const buildVizNearZeroCostImpact = (state) => {
     width: "100%", position: "relative", textTransform: "none", letterSpacing: "normal",
   } });
 
-  const canvas = h("canvas", { role: "img", "aria-label": "Near-zero cost impact visualization" });
+  const canvas = h("canvas", { role: "img", "aria-label": LOCALE.viz.nearZeroCost.ariaLabel });
   const canvasWrap = h("div", { style: {
     width: "100%", height: "210px", padding: "0 20px 8px", position: "relative",
   } });
@@ -5910,6 +6141,8 @@ const buildVizNearZeroCostImpact = (state) => {
     fontSize: "0.92rem",
     lineHeight: "1.6",
   } });
+
+  const vnzc = LOCALE.viz.nearZeroCost;
 
   const panelCost = buildPanel();
   const chipWrap = h("div", { style: {
@@ -5929,13 +6162,10 @@ const buildVizNearZeroCostImpact = (state) => {
     border: "1px solid var(--ink4)",
     background: "var(--paper)",
   } }, text);
-  chipWrap.append(
-    buildChip("Legacy marginal cost: ~$1.20/unit"),
-    buildChip("AI marginal cost: ~$0.02/unit"),
-  );
+  vnzc.cost.chips.forEach((c) => chipWrap.appendChild(buildChip(c)));
   panelCost.append(
     chipWrap,
-    h("div", null, "As marginal cost collapses, the value shifts from production to curation and trust.")
+    h("div", null, vnzc.cost.caption)
   );
 
   const panelFlood = buildPanel();
@@ -5966,14 +6196,14 @@ const buildVizNearZeroCostImpact = (state) => {
     } }, value, caption);
     return { wrap, value };
   };
-  const textCounter = buildCounter("Text outputs");
-  const imageCounter = buildCounter("Images generated");
-  const codeCounter = buildCounter("Code snippets");
+  const textCounter = buildCounter(vnzc.flood.counters[0].label);
+  const imageCounter = buildCounter(vnzc.flood.counters[1].label);
+  const codeCounter = buildCounter(vnzc.flood.counters[2].label);
   floodGrid.append(textCounter.wrap, imageCounter.wrap, codeCounter.wrap);
   panelFlood.append(
     floodGrid,
     h("div", { style: { marginTop: "8px", color: "var(--ink2)" } },
-      "Volume scales faster than verification. The average becomes the default."
+      vnzc.flood.caption
     )
   );
 
@@ -5985,13 +6215,7 @@ const buildVizNearZeroCostImpact = (state) => {
     fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif",
     fontSize: "0.8rem",
   } });
-  const riskItems = [
-    { label: "Misinformation", level: "High" },
-    { label: "De-skilling", level: "Elevated" },
-    { label: "Security flaws", level: "Rising" },
-    { label: "Economic shock", level: "High" },
-  ];
-  riskItems.forEach((item) => {
+  vnzc.risk.items.forEach((item) => {
     riskList.appendChild(h("div", { style: {
       padding: "8px 10px",
       borderRadius: "10px",
@@ -6005,7 +6229,7 @@ const buildVizNearZeroCostImpact = (state) => {
   panelRisk.append(
     riskList,
     h("div", { style: { marginTop: "8px", color: "var(--ink2)" } },
-      "Risks scale with volume, not intent."
+      vnzc.risk.caption
     )
   );
 
@@ -6017,17 +6241,11 @@ const buildVizNearZeroCostImpact = (state) => {
     fontSize: "0.82rem",
     color: "var(--ink2)",
   } });
-  const timelineItems = [
-    "1440 Printing Press: ideas replicate faster than scribes",
-    "1760 Industrial Revolution: labor scales with machines",
-    "1995 Internet Era: distribution outruns gatekeepers",
-    "2023 AI Models: cognition scales at digital speed",
-  ];
-  timelineItems.forEach((text) => timelineList.appendChild(h("div", null, text)));
+  vnzc.timeline.items.forEach((item) => timelineList.appendChild(h("div", null, item.full)));
   panelTimeline.append(
     timelineList,
     h("div", { style: { marginTop: "8px", color: "var(--ink)" } },
-      "Each shift compresses time. This one compresses thought."
+      vnzc.timeline.caption
     )
   );
 
@@ -6053,15 +6271,11 @@ const buildVizNearZeroCostImpact = (state) => {
       items.map((item) => h("div", null, item))
     )
   );
-  strategyGrid.append(
-    buildStrategy("Individuals", ["upskill", "tool fluency", "domain depth"]),
-    buildStrategy("Society", ["education reform", "labor transition", "public literacy"]),
-    buildStrategy("Policy", ["AI Act", "safety audits", "IP frameworks"])
-  );
+  vnzc.strategy.strategies.forEach((s) => strategyGrid.appendChild(buildStrategy(s.title, s.items)));
   panelStrategy.append(
     strategyGrid,
     h("div", { style: { marginTop: "8px", color: "var(--ink2)", textTransform: "none", letterSpacing: "normal" } },
-      "Preparation is multi-scale. The terrain keeps shifting."
+      vnzc.strategy.caption
     )
   );
 
@@ -6159,9 +6373,9 @@ const buildVizNearZeroCostImpact = (state) => {
     ctx.fillStyle = ink2;
     ctx.font = "11px system-ui, -apple-system, 'Segoe UI', sans-serif";
     ctx.textAlign = "left";
-    ctx.fillText("Physical goods", pad.left + 6, pad.top + plotH * 0.25);
+    ctx.fillText(vnzc.cost.physicalGoods, pad.left + 6, pad.top + plotH * 0.25);
     ctx.textAlign = "right";
-    ctx.fillText("AI outputs", pad.left + plotW, pad.top + plotH - 6);
+    ctx.fillText(vnzc.cost.aiOutputs, pad.left + plotW, pad.top + plotH - 6);
   };
 
   const drawContentFlood = (ctx, w, h) => {
@@ -6170,11 +6384,10 @@ const buildVizNearZeroCostImpact = (state) => {
     const barW = 42;
     const gap = 32;
     const maxH = h - 60;
-    const items = [
-      { label: "Text", value: 250, color: acc },
-      { label: "Images", value: 45, color: ink2 },
-      { label: "Code", value: 9, color: seed },
-    ];
+    const floodColors = [acc, ink2, seed];
+    const items = vnzc.flood.canvasLabels.map((label, i) => ({
+      label, color: floodColors[i], value: [250, 45, 9][i],
+    }));
     const maxVal = 260;
     items.forEach((item, i) => {
       const x = 28 + i * (barW + gap);
@@ -6215,12 +6428,7 @@ const buildVizNearZeroCostImpact = (state) => {
 
   const drawTimeline = (ctx, w, h) => {
     const { ink2, ink3, ink4, acc } = getColors();
-    const items = [
-      { year: "1440", label: "Printing Press" },
-      { year: "1760", label: "Industrial" },
-      { year: "1995", label: "Internet" },
-      { year: "2023", label: "AI Models" },
-    ];
+    const items = vnzc.timeline.items;
     const left = 22;
     const right = w - 22;
     const y = h / 2;
@@ -6337,15 +6545,15 @@ const buildVizNearZeroCostImpact = (state) => {
       stopCounterAnimation();
     }
     if (currentState === 1) {
-      srStatus.textContent = "Cost curves show AI marginal cost collapsing toward zero.";
+      srStatus.textContent = vnzc.cost.sr;
     } else if (currentState === 2) {
-      srStatus.textContent = "Content flood metrics climb for text, images, and code outputs.";
+      srStatus.textContent = vnzc.flood.sr;
     } else if (currentState === 3) {
-      srStatus.textContent = "Risk dashboard highlights misinformation, deskilling, security flaws, and economic shock.";
+      srStatus.textContent = vnzc.risk.sr;
     } else if (currentState === 4) {
-      srStatus.textContent = "Timeline compares historical technology shifts leading to the AI era.";
+      srStatus.textContent = vnzc.timeline.sr;
     } else if (currentState === 5) {
-      srStatus.textContent = "Strategy landscape shows individual, societal, and policy responses.";
+      srStatus.textContent = vnzc.strategy.sr;
     }
   };
 
@@ -6722,6 +6930,19 @@ window.addEventListener("hashchange", () => {
   liminalPending = null;
   renderRoute(question);
 });
+
+if (LANGS.length > 1) {
+  const nav = h("nav", { class: "lang-switcher", "aria-label": LOCALE.ui.langSwitcherLabel });
+  LANGS.forEach(({ lang, label, url }) => {
+    if (url === "./") {
+      nav.appendChild(h("span", { class: "lang-current", "aria-current": "true", lang }, label));
+    } else {
+      nav.appendChild(h("a", { class: "lang-option", href: url, hreflang: lang }, label));
+    }
+  });
+  document.body.appendChild(nav);
+}
+
 renderRoute();
     </script>
   </body>

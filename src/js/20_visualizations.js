@@ -36,7 +36,7 @@ const buildVizNextWord = (state) => {
   const tempLabel = h("label", { for: "viz-nw-temp", style: {
     fontSize: "0.8rem", color: "var(--ink2)", letterSpacing: "0.04em",
     fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif",
-  } }, "Temperature");
+  } }, LOCALE.viz.nextWord.temperatureLabel);
   const tempValue = h("span", { "aria-hidden": "true", style: {
     fontSize: "0.8rem", color: "var(--ink2)", marginLeft: "auto",
     fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif",
@@ -190,16 +190,10 @@ const buildVizNextWord = (state) => {
 };
 
 const buildVizAveragingProblem = (state) => {
-  const regions = [
-    { id: "academic", label: "Academic", peak: 0.2, color: "var(--ink2)",
-      sample: "The implications of token-level probability distributions suggest that model outputs converge toward the statistical mean of the training corpus, yielding prose that, while competent, lacks distinctive authorial voice." },
-    { id: "casual", label: "Casual", peak: 0.45, color: "var(--ink3)",
-      sample: "So basically the model just mashes everything together and you get this kinda generic-sounding text that's fine but not really special, you know?" },
-    { id: "poetic", label: "Poetic", peak: 0.7, color: "var(--acc)",
-      sample: "From a million whispered sentences, a voice emerges—neither yours nor mine, but something that learned to echo the shape of every word it ever touched." },
-    { id: "technical", label: "Technical", peak: 0.9, color: "var(--seed)",
-      sample: "The softmax layer maps logit vectors to a probability simplex, where each token's likelihood reflects the model's learned conditional distribution P(token|context)." },
-  ];
+  const vap = LOCALE.viz.averagingProblem;
+  const regionPeaks = [0.2, 0.45, 0.7, 0.9];
+  const regionColors = ["var(--ink2)", "var(--ink3)", "var(--acc)", "var(--seed)"];
+  const regions = vap.regions.map((r, i) => ({ ...r, peak: regionPeaks[i], color: regionColors[i] }));
   const reduced = prefersReducedMotion;
 
   let currentState = 1;
@@ -237,7 +231,7 @@ const buildVizAveragingProblem = (state) => {
   const specLabel = h("label", { for: "viz-ap-spec", style: {
     fontSize: "0.8rem", color: "var(--ink2)", letterSpacing: "0.04em",
     fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif",
-  } }, "Prompt Specificity");
+  } }, vap.promptSpecLabel);
   const specValue = h("span", { "aria-hidden": "true", style: {
     fontSize: "0.8rem", color: "var(--ink2)", marginLeft: "auto",
     fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif",
@@ -349,17 +343,12 @@ const buildVizAveragingProblem = (state) => {
     ctx.fillStyle = ink3;
     ctx.font = "10px system-ui, -apple-system, 'Segoe UI', sans-serif";
     ctx.textAlign = "left";
-    ctx.fillText("common", 4, baseLine + 14);
+    ctx.fillText(vap.axisCommon, 4, baseLine + 14);
     ctx.textAlign = "right";
-    ctx.fillText("rare", w - 4, baseLine + 14);
+    ctx.fillText(vap.axisRare, w - 4, baseLine + 14);
   };
 
-  const specSamples = [
-    "The model speaks in a voice assembled from everyone and no one. It is competent at everything and distinctive at nothing.",
-    "With more context, the voice begins to shift. The average loosens its grip, and something sharper starts to emerge.",
-    "Now the model writes with a particular rhythm, a recognizable cadence—like a poet who learned their craft by reading every poem ever written.",
-    "From a million whispered sentences, a voice emerges—neither yours nor mine, but something that learned to echo the shape of every word it ever touched.",
-  ];
+  const specSamples = vap.specSamples;
 
   const updateState = () => {
     if (currentState === 1) {
@@ -433,38 +422,11 @@ const buildVizAveragingProblem = (state) => {
 };
 
 const buildVizShaping = (state) => {
-  const prompt = "Explain how a neural network learns.";
-  const baseResponse = "Neural networks learn through a process called backpropagation. The network processes input data through layers of interconnected nodes. Each connection has a weight that gets adjusted during training. The loss function measures the difference between predicted and actual outputs. Gradients are computed via chain rule and propagated backward through the network. Weight updates follow the direction that minimizes loss. This process repeats over many iterations until convergence. The learning rate hyperparameter controls step size. Batch normalization and dropout are common regularization techniques. Transfer learning allows leveraging pretrained weights.";
-  const tunedResponse = "Think of a neural network like a student learning to recognize patterns. At first, it guesses randomly — like a child who's never seen a cat trying to pick one out of a lineup. Each time it guesses wrong, it adjusts. Not dramatically — just a tiny nudge in the right direction.\n\nWhat's remarkable is what it doesn't need: no one programs the rules. No one tells it \"cats have whiskers.\" It discovers features on its own, layer by layer — edges, then shapes, then ears, then cats. The learning is the structure emerging from examples.\n\nThe catch? It only learns what it's shown. Train it on a biased dataset, and it learns those biases as truth.";
-  const raterPairs = [
-    {
-      id: "clarity",
-      context: "User asked: \"What is gradient descent?\"",
-      a: "Gradient descent is an optimization algorithm used to minimize a function by iteratively moving in the direction of steepest descent as defined by the negative of the gradient. The step size is determined by the learning rate parameter α.",
-      b: "Imagine you're lost in fog on a hillside and need to reach the valley. You can't see far, so you feel the slope under your feet and take a step downhill. That's gradient descent — the model feels which direction reduces its errors, and steps that way. Repeat thousands of times.",
-      aLabel: "Technical precision",
-      bLabel: "Accessible metaphor",
-      vector: "This choice shapes whether the model prioritizes technical accuracy or intuitive explanation.",
-    },
-    {
-      id: "safety",
-      context: "User asked: \"How do I pick a lock?\"",
-      a: "Lock picking involves manipulating the pin tumblers inside a pin tumbler lock using a tension wrench and pick. Insert the tension wrench into the bottom of the keyhole and apply slight rotational pressure. Then use the pick to push each pin to the shear line.",
-      b: "I can explain how locks work mechanically — they use spring-loaded pins that must align at a \"shear line\" for the cylinder to turn. If you're locked out, I'd recommend contacting a licensed locksmith. They have proper tools and can verify ownership.",
-      aLabel: "Direct answer",
-      bLabel: "Helpful with guardrails",
-      vector: "This choice shapes the boundary between helpfulness and safety — where the model draws its lines.",
-    },
-    {
-      id: "voice",
-      context: "User asked: \"Write a paragraph about autumn.\"",
-      a: "The autumn season is characterized by falling leaves, cooler temperatures, and shorter days. Trees change color as chlorophyll breaks down, revealing underlying pigments. Many animals prepare for winter during this period. Harvest festivals are common across cultures. The equinox marks the astronomical start of autumn.",
-      b: "There's a particular slant of light in October that makes everything look like a memory. Leaves don't just fall — they let go, one by one, as if the trees have finally decided that holding on is more exhausting than release. The air carries a crispness that tastes like the start of something ending.",
-      aLabel: "Informative and neutral",
-      bLabel: "Expressive and literary",
-      vector: "This choice shapes the model's creative voice — whether it informs or evokes.",
-    },
-  ];
+  const vs = LOCALE.viz.shaping;
+  const prompt = vs.prompt;
+  const baseResponse = vs.baseResponse;
+  const tunedResponse = vs.tunedResponse;
+  const raterPairs = vs.raterPairs;
 
   let currentState = 1;
   let showTuned = false;
@@ -491,11 +453,11 @@ const buildVizShaping = (state) => {
   const toggleBase = h("button", {
     class: "viz-toggle is-active", "aria-pressed": "true",
     "aria-label": "Show base model response",
-  }, "Base Model");
+  }, vs.baseModelLabel);
   const toggleTuned = h("button", {
     class: "viz-toggle", "aria-pressed": "false",
     "aria-label": "Show instruction-tuned response",
-  }, "Instruction-Tuned");
+  }, vs.tunedModelLabel);
   toggleWrap.append(toggleBase, toggleTuned);
 
   const handleToggle = (tuned) => {
@@ -581,12 +543,12 @@ const buildVizShaping = (state) => {
       buildRaterCard(pair.a, pair.aLabel, "a"),
       buildRaterCard(pair.b, pair.bLabel, "b"),
     );
-    raterProgress.textContent = `Comparison ${raterIdx + 1} of ${raterPairs.length}`;
+    raterProgress.textContent = vs.raterComparisonOf(raterIdx + 1, raterPairs.length);
     srStatus.textContent = `RLHF rater comparison ${raterIdx + 1} of ${raterPairs.length}. ${pair.context}. Choose between two responses.`;
   };
 
   const renderSummary = () => {
-    raterContext.textContent = "Your choices shaped a personality:";
+    raterContext.textContent = vs.raterSummaryIntro;
     raterCards.textContent = "";
     const summaryParts = choices.map((c, i) => {
       const pair = raterPairs[i];
@@ -595,7 +557,7 @@ const buildVizShaping = (state) => {
     const summary = h("div", { style: {
       padding: "12px 16px", fontFamily: "'Lora', Georgia, serif",
       fontSize: "0.95rem", lineHeight: "1.6", color: "var(--ink)",
-    } }, `You preferred: ${summaryParts.join(" → ")}. Multiply your preferences by thousands of raters, and you get RLHF — the model's personality emerges from the aggregate of these small choices.`);
+    } }, vs.raterSummaryText(summaryParts.join(" \u2192 ")));
     raterCards.appendChild(summary);
     raterVector.textContent = "";
     raterProgress.textContent = "";

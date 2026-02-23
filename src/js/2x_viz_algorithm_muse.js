@@ -6,7 +6,7 @@ const buildVizAlgorithmAsMuse = (state) => {
     width: "100%", position: "relative", textTransform: "none", letterSpacing: "normal",
   } });
 
-  const canvas = h("canvas", { role: "img", "aria-label": "Algorithm as Muse visualization" });
+  const canvas = h("canvas", { role: "img", "aria-label": LOCALE.viz.algorithmMuse.ariaLabel });
   const canvasWrap = h("div", { style: {
     width: "100%", height: "210px", padding: "0 20px 8px", position: "relative",
   } });
@@ -31,6 +31,8 @@ const buildVizAlgorithmAsMuse = (state) => {
     h("div", { style: { fontWeight: "600", color: "var(--ink)", marginTop: "2px" } }, value)
   );
 
+  const vam = LOCALE.viz.algorithmMuse;
+
   // State 1 — Co-writing Interface
   const panelCowrite = buildPanel();
   const cowriteGrid = h("div", { style: {
@@ -41,14 +43,10 @@ const buildVizAlgorithmAsMuse = (state) => {
     fontSize: "0.82rem",
     marginBottom: "8px",
   } });
-  cowriteGrid.append(
-    buildChip("Human", "Draft & intent"),
-    buildChip("AI", "Expansion & options"),
-    buildChip("Result", "Co-created text"),
-  );
+  vam.cowrite.chips.forEach((c) => cowriteGrid.appendChild(buildChip(c.label, c.value)));
   panelCowrite.append(
     cowriteGrid,
-    h("div", { style: { color: "var(--ink2)" } }, "Human sets direction; AI generates variations. Each contribution is visually distinct\u2014for now.")
+    h("div", { style: { color: "var(--ink2)" } }, vam.cowrite.caption)
   );
 
   // State 2 — Authorship Blur
@@ -61,14 +59,10 @@ const buildVizAlgorithmAsMuse = (state) => {
     fontSize: "0.82rem",
     marginBottom: "8px",
   } });
-  blurGrid.append(
-    buildChip("Originality", "Uncertain"),
-    buildChip("Attribution", "Dissolving"),
-    buildChip("Legal status", "Gray area"),
-  );
+  vam.blur.chips.forEach((c) => blurGrid.appendChild(buildChip(c.label, c.value)));
   panelBlur.append(
     blurGrid,
-    h("div", { style: { color: "var(--ink2)" } }, "As contributions blend, the line between human and machine authorship fades. Who wrote what?")
+    h("div", { style: { color: "var(--ink2)" } }, vam.blur.caption)
   );
 
   // State 3 — Homogeneity Gallery
@@ -81,14 +75,10 @@ const buildVizAlgorithmAsMuse = (state) => {
     fontSize: "0.82rem",
     marginBottom: "8px",
   } });
-  galleryGrid.append(
-    buildChip("Style A", "Converging"),
-    buildChip("Style B", "Converging"),
-    buildChip("Style C", "Converging"),
-  );
+  vam.gallery.chips.forEach((c) => galleryGrid.appendChild(buildChip(c.label, c.value)));
   panelGallery.append(
     galleryGrid,
-    h("div", { style: { color: "var(--ink2)" } }, "When millions of creators use the same models, outputs converge. Diversity flattens toward a statistical mean.")
+    h("div", { style: { color: "var(--ink2)" } }, vam.gallery.caption)
   );
 
   // State 4 — Balance Control
@@ -99,17 +89,17 @@ const buildVizAlgorithmAsMuse = (state) => {
     color: "var(--ink2)",
     marginBottom: "8px",
     textAlign: "center",
-  } }, "AI capability vs. human creative control");
+  } }, vam.balance.sliderLabel);
   const sliderValue = h("div", { style: {
     fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif",
     fontSize: "0.78rem",
     color: "var(--ink3)",
     textAlign: "center",
     marginTop: "4px",
-  } }, "Creator\u2019s role: Collaborator");
+  } }, vam.balance.rolePrefix + vam.balance.roleLabels[2]);
   const slider = h("input", {
     type: "range", min: "0", max: "100", value: "50",
-    "aria-label": "Balance between AI capability and human creative control",
+    "aria-label": vam.balance.sliderAriaLabel,
     style: {
       width: "100%",
       minHeight: "44px",
@@ -117,11 +107,10 @@ const buildVizAlgorithmAsMuse = (state) => {
       cursor: "pointer",
     },
   });
-  const roleLabels = ["Director", "Lead author", "Collaborator", "Editor", "Curator"];
   slider.addEventListener("input", () => {
     const v = parseInt(slider.value, 10);
-    const roleIdx = Math.min(Math.floor(v / 21), roleLabels.length - 1);
-    sliderValue.textContent = "Creator\u2019s role: " + roleLabels[roleIdx];
+    const roleIdx = Math.min(Math.floor(v / 21), vam.balance.roleLabels.length - 1);
+    sliderValue.textContent = vam.balance.rolePrefix + vam.balance.roleLabels[roleIdx];
     if (currentState === 4) drawCanvas();
   });
   panelBalance.append(
@@ -129,7 +118,7 @@ const buildVizAlgorithmAsMuse = (state) => {
     slider,
     sliderValue,
     h("div", { style: { color: "var(--ink2)", marginTop: "8px", fontSize: "0.92rem" } },
-      "Drag to explore how creative control shifts as AI capability increases.")
+      vam.balance.dragCaption)
   );
 
   const srStatus = h("div", {
@@ -185,9 +174,9 @@ const buildVizAlgorithmAsMuse = (state) => {
     ctx.fillStyle = ink3;
     ctx.font = "bold 10px system-ui, -apple-system, 'Segoe UI', sans-serif";
     ctx.textAlign = "left";
-    ctx.fillText("HUMAN", leftX, 14);
+    ctx.fillText(vam.cowrite.canvasHuman, leftX, 14);
     ctx.textAlign = "right";
-    ctx.fillText("AI", rightX, 14);
+    ctx.fillText(vam.cowrite.canvasAI, rightX, 14);
 
     // Interleaved text lines representing co-writing
     const lines = [
@@ -233,11 +222,11 @@ const buildVizAlgorithmAsMuse = (state) => {
     ctx.fillStyle = seed;
     ctx.fillRect(w * 0.25 - 20, ch - 10, 10, 8);
     ctx.fillStyle = ink3;
-    ctx.fillText("Human", w * 0.25 + 8, ch - 3);
+    ctx.fillText(vam.cowrite.legendHuman, w * 0.25 + 8, ch - 3);
     ctx.fillStyle = acc;
     ctx.fillRect(w * 0.65 - 20, ch - 10, 10, 8);
     ctx.fillStyle = ink3;
-    ctx.fillText("AI", w * 0.65 + 2, ch - 3);
+    ctx.fillText(vam.cowrite.legendAI, w * 0.65 + 2, ch - 3);
   };
 
   // State 2 canvas: Authorship blur — lines with fading color distinction
@@ -252,7 +241,7 @@ const buildVizAlgorithmAsMuse = (state) => {
     ctx.fillStyle = ink3;
     ctx.font = "bold 10px system-ui, -apple-system, 'Segoe UI', sans-serif";
     ctx.textAlign = "center";
-    ctx.fillText("AUTHORSHIP FADING", w / 2, 14);
+    ctx.fillText(vam.blur.canvasTitle, w / 2, 14);
 
     // Progressive blend: lines go from distinct colors to a merged gray
     const lineCount = 8;
@@ -293,9 +282,9 @@ const buildVizAlgorithmAsMuse = (state) => {
     ctx.fillStyle = ink3;
     ctx.font = "10px system-ui, -apple-system, 'Segoe UI', sans-serif";
     ctx.textAlign = "left";
-    ctx.fillText("Distinct \u2192", leftX, ch - 4);
+    ctx.fillText(vam.blur.canvasDistinct, leftX, ch - 4);
     ctx.textAlign = "right";
-    ctx.fillText("\u2192 Indistinguishable", rightX, ch - 4);
+    ctx.fillText(vam.blur.canvasIndistinct, rightX, ch - 4);
   };
 
   // State 3 canvas: Homogeneity gallery — works converging to same style
@@ -312,7 +301,7 @@ const buildVizAlgorithmAsMuse = (state) => {
     ctx.fillStyle = ink3;
     ctx.font = "bold 10px system-ui, -apple-system, 'Segoe UI', sans-serif";
     ctx.textAlign = "center";
-    ctx.fillText("CREATIVE OUTPUTS CONVERGING", w / 2, 14);
+    ctx.fillText(vam.gallery.canvasTitle, w / 2, 14);
 
     // Pseudo-random helper
     const rng = (s) => { let x = Math.sin(s) * 10000; return x - Math.floor(x); };
@@ -366,9 +355,9 @@ const buildVizAlgorithmAsMuse = (state) => {
     ctx.fillStyle = ink3;
     ctx.font = "10px system-ui, -apple-system, 'Segoe UI', sans-serif";
     ctx.textAlign = "left";
-    ctx.fillText("Diverse \u2192", pad, ch - 4);
+    ctx.fillText(vam.gallery.canvasDiverse, pad, ch - 4);
     ctx.textAlign = "right";
-    ctx.fillText("\u2192 Homogeneous", w - pad, ch - 4);
+    ctx.fillText(vam.gallery.canvasHomog, w - pad, ch - 4);
   };
 
   // State 4 canvas: Balance scale — AI capability vs human control
@@ -445,9 +434,9 @@ const buildVizAlgorithmAsMuse = (state) => {
     ctx.font = "bold 10px system-ui, -apple-system, 'Segoe UI', sans-serif";
     ctx.textAlign = "center";
     ctx.fillStyle = seed;
-    ctx.fillText("HUMAN CONTROL", lx, 16);
+    ctx.fillText(vam.balance.canvasHumanControl, lx, 16);
     ctx.fillStyle = acc;
-    ctx.fillText("AI CAPABILITY", rx, 16);
+    ctx.fillText(vam.balance.canvasAICapability, rx, 16);
   };
 
   const drawCanvas = () => {
@@ -468,13 +457,13 @@ const buildVizAlgorithmAsMuse = (state) => {
     setPanelVisibility();
     drawCanvas();
     if (currentState === 1) {
-      srStatus.textContent = "Co-writing interface shows human and AI contributions visually distinguished, collaborating on text.";
+      srStatus.textContent = vam.cowrite.sr;
     } else if (currentState === 2) {
-      srStatus.textContent = "Authorship blur visualization where the boundary between human and AI contributions fades, questioning originality.";
+      srStatus.textContent = vam.blur.sr;
     } else if (currentState === 3) {
-      srStatus.textContent = "Homogeneity gallery showing creative works converging toward similar styles when using the same AI models.";
+      srStatus.textContent = vam.gallery.sr;
     } else if (currentState === 4) {
-      srStatus.textContent = "Balance visualization between AI capability and human creative control. Use the slider to explore the creator's evolving role.";
+      srStatus.textContent = vam.balance.sr;
     }
   };
 
