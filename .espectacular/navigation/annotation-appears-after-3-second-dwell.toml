@@ -1,0 +1,6 @@
+id = "annotation-appears-after-3-second-dwell"
+description = ""
+archetype = "PF"
+status = "active"
+superseded_by = ""
+authored_with = "0.1.0"

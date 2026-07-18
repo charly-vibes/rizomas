@@ -1,0 +1,6 @@
+id = "screen-reader-announces-seed-state"
+description = ""
+archetype = "PF"
+status = "active"
+superseded_by = ""
+authored_with = "0.1.0"

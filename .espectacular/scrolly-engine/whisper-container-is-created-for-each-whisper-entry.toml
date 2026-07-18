@@ -1,0 +1,6 @@
+id = "whisper-container-is-created-for-each-whisper-entry"
+description = ""
+archetype = "PF"
+status = "active"
+superseded_by = ""
+authored_with = "0.1.0"
