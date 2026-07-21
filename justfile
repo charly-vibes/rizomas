@@ -18,3 +18,7 @@ serve PORT="8000": build
 live PORT="8000": build
     @echo "Serving with live reload on http://localhost:{{PORT}}"
     python3 -c "from livereload import Server; s = Server(); s.watch('src/'); s.serve(port={{PORT}})"
+
+# Validate spec-test correspondence (requires ah)
+validate:
+    ah check
